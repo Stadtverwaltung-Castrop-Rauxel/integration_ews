@@ -75,13 +75,14 @@ class UserConfigurationController extends Controller {
 	 * 
 	 * @NoAdminRequired
 	 *
-	 * @param string $server			server domain or ip
 	 * @param string $account_id		users login name
 	 * @param string $account_secret	users login password
+     * @param string $account_charset   users login charset
+     * @param string $server			server domain or ip
 	 * 
 	 * @return DataResponse
 	 */
-	public function ConnectAlternate(string $account_id, string $account_secret, string $account_server, string $flag): DataResponse {
+	public function ConnectAlternate(string $account_id, string $account_secret, string $account_charset, string $account_server, string $flag): DataResponse {
 		
 		// evaluate if user id is present
 		if ($this->userId === null) {
@@ -94,7 +95,7 @@ class UserConfigurationController extends Controller {
 		}
 		try {
 			// execute connect
-			$rs = $this->CoreService->connectAccountAlternate($this->userId, $account_id, $account_secret, $account_server, '', $flags);
+			$rs = $this->CoreService->connectAccountAlternate($this->userId, $account_id, $account_secret, $account_charset, $account_server, '', $flags);
 			// return success message
 			return new DataResponse('success');
 		} catch (\Throwable $th) {

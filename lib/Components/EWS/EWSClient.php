@@ -2,26 +2,26 @@
 //declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-* 
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Components\EWS;
 
@@ -99,7 +99,7 @@ class EWSClient extends \SoapClient
      */
     protected string $_transport_mode = self::TRANSPORT_SECURE;
 
-     /**
+    /**
      * Transport Location
      *
      * @var string
@@ -137,7 +137,7 @@ class EWSClient extends \SoapClient
         CURLOPT_POST => true,
     ];
 
-     /**
+    /**
      * cURL resource used to make the request
      *
      * @var CurlHandle
@@ -217,16 +217,16 @@ class EWSClient extends \SoapClient
     /**
      * Exchange Web Services WSDL description file
      *
-     * @var string 
+     * @var string
      */
     protected string $_service_description_file = DIRECTORY_SEPARATOR . 'Assets' . DIRECTORY_SEPARATOR . 'services.wsdl';
 
     /**
      * Exchange Web Services version that we are going to connect with
      *
-     * @var string 
+     * @var string
      */
-    protected string $_service_version  = self::SERVICE_VERSION_2010_SP2;
+    protected string $_service_version = self::SERVICE_VERSION_2010_SP2;
 
     /**
      * Timezone to be used for all requests.
@@ -241,15 +241,15 @@ class EWSClient extends \SoapClient
      * @var \OCA\EWS\Components\EWS\Type\ExchangeImpersonationType
      */
     protected $_client_impersonation = null;
-    
+
     /**
      * Constructor for the ExchangeWebServices class
      *
-     * @param string $location          EWS Service Location (FQDN, IPv4, IPv6)
-     * @param string $authentication    EWS Authentication
-     * @param string $version           EWS Service Version
-     * @param string $timezone          EWS Client Time Zone
-     * @param string $impersonate       EWS Client Impersonation
+     * @param string $location EWS Service Location (FQDN, IPv4, IPv6)
+     * @param string $authentication EWS Authentication
+     * @param string $version EWS Service Version
+     * @param string $timezone EWS Client Time Zone
+     * @param string $impersonate EWS Client Impersonation
      */
     public function __construct(
         $location = null,
@@ -279,36 +279,36 @@ class EWSClient extends \SoapClient
         ];
         $sdf = dirname(__FILE__) . $this->_service_description_file;
         // validator (called with processResponse()) needs an XML entity loader
-		$this->callWithXmlEntityLoader(function () use ($sdf, $so): void {
-			parent::__construct($sdf, $so);
-		});
-        
+        $this->callWithXmlEntityLoader(function () use ($sdf, $so): void {
+            parent::__construct($sdf, $so);
+        });
+
     }
 
     /**
-	 * @returns mixed returns the result of the callable parameter
-	 */
-	private function callWithXmlEntityLoader(callable $func) {
-		libxml_set_external_entity_loader(static function ($public, $system) {
-			return $system;
-		});
-		$result = $func();
-		libxml_set_external_entity_loader(static function () {
-			return null;
-		});
-		return $result;
-	}
+     * @returns mixed returns the result of the callable parameter
+     */
+    private function callWithXmlEntityLoader(callable $func) {
+        libxml_set_external_entity_loader(static function ($public, $system) {
+            return $system;
+        });
+        $result = $func();
+        libxml_set_external_entity_loader(static function () {
+            return null;
+        });
+        return $result;
+    }
 
     /**
      * Executes commands agains the service host. Soap Function Overload.
      *
-     * @param string $request           Command contents (XML format)
-     * @param string $location          Service location URL (https://domain/path/service)
-     * @param string $action            Command action/name
-     * @param string $version           Messaging Version (SOAP Version)
-     * @param string $unidirectional    Command does not return response
-     * 
-     * @return string|null              
+     * @param string $request Command contents (XML format)
+     * @param string $location Service location URL (https://domain/path/service)
+     * @param string $action Command action/name
+     * @param string $version Messaging Version (SOAP Version)
+     * @param string $unidirectional Command does not return response
+     *
+     * @return string|null
      */
     public function __doRequest($request, $location, $action, $version, $unidirectional = 0): null|string {
 
@@ -318,7 +318,7 @@ class EWSClient extends \SoapClient
             curl_setopt_array($this->_client, $this->_transport_options);
         }
         // set request header
-        $header = array_merge(array_values($this->_transport_header), array (
+        $header = array_merge(array_values($this->_transport_header), array(
             'SOAPAction: "' . $action . '"',
         ));
         curl_setopt($this->_client, CURLOPT_HTTPHEADER, $header);
@@ -330,10 +330,10 @@ class EWSClient extends \SoapClient
         // evaluate, if we are retaining request body
         if ($this->_TransportRequestBodyFlag) { $this->_TransportRequestBodyData = $request; }
         // evaluate, if logging is enabled and write request to log
-        if ($this->_TransportLogState) { 
+        if ($this->_TransportLogState) {
             file_put_contents(
-                $this->_TransportLogLocation, 
-                PHP_EOL . date("Y-m-d H:i:s.").gettimeofday()["usec"] . ' - Request' . PHP_EOL . $request . PHP_EOL, 
+                $this->_TransportLogLocation,
+                PHP_EOL . date("Y-m-d H:i:s.") . gettimeofday()["usec"] . ' - Request' . PHP_EOL . $request . PHP_EOL,
                 FILE_APPEND
             );
         }
@@ -344,10 +344,10 @@ class EWSClient extends \SoapClient
         $code = curl_errno($this->_client);
         if ($code > 0) {
             // evaluate, if logging is enabled and write error to log
-            if ($this->_TransportLogState) { 
+            if ($this->_TransportLogState) {
                 file_put_contents(
-                    $this->_TransportLogLocation, 
-                    PHP_EOL . date("Y-m-d H:i:s.").gettimeofday()["usec"] . ' - Error' . PHP_EOL . curl_error($this->_client) . PHP_EOL . $response . PHP_EOL, 
+                    $this->_TransportLogLocation,
+                    PHP_EOL . date("Y-m-d H:i:s.") . gettimeofday()["usec"] . ' - Error' . PHP_EOL . curl_error($this->_client) . PHP_EOL . $response . PHP_EOL,
                     FILE_APPEND
                 );
             }
@@ -356,13 +356,13 @@ class EWSClient extends \SoapClient
         }
 
         // evaluate http responses
-        $code = (int) curl_getinfo($this->_client, CURLINFO_RESPONSE_CODE);
+        $code = (int)curl_getinfo($this->_client, CURLINFO_RESPONSE_CODE);
         if ($code > 400) {
             // evaluate, if logging is enabled and write error to log
-            if ($this->_TransportLogState) { 
+            if ($this->_TransportLogState) {
                 file_put_contents(
-                    $this->_TransportLogLocation, 
-                    PHP_EOL . date("Y-m-d H:i:s.").gettimeofday()["usec"] . ' - Error' . PHP_EOL . $response . PHP_EOL, 
+                    $this->_TransportLogLocation,
+                    PHP_EOL . date("Y-m-d H:i:s.") . gettimeofday()["usec"] . ' - Error' . PHP_EOL . $response . PHP_EOL,
                     FILE_APPEND
                 );
             }
@@ -390,12 +390,12 @@ class EWSClient extends \SoapClient
         // evaluate, if we are retaining response body
         if ($this->_TransportRepsonseBodyFlag) { $this->_TransportRepsonseBodyData = substr($response, $header_size); }
         // evaluate, if logging is enabled and write response body to log
-        if ($this->_TransportLogState) { 
+        if ($this->_TransportLogState) {
             file_put_contents(
                 $this->_TransportLogLocation,
-                PHP_EOL . date("Y-m-d H:i:s.").gettimeofday()["usec"] . ' - Response' . PHP_EOL . substr($response, $header_size) . PHP_EOL, 
+                PHP_EOL . date("Y-m-d H:i:s.") . gettimeofday()["usec"] . ' - Response' . PHP_EOL . substr($response, $header_size) . PHP_EOL,
                 FILE_APPEND
-            ); 
+            );
         }
         // return response
         return substr($response, $header_size);
@@ -416,15 +416,28 @@ class EWSClient extends \SoapClient
      */
     protected function _constructTransportAuthentication(): void {
 
-        // set service basiic authentication
+        // set service basic authentication
         if ($this->_transport_authentication instanceof AuthenticationBasic) {
             $this->_transport_options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC | CURLAUTH_DIGEST | CURLAUTH_NTLM;
-            $this->_transport_options[CURLOPT_USERPWD] = $this->_transport_authentication->Id . ':' . utf8_decode($this->_transport_authentication->Secret);
-        }
-        // set service bearer authentication
+
+            $charset = $this->_transport_authentication->Charset;
+
+            if (empty($charset) || $charset === 'UTF-8') {
+                $username = $this->_transport_authentication->Id;
+                $password = $this->_transport_authentication->Secret;
+            } else if (in_array($charset, mb_list_encodings(), true)) {
+                $username = mb_convert_encoding($this->_transport_authentication->Id, $charset, 'UTF-8');
+                $password = mb_convert_encoding($this->_transport_authentication->Secret, $charset, 'UTF-8');
+            } else {
+                throw new RuntimeException('Unsupported charset' . $charset);
+            }
+
+            $this->_transport_options[CURLOPT_USERNAME] = $username;
+            $this->_transport_options[CURLOPT_PASSWORD] = $password;
+        } // set service bearer authentication
         elseif ($this->_transport_authentication instanceof AuthenticationBearer) {
-            unset($this->_transport_options[CURLOPT_HTTPAUTH]);
-            $this->_transport_header['Authorization'] = 'Authorization: Bearer ' . $this->_transport_authentication->Token;
+            $this->_transport_options[CURLOPT_HTTPAUTH] = CURLAUTH_BEARER;
+            $this->_transport_options[CURLOPT_XOAUTH2_BEARER] = $this->_transport_authentication->Token;
         }
         // destroy existing client will need to be initilized again
         $this->_client = null;
@@ -472,14 +485,14 @@ class EWSClient extends \SoapClient
      * configures service transport version (HTTP/1, HTTP/1.1, HTTP/2)
      */
     public function configureTransportVersion(int $value): void {
-        
+
         // store parameter
         $this->_transport_options[CURLOPT_HTTP_VERSION] = $value;
         // destroy existing client will need to be initilized again
         $this->_client = null;
 
     }
-    
+
     /**
      * configures service transport mode (http://, https://)
      */
@@ -496,8 +509,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures service location path (/path/to/service.asmx)
-     * 
-     * @param string $value             full path string
+     *
+     * @param string $value full path string
      */
     public function configureTransportPath(string $value): void {
 
@@ -512,8 +525,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures client agent string (Mozilla/5.0 (X11; Linux x86_64))
-     * 
-     * @param string $value             full agent string
+     *
+     * @param string $value full agent string
      */
     public function configureTransportAgent(string $value): void {
 
@@ -526,8 +539,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures or overrides additional transport options
-     * 
-     * @param array $options            key/value array of options
+     *
+     * @param array $options key/value array of options
      */
     public function configureTransportOptions(array $options): void {
 
@@ -540,8 +553,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures secure transport verification (SSL Verification)
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function configureTransportVerification(bool $value): void {
 
@@ -554,8 +567,8 @@ class EWSClient extends \SoapClient
 
     /**
      * enables or disables transport log
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function configureTransportLogState(bool $value): void {
 
@@ -566,8 +579,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures transport log location
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function configureTransportLogLocation(string $value): void {
 
@@ -575,10 +588,11 @@ class EWSClient extends \SoapClient
         $this->_TransportLogLocation = $value;
 
     }
+
     /**
      * Enables or disables retention of raw request headers sent
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function retainTransportRequestHeader(bool $value): void {
         $this->_TransportRequestHeaderFlag = $value;
@@ -586,8 +600,8 @@ class EWSClient extends \SoapClient
 
     /**
      * Enables or disables retention of raw request body sent
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function retainTransportRequestBody(bool $value): void {
         $this->_TransportRequestBodyFlag = $value;
@@ -595,8 +609,8 @@ class EWSClient extends \SoapClient
 
     /**
      * Enables or disables retention of raw response headers recieved
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function retainTransportResponseHeader(bool $value): void {
         $this->_TransportRepsonseHeaderFlag = $value;
@@ -604,8 +618,8 @@ class EWSClient extends \SoapClient
 
     /**
      * Enables or disables retention of raw response body recieved
-     * 
-     * @param bool $value           ture or false flag
+     *
+     * @param bool $value ture or false flag
      */
     public function retainTransportResponseBody(bool $value): void {
         $this->_TransportRepsonseBodyFlag = $value;
@@ -613,7 +627,7 @@ class EWSClient extends \SoapClient
 
     /**
      * returns last retained raw request header sent
-     * 
+     *
      * @return string
      */
     public function discloseTransportRequestHeader(): string {
@@ -622,7 +636,7 @@ class EWSClient extends \SoapClient
 
     /**
      * returns last retained raw request body sent
-     * 
+     *
      * @return string
      */
     public function discloseTransportRequestBody(): string {
@@ -631,7 +645,7 @@ class EWSClient extends \SoapClient
 
     /**
      * returns last retained raw response header recieved
-     * 
+     *
      * @return string
      */
     public function discloseTransportResponseHeader(): string {
@@ -640,7 +654,7 @@ class EWSClient extends \SoapClient
 
     /**
      * returns last retained raw response body recieved
-     * 
+     *
      * @return string
      */
     public function discloseTransportResponseBody(): string {
@@ -653,7 +667,7 @@ class EWSClient extends \SoapClient
      * @return string
      */
     public function getLocation(): string {
-        
+
         // return version information
         return $this->_transport_location;
 
@@ -678,10 +692,10 @@ class EWSClient extends \SoapClient
     /**
      * Gets the service authentication parameters object
      *
-     * @return AuthenticationBasic|AuthenticationBeare
+     * @return AuthenticationBasic|AuthenticationBearer
      */
     public function getAuthentication(): AuthenticationBasic|AuthenticationBearer {
-        
+
         // return authentication information
         return $this->_transport_authentication;
 
@@ -693,7 +707,7 @@ class EWSClient extends \SoapClient
      * @param AuthenticationBasic|AuthenticationBearer $value
      */
     public function setAuthentication(AuthenticationBasic|AuthenticationBearer $value): void {
-        
+
         // store parameter
         $this->_transport_authentication = $value;
         // destroy existing client will need to be initilized again
@@ -709,7 +723,7 @@ class EWSClient extends \SoapClient
      * @return string
      */
     public function getVersion(): string {
-        
+
         // return version information
         return $this->_service_version;
 
@@ -735,7 +749,7 @@ class EWSClient extends \SoapClient
      * @return string
      */
     public function getTimezone(): string {
-        
+
         // return timezone information
         return $this->_client_timezone;
 
@@ -751,7 +765,7 @@ class EWSClient extends \SoapClient
         // store timezone
         $this->_client_timezone = $value;
         // We need to re-build the SOAP headers.
-        $this-_constructServiceHeader();
+        $this - _constructServiceHeader();
 
     }
 
@@ -761,7 +775,7 @@ class EWSClient extends \SoapClient
      * @return \OCA\EWS\Components\EWS\Type\ExchangeImpersonationType
      */
     public function getImpersonation(): mixed {
-        
+
         // return impersonation information
         return $this->_client_impersonation;
 

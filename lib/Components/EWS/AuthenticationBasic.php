@@ -29,9 +29,11 @@ class AuthenticationBasic
 {
     public string $Id;
     public string $Secret;
+    public string $Charset;
 
-    public function __construct (string $id = '', string $secret = '') {
+    public function __construct (string $id = '', string $secret = '', string $Charset = 'UTF-8')  {
         $this->Id = $id;
         $this->Secret = $secret;
+        $this->Charset = $Charset;
     }
 }

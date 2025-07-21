@@ -282,18 +282,19 @@ class CoreService {
 	/**
 	 * Connects to account, verifies details, on success saves details to user settings
 	 * 
-	 * @since Release 1.0.0
-	 * 
 	 * @param string $uid					nextcloud user id
 	 * @param string $service_bauth_id		account username
-	 * @param string $service_bauth_secret	account secret
-	 * @param string $service_location		FQDN or IP
+     * @param string $service_bauth_secret	account secret
+     * @param string $service_bauth_charset account charset
+     * @param string $service_location		FQDN or IP
 	 * @param string $service_version		service protocol version (Exchange2007, Exchange2010, Exchange2013, Exchange2016)
-	 * @param array $flags
-	 * 
-	 * @return bool
+     * @param array $flags
+     *
+     * @return bool
+     * @since Release 1.0.0
+	 *
 	 */
-	public function connectAccountAlternate(string $uid, string $service_bauth_id, string $service_bauth_secret, string $service_location = '', string $service_version = '', array $flags = []): bool {
+	public function connectAccountAlternate(string $uid, string $service_bauth_id, string $service_bauth_secret, string $service_bauth_charset, string $service_location = '', string $service_version = '', array $flags = []): bool {
 
 		// define place holders
 		$connect = false;
@@ -339,7 +340,7 @@ class CoreService {
 			// construct remote data store client
 			$RemoteStore = new EWSClient(
 				$service_location, 
-				new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret), 
+				new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
 				'Exchange2007_SP1'
 			);
 			// retrieve and evaluate transport verification option
@@ -911,10 +912,11 @@ class CoreService {
 					$service_version = $this->ConfigurationService->retrieveUserValue($uid, 'account_protocol');
 					$service_bauth_id = $this->ConfigurationService->retrieveUserValue($uid, 'account_bauth_id');
 					$service_bauth_secret = $this->ConfigurationService->retrieveUserValue($uid, 'account_bauth_secret');
+					$service_bauth_charset = $this->ConfigurationService->retrieveUserValue($uid, 'account_bauth_charset') ?? 'UTF-8';
 					// construct remote data store client
 					$this->RemoteStore = new EWSClient(
 						$service_location, 
-						new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret),
+						new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
 						$service_version
 					);
 					// retrieve and evaluate transport verification option

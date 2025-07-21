@@ -74,6 +74,7 @@ class Connect extends Command {
         $uid = $input->getArgument('user');
         $service_id = $input->getArgument('ServiceId');
         $service_secret = $input->getArgument('ServiceSecret');
+        $service_charset = $input->getArgument('ServiceSecret') ?? 'UTF-8';
         $service_validate = (empty($input->getArgument('ServiceValidate'))) ? true : filter_var($input->getArgument('ServiceValidate'), FILTER_VALIDATE_BOOLEAN);
 		$service_location = (empty($input->getArgument('ServiceLocation'))) ? '' : $input->getArgument('ServiceLocation');
 		$service_version = (empty($input->getArgument('ServiceVersion'))) ? '' : $input->getArgument('ServiceVersion');
@@ -94,7 +95,7 @@ class Connect extends Command {
 		}
 
 		try {
-			$this->CoreService->connectAccountAlternate($uid, $service_id, $service_secret, $service_location, $service_version, $flags);
+			$this->CoreService->connectAccountAlternate($uid, $service_id, $service_secret, $service_charset, $service_location, $service_version, $flags);
 			$output->writeln("<info>Success: Connected $uid to $service_location as $service_id</info>");
 		}
 		catch (\Throwable $th) {
