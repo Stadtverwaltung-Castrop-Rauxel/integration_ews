@@ -36,7 +36,10 @@ use OCA\EWS\Service\CoreService;
 
 class Disconnect extends Command {
 
-	public function __construct(IUserManager $userManager, CoreService $CoreService) {
+    private IUserManager $userManager;
+    private CoreService $CoreService;
+
+    public function __construct(IUserManager $userManager, CoreService $CoreService) {
 		parent::__construct();
         $this->userManager = $userManager;
         $this->CoreService = $CoreService;

@@ -33,11 +33,11 @@ use OC\Files\Node\LazyUserFolder;
 use OCA\DAV\CalDAV\CalDavBackend;
 
 use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Db\EventsUtile;
+use OCA\EWS\Db\EventsUtil;
 use OCA\EWS\Objects\EventCollectionObject;
 use OCA\EWS\Objects\EventObject;
 use OCA\EWS\Objects\EventAttachmentObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
 
 use Sabre\VObject\Reader;
 use Sabre\VObject\Component\VEvent;
@@ -72,17 +72,17 @@ class LocalEventsService {
 	 */
 	private ?LazyUserFolder $FileStore = null;
     /**
-	 * @var EventsUtile
+	 * @var EventsUtil
 	 */
-    private $EventsUtile;
+    private $EventsUtil;
 
-	public function __construct (string $appName, LoggerInterface $logger, EventsUtile $EventsUtile) {
+	public function __construct (string $appName, LoggerInterface $logger, EventsUtil $EventsUtil) {
 		$this->logger = $logger;
-        $this->EventsUtile = $EventsUtile;
+        $this->EventsUtil = $EventsUtil;
 	}
 
     public function configure($configuration, CalDavBackend $DataStore, LazyUserFolder $FileStore = null) : void {
-		
+
 		// assign configuration
 		$this->Configuration = $configuration;
 		// assign local data store
@@ -94,21 +94,21 @@ class LocalEventsService {
 		$this->UserTimeZone = $configuration->UserTimeZone;
 		// assign default folder
 		$this->UserAttachmentPath = $configuration->EventsAttachmentPath;
-		
+
 	}
 
 	/**
      * retrieve information for specific collection from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $uid - User ID
-	 * 
+	 *
 	 * @return array of collections
 	 */
 	public function listCollections(string $uid, bool $filterDeleted = false): array {
 
-        // retrieve all local collections 
+        // retrieve all local collections
         $collections = $this->DataStore->getCalendarsForUser('principals/users/' . $uid);
 		// construct collections list
 		$data = array();
@@ -119,8 +119,8 @@ class LocalEventsService {
                 continue;
             }
             // evaluate if deleted filter is on, and if calendar is deleted
-            if ($filterDeleted && 
-                isset($entry['{http://nextcloud.com/ns}deleted-at']) && 
+            if ($filterDeleted &&
+                isset($entry['{http://nextcloud.com/ns}deleted-at']) &&
                 is_numeric($entry['{http://nextcloud.com/ns}deleted-at'])) {
                 continue;
             }
@@ -130,14 +130,14 @@ class LocalEventsService {
 		return $data;
 
     }
-	
+
     /**
      * retrieve properties for specific collection from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection Id
-	 * 
+	 *
 	 * @return EventCollectionObject of collection properties
 	 */
 	public function fetchCollection(string $cid): ?EventCollectionObject {
@@ -160,13 +160,13 @@ class LocalEventsService {
 
 	/**
      * create collection in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uid - User ID
 	 * @param string $cid - Collection URI
      * @param string $name - Collection Name
-	 * 
+	 *
 	 * @return EventCollectionObject
 	 */
 	public function createCollection(string $uid, string $cid, string $name): ?EventCollectionObject {
@@ -175,8 +175,8 @@ class LocalEventsService {
         if (!empty($uid) && !empty($cid)) {
             // create item in data store
             $result = $this->DataStore->createCalendar(
-                'principals/users/' . $uid, 
-                $cid, 
+                'principals/users/' . $uid,
+                $cid,
                 array('{DAV:}displayname' => $name)
             );
         }
@@ -191,12 +191,12 @@ class LocalEventsService {
 
     /**
      * delete collection from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $mode - True for permanently / False - for Recoverable
-	 * 
+	 *
 	 * @return bool true - successfully delete / false - failed to delete
 	 */
 	public function deleteCollection(string $cid, bool $mode = false): bool {
@@ -217,12 +217,12 @@ class LocalEventsService {
 
     /**
      * retrieve changes for specific collection from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection Id
      * @param string $state - Collection Id
-	 * 
+	 *
 	 * @return array of collection changes
 	 */
 	public function fetchCollectionChanges(string $cid, string $state): array {
@@ -233,21 +233,21 @@ class LocalEventsService {
 		return $lcc;
 
     }
-	
+
     /**
      * find collection item by uuid in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $uuid - Item UUID
-	 * 
+	 *
 	 * @return EventObject EventObject - successfully retrieved / null - failed to retrieve
 	 */
 	public function findCollectionItemByUUID(string $cid, string $uuid): ?EventObject {
-        
+
         // search data store for object
-		$lo = $this->EventsUtile->findByUUID($cid, $uuid, 'VEVENT');
+		$lo = $this->EventsUtil->findByUUID($cid, $uuid, 'VEVENT');
         // validate result
         if (is_array($lo) && count($lo) > 0) {
             $lo = $lo[0];
@@ -278,15 +278,15 @@ class LocalEventsService {
         }
 
     }
-	
+
     /**
      * retrieve collection item from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return EventObject EventObject - successfully retrieved / null - failed to retrieve
 	 */
 	public function fetchCollectionItem(string $cid, string $iid): ?EventObject {
@@ -325,12 +325,12 @@ class LocalEventsService {
 
     /**
      * create collection item in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param EventObject $eo - Item Data
-	 * 
+	 *
 	 * @return EventObject
 	 */
 	public function createCollectionItem(string $cid, EventObject $so): ?EventObject {
@@ -341,7 +341,7 @@ class LocalEventsService {
         if (count($eo->Attachments) > 0) {
             // create or update attachements in local data store
             $eo->Attachments = $this->createCollectionItemAttachment(
-                $eo->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utile\Sanitizer::folder($eo->Label, true, true), 
+                $eo->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utils\Sanitizer::folder($eo->Label, true, true),
                 $eo->Attachments
             );
         }
@@ -356,8 +356,8 @@ class LocalEventsService {
         $veid = UUID::v4() . '.ics';
         // create item in data store
         $rs = $this->DataStore->createCalendarObject(
-            $cid, 
-            $veid, 
+            $cid,
+            $veid,
             "BEGIN:VCALENDAR\nVERSION:2.0\n" . $ve->serialize() . "\nEND:VCALENDAR"
         );
         // return event object or null
@@ -369,18 +369,18 @@ class LocalEventsService {
         } else {
             return null;
         }
-        
+
     }
 
     /**
      * update collection item in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
      * @param EventObject $eo - Source Data
-	 * 
+	 *
 	 * @return EventObject
 	 */
 	public function updateCollectionItem(string $cid, string $iid, EventObject $so): ?EventObject {
@@ -393,7 +393,7 @@ class LocalEventsService {
             if (count($eo->Attachments) > 0) {
                 // create or update attachements in local data store
                 $eo->Attachments = $this->createCollectionItemAttachment(
-                    $eo->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utile\Sanitizer::folder($eo->Label, true, true), 
+                    $eo->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utils\Sanitizer::folder($eo->Label, true, true),
                     $eo->Attachments
                 );
             }
@@ -401,8 +401,8 @@ class LocalEventsService {
             $ve = $this->fromEventObject($eo);
             // update item in data store
             $rs = $this->DataStore->updateCalendarObject(
-                $cid, 
-                $iid, 
+                $cid,
+                $iid,
                 "BEGIN:VCALENDAR\nVERSION:2.0\n" . $ve->serialize() . "\nEND:VCALENDAR"
             );
         }
@@ -420,12 +420,12 @@ class LocalEventsService {
 
     /**
      * delete collection item from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return bool true - successfully delete / False - failed to delete
 	 */
 	public function deleteCollectionItem(string $cid, string $iid): bool {
@@ -446,13 +446,13 @@ class LocalEventsService {
 
     /**
      * retrieve collection item attachment from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uid - User ID
      * @param string $batch - Collection of Id's
      * @param string $flag - I - File Information / F - File Information + Content
-	 * 
+	 *
 	 * @return EventAttachmentObject
 	 */
 	public function fetchCollectionItemAttachment(array $batch, string $flag = 'I'): array {
@@ -466,7 +466,7 @@ class LocalEventsService {
         // process collection of objects
         foreach ($batch as $key => $entry) {
             try {
-                // 
+                //
                 $fo = $this->FileStore->getById($entry);
                 if($fo[0] instanceof \OCP\Files\File) {
                     $ao = new EventAttachmentObject('D');
@@ -492,13 +492,13 @@ class LocalEventsService {
 
     /**
      * create collection item attachment in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uid - User ID
      * @param string $fn - Folder Name to save attachments
      * @param array $batch - Collection of EventAttachmentObject(s) objects
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createCollectionItemAttachment(string $fn, array $batch): array {
@@ -519,7 +519,7 @@ class LocalEventsService {
                 if (!$this->FileStore->nodeExists($fl)) {
                     // create folder if missing
                     $this->FileStore->newFolder($fl);
-                } 
+                }
                 // construct file location
                 $fl = $fl . '/' . $entry->Name;
                 // check if file exists
@@ -557,11 +557,11 @@ class LocalEventsService {
 
     /**
      * delete collection item attachment from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $aid - Attachment ID
-	 * 
+	 *
 	 * @return bool true - successfully delete / False - failed to delete
 	 */
 	public function deleteCollectionItemAttachment(array $batch): array {
@@ -570,7 +570,7 @@ class LocalEventsService {
         if (count($batch) == 0) {
             return array();
         }
-        
+
         // TODO: add delete code
 
         return array();
@@ -578,15 +578,15 @@ class LocalEventsService {
 
     /**
      * convert vevent object to event object
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param VEvent $vo - source object
-	 * 
+	 *
 	 * @return EventObject converted object
 	 */
 	public function toEventObject(VEvent $vo): EventObject {
-		
+
         // construct event object
 		$eo = new EventObject();
         // Origin
@@ -666,7 +666,7 @@ class LocalEventsService {
                 else {
                     $eo->Notes = $dn;
                 }
-            } 
+            }
             else {
                 $eo->Notes = trim($vo->DESCRIPTION->getValue());
             }
@@ -869,19 +869,19 @@ class LocalEventsService {
                 }
             }
         }
-        
+
 		// return event object
 		return $eo;
-        
+
     }
 
     /**
      * Convert event object to vevent object
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EventObject $vo - source object
-	 * 
+	 *
 	 * @return VEvent converted object
 	 */
     public function fromEventObject(EventObject $eo): VEvent{
@@ -900,7 +900,7 @@ class LocalEventsService {
             $vo->add('DTSTART');
             // evaluate which time zone to use
             if ($eo->StartsTZ instanceof \DateTimeZone) {
-                $tz = $eo->StartsTZ->getName();  
+                $tz = $eo->StartsTZ->getName();
             }
             elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                 $tz = $this->UserTimeZone->getName();
@@ -930,7 +930,7 @@ class LocalEventsService {
             $vo->add('DTEND');
             // evaluate which time zone to use
             if ($eo->EndsTZ instanceof \DateTimeZone) {
-                $tz = $eo->EndsTZ->getName();  
+                $tz = $eo->EndsTZ->getName();
             }
             elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                 $tz = $this->UserTimeZone->getName();
@@ -999,7 +999,7 @@ class LocalEventsService {
         // Organizer
         if (isset($vo->Organizer) && isset($vo->Organizer->Address)) {
             $vo->add(
-                'ORGANIZER', 
+                'ORGANIZER',
                 'mailto:' . $vo->Organizer->Address,
                 array('CN' => $vo->Organizer->Name)
             );
@@ -1018,7 +1018,7 @@ class LocalEventsService {
                 }
                 // Attendee Attendance
                 $p['PARTSTAT'] = $this->toAttendeeStatus($entry->Attendance);
-                
+
                 $vo->add('ATTENDEE', 'mailto:' . $entry->Address, $p);
                 unset($p);
             }
@@ -1048,7 +1048,6 @@ class LocalEventsService {
                     $p['FMTTYPE'] = $entry->Type;
                     $p['ENCODING'] = 'BASE64';
                     $p['VALUE'] = 'BINARY';
-                    unset($p);
                     if ($entry->Encoding == 'B64') {
                         $vo->add(
                             'ATTACH',
@@ -1059,12 +1058,13 @@ class LocalEventsService {
                     else {
                         $vo->add(
                             'ATTACH',
-                            'X-FILENAME="' . $entry->Name . '":' .  base64_encode($entry->Data),
+                            'X-FILENAME="' . $entry->Name . '":' . base64_encode($entry->Data),
                             $p
                         );
                     }
-                }
-                
+					unset($p);
+				}
+
             }
         }
         // Notifications
@@ -1143,7 +1143,7 @@ class LocalEventsService {
             if (count($eo->Occurrence->Excludes) > 0) {
                 foreach ($eo->Occurrence->Excludes as $entry) {
                     if ($entry instanceof \DateTime) {
-                        $tz = $entry->getTimeZone()->getName();  
+                        $tz = $entry->getTimeZone()->getName();
                     }
                     elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                         $tz = $this->UserTimeZone->getName();
@@ -1156,7 +1156,7 @@ class LocalEventsService {
                     $dt->setTimezone(new DateTimeZone($tz));
                     // create element
                     $vo->add(
-                        'EXDATE', 
+                        'EXDATE',
                         $dt->format('Ymd\THis'),
                         array('TZID' => $tz)
                     );
@@ -1172,31 +1172,31 @@ class LocalEventsService {
 
     /**
      * Converts time zone name string to DateTimeZone object
-     * 
+     *
      * @since Release 1.0.31
-     * 
+     *
      * @param string $zone  ews time zone name
-     * 
+     *
      * @return DateTimeZone valid DateTimeZone object on success, or null on failure
      */
 	public function fromTimeZone(string $name): ?DateTimeZone {
-		
-		// convert time zone name string to DateTimeZone object	
-		return \OCA\EWS\Utile\TimeZoneEWS::toDateTimeZone($name);
+
+		// convert time zone name string to DateTimeZone object
+		return \OCA\EWS\Utils\TimeZoneEWS::toDateTimeZone($name);
 
 	}
 
     /**
      * convert local frequency to event object occurrence precision
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $frequency - local frequency value
-	 * 
+	 *
 	 * @return int event object occurrence precision value
 	 */
     private function fromFrequency(?string $frequency): string {
-		
+
         // frequency conversion reference
 		$_tm = array(
 			'DAILY' => 'D',
@@ -1215,16 +1215,16 @@ class LocalEventsService {
             // return default occurrence precision value
 			return 'D';
 		}
-		
+
 	}
 
     /**
      * convert event object occurrence precision to local frequency
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param int $precision - event object occurrence precision value
-	 * 
+	 *
 	 * @return string local frequency value
 	 */
 	private function toFrequency(?string $precision): string {
@@ -1252,15 +1252,15 @@ class LocalEventsService {
 
     /**
      * convert local by day to event object days of the week
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $days - local by day values(s)
-	 * 
+	 *
 	 * @return array event object days of the week values(s)
 	 */
     private function fromByDay(array $days): array {
-        
+
         // days conversion reference
         $_tm = array(
             'MO' => 1,
@@ -1283,11 +1283,11 @@ class LocalEventsService {
 
     /**
      * convert event object days of the week to local by day
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $days - event object days of the week values(s)
-	 * 
+	 *
 	 * @return string local by day values(s)
 	 */
     private function toByDay(array $days): string {
@@ -1317,15 +1317,15 @@ class LocalEventsService {
 
     /**
      * convert local class to event object sensitivity
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $level - local class value
-	 * 
+	 *
 	 * @return int|null event object sensitivity value
 	 */
     private function fromClass(?string $level): int {
-		
+
         // class conversion reference
 		$_tm = array(
 			'PUBLIC' => 0,
@@ -1340,16 +1340,16 @@ class LocalEventsService {
             // return default sensitivity value
 			return 0;
 		}
-		
+
 	}
 
     /**
      * convert event object sensitivity to local class
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param int $level - event object sensitivity value
-	 * 
+	 *
 	 * @return string|null local class value
 	 */
 	private function toClass(?int $level): string {
@@ -1373,15 +1373,15 @@ class LocalEventsService {
 
     /**
      * convert local attendee role to event object attendee attendance
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $role - local attendee role value
-	 * 
+	 *
 	 * @return int event object attendee attendance value
 	 */
     private function fromAttendeeRole(?string $role): string {
-		
+
         // role conversion reference
 		$_tm = array(
 			'REQ-PARTICIPANT' => 'R',
@@ -1397,16 +1397,16 @@ class LocalEventsService {
             // return default attendance value
 			return 'R';
 		}
-		
+
 	}
 
     /**
      * convert event object attendee attendance to local attendee role
-     *  
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $attendance - event object attendee attendance value
-	 * 
+	 *
 	 * @return string local attendee role value
 	 */
 	private function toAttendeeRole(?string $attendance): string {
@@ -1431,15 +1431,15 @@ class LocalEventsService {
 
     /**
      * convert local attendee status to event object attendee status
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $status - local attendee status value
-	 * 
+	 *
 	 * @return int event object attendee status value
 	 */
     private function fromAttendeeStatus(?string $status): string {
-		
+
         // status conversion reference
 		$_tm = array(
 			'ACCEPTED' => 'A',
@@ -1456,16 +1456,16 @@ class LocalEventsService {
             // return default status value
 			return 'N';
 		}
-		
+
 	}
 
     /**
      * convert event object attendee status to local attendee status
-     *  
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $status - event object attendee status value
-	 * 
+	 *
 	 * @return string local attendee status value
 	 */
 	private function toAttendeeStatus(?string $status): string {
@@ -1491,15 +1491,15 @@ class LocalEventsService {
 
     /**
      * convert local alarm action to event object alarm action type
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $action - local alarm action value
-	 * 
+	 *
 	 * @return int event object alarm action type value
 	 */
     private function fromAlarmAction(?string $action): string {
-		
+
         // action conversion reference
 		$_tm = array(
 			'DISPLAY' => 'D',
@@ -1514,16 +1514,16 @@ class LocalEventsService {
             // return default action value
 			return 'D';
 		}
-		
+
 	}
 
     /**
      * convert event object alarm type to local alram action
-     *  
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $type - event object action type value
-	 * 
+	 *
 	 * @return string local alarm action value
 	 */
 	private function toAlarmAction(?string $type): string {
@@ -1547,15 +1547,15 @@ class LocalEventsService {
 
     /**
      * convert local duration period to event object date interval
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $period - local duration period value
-	 * 
+	 *
 	 * @return DateInterval event object date interval object
 	 */
     private function fromDurationPeriod(string $period): DateInterval {
-		
+
         // evaluate if period is negative
 		if (str_contains($period, '-P')) {
             $period = trim($period, '-');
@@ -1568,16 +1568,16 @@ class LocalEventsService {
             // return date interval object
             return new DateInterval($period);
         }
-		
+
 	}
 
     /**
      * convert event object date interval to local duration period
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param DateInterval $period - event object date interval object
-	 * 
+	 *
 	 * @return string local duration period value
 	 */
 	private function toDurationPeriod(DateInterval $period): string {

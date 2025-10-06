@@ -37,7 +37,7 @@ use OCA\EWS\Components\EWS\Type\TaskType;
 use OCA\EWS\Objects\TaskCollectionObject;
 use OCA\EWS\Objects\TaskObject;
 use OCA\EWS\Objects\TaskAttachmentObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
 
 class RemoteTasksService {
 	/**
@@ -72,7 +72,7 @@ class RemoteTasksService {
 	 * @var Object
 	 */
 	protected ?object $DefaultItemProperties = null;
-	
+
 	public function __construct (string $appName,
 								LoggerInterface $logger,
 								RemoteCommonService $RemoteCommonService) {
@@ -81,7 +81,7 @@ class RemoteTasksService {
 	}
 
 	public function configure($configuration, EWSClient $DataStore) : void {
-		
+
 		// assign configuration
 		$this->Configuration = $configuration;
 		// assign remote data store
@@ -89,14 +89,14 @@ class RemoteTasksService {
 		// assign timezones
 		$this->SystemTimeZone = $configuration->SystemTimeZone;
 		$this->UserTimeZone = $configuration->UserTimeZone;
-		
+
 	}
 
 	/**
 	 * retrieve list of collections in remote storage
-     * 
+     *
      * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $source		folder source (U - User Folders, P - Public Folders)
 	 * @param string $prefixName	string to append to folder name
 	 *
@@ -120,11 +120,11 @@ class RemoteTasksService {
 
 	/**
 	 * retrieve properties for specific collection
-     * 
+     *
      * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $cid - Collection Id
-	 * 
+	 *
 	 * @return TaskCollectionObject
 	 */
 	public function fetchCollection(string $cid): ?TaskCollectionObject {
@@ -148,18 +148,18 @@ class RemoteTasksService {
 		}
 
     }
-	
+
 	/**
      * create collection in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection Item ID
-	 * 
+	 *
 	 * @return TaskCollectionObject
 	 */
 	public function createCollection(string $cid, string $name, bool $ctype = false): ?TaskCollectionObject {
-        
+
 		// construct command object
 		$ec = new \OCA\EWS\Components\EWS\Type\TasksFolderType();
 		$ec->DisplayName = $name;
@@ -180,15 +180,15 @@ class RemoteTasksService {
 
 	/**
      * delete collection in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $cid - Collection ID
-	 * 
+	 *
 	 * @return bool Ture - successfully destroyed / False - failed to destory
 	 */
     public function deleteCollection(string $cid): bool {
-        
+
 		// construct command object
         $ec = new \OCA\EWS\Components\EWS\Type\FolderIdType($cid);
 		// execute command
@@ -204,12 +204,12 @@ class RemoteTasksService {
 
 	/**
 	 * retrieve alteration for specific collection
-     * 
+     *
      * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $cid - Collection Id
 	 * @param string $state - Collection State (Initial/Last)
-	 * 
+	 *
 	 * @return object
 	 */
 	public function fetchCollectionChanges(string $cid, string $state, string $scheme = 'I'): ?object {
@@ -233,11 +233,11 @@ class RemoteTasksService {
 
 	/**
      * retrieve all collection items uuids from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
-	 * 
+	 *
 	 * @return array
 	 */
 	public function fetchCollectionItemsUUID(string $cid, bool $ctype = false): array {
@@ -283,15 +283,15 @@ class RemoteTasksService {
 
 	/**
      * retrieve collection item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $iid - Collection Item ID
-	 * 
+	 *
 	 * @return ContactObject
 	 */
 	public function fetchCollectionItem(string $iid): ?TaskObject {
-        
+
 		// construct identification object
         $io = new \OCA\EWS\Components\EWS\Type\ItemIdType($iid);
 		// execute command
@@ -314,12 +314,12 @@ class RemoteTasksService {
 
 	/**
      * find collection item by uuid in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $uuid -Collection Item UUID
-	 * 
+	 *
 	 * @return TaskObject
 	 */
 	public function fetchCollectionItemByUUID(string $cid, string $uuid): ?TaskObject {
@@ -344,12 +344,12 @@ class RemoteTasksService {
 
 	/**
      * create collection item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param TaskObject $so - Source Data
-	 * 
+	 *
 	 * @return TaskObject
 	 */
 	public function createCollectionItem(string $cid, TaskObject $so): ?TaskObject {
@@ -523,7 +523,7 @@ class RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$ro->Recurrence->RelativeMonthlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeMonthlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = '1';
@@ -561,7 +561,7 @@ class RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$ro->Recurrence->RelativeYearlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeYearlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$ro->Recurrence->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$ro->Recurrence->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$ro->Recurrence->RelativeYearlyRecurrence->Interval = '1';
@@ -595,7 +595,7 @@ class RemoteTasksService {
 				*/
 			}
 		}
-		
+
 		// execute command
         $rs = $this->RemoteCommonService->createItem($this->DataStore, $cid, $ro);
         // process response
@@ -619,13 +619,13 @@ class RemoteTasksService {
 
 	/**
      * update collection item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param TaskObject $so - Source Data
-	 * 
+	 *
 	 * @return TaskObject
 	 */
 	public function updateCollectionItem(string $cid, string $iid, string $istate, TaskObject $so): ?TaskObject {
@@ -641,7 +641,7 @@ class RemoteTasksService {
         else {
             $rd[] = $this->deleteFieldExtendedByName('PublicStrings', 'DAV:uid', 'String');
         }
-		
+
         // Starts On
         if (!empty($so->StartsOn)) {
 			// clone start date
@@ -695,7 +695,7 @@ class RemoteTasksService {
         if (!empty($so->Notes)) {
             $rm[] = $this->updateFieldUnindexed(
                 'item:Body',
-                'Body', 
+                'Body',
                 new \OCA\EWS\Components\EWS\Type\BodyType(
                     'Text',
                     $so->Notes
@@ -829,7 +829,7 @@ class RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeMonthlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeMonthlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeMonthlyRecurrence->Interval = '1';
@@ -865,7 +865,7 @@ class RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeYearlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeYearlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeYearlyRecurrence->Interval = '1';
@@ -881,7 +881,7 @@ class RemoteTasksService {
 					}
 				}
 			}
-			
+
 			$rm[] = $this->updateFieldUnindexed('task:Recurrence', 'Recurrence', $f);
 		}
 		else {
@@ -910,13 +910,13 @@ class RemoteTasksService {
 
 	/**
      * update collection item with uuid in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $cid - Collection Item UUID
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object {
@@ -936,11 +936,11 @@ class RemoteTasksService {
 
     /**
      * delete collection item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return bool Ture - successfully destroyed / False - failed to destory
 	 */
     public function deleteCollectionItem(string $iid): bool {
@@ -958,11 +958,11 @@ class RemoteTasksService {
 
 	/**
      * retrieve collection item attachment from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $aid - Attachment ID
-	 * 
+	 *
 	 * @return TaskAttachmentObject
 	 */
 	public function fetchCollectionItemAttachment(array $batch): array {
@@ -980,14 +980,14 @@ class RemoteTasksService {
 			// process collection of objects
 			foreach($rs as $entry) {
 				if (!isset($entry->ContentType) || $entry->ContentType == 'application/octet-stream') {
-					$type = \OCA\EWS\Utile\MIME::fromFileName($entry->Name);
+					$type = \OCA\EWS\Utils\MIME::fromFileName($entry->Name);
 				} else {
 					$type = $entry->ContentType;
 				}
 				// insert attachment object in response collection
 				$rc[] = new TaskAttachmentObject(
 					'D',
-					$entry->AttachmentId->Id, 
+					$entry->AttachmentId->Id,
 					$entry->Name,
 					$type,
 					'B',
@@ -1003,12 +1003,12 @@ class RemoteTasksService {
 
     /**
      * create collection item attachment in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $aid - Affiliation ID
      * @param array $sc - Collection of TaskAttachmentObject(S)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createCollectionItemAttachment(string $aid, array $batch): array {
@@ -1029,7 +1029,7 @@ class RemoteTasksService {
 			$co->ContentId = $entry->Name;
 			$co->ContentType = $entry->Type;
 			$co->Size = $entry->Size;
-			
+
 			switch ($entry->Encoding) {
 				case 'B':
 					$co->Content = $entry->Data;
@@ -1064,11 +1064,11 @@ class RemoteTasksService {
 
     /**
      * delete collection item attachment from local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $aid - Attachment ID
-	 * 
+	 *
 	 * @return bool true - successfully delete / False - failed to delete
 	 */
 	public function deleteCollectionItemAttachment(array $batch): array {
@@ -1085,10 +1085,10 @@ class RemoteTasksService {
     }
 
 	/**
-     * construct collection of default remote collection properties 
-     * 
+     * construct collection of default remote collection properties
+     *
      * @since Release 1.0.0
-	 * 
+	 *
 	 * @return object
 	 */
 	public function constructDefaultCollectionProperties(): object {
@@ -1111,14 +1111,14 @@ class RemoteTasksService {
 		}
 
 		return $this->DefaultCollectionProperties;
-		
+
 	}
 
 	/**
-     * construct collection of default remote object properties 
-     * 
+     * construct collection of default remote object properties
+     *
      * @since Release 1.0.0
-	 * 
+	 *
 	 * @return object
 	 */
 	public function constructDefaultItemProperties(): object {
@@ -1182,13 +1182,13 @@ class RemoteTasksService {
 
 	/**
      * construct collection item unindexed property update command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uri - property uri
      * @param string $name - property name
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property update command
 	 */
     public function updateFieldUnindexed(string $uri, string $name, mixed $value): object {
@@ -1204,11 +1204,11 @@ class RemoteTasksService {
 
     /**
      * construct collection item unindexed property delete command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uri - property uri
-	 * 
+	 *
 	 * @return object collection item property delete command
 	 */
     public function deleteFieldUnindexed(string $uri): object {
@@ -1221,15 +1221,15 @@ class RemoteTasksService {
 
     /**
      * construct collection item indexed property update command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $uri - property uri
      * @param string $index - property index
      * @param string $name - property name
      * @param string $dictionary - property dictionary object
      * @param string $entry - property entry object
-	 * 
+	 *
 	 * @return object collection item property update command
 	 */
     public function updateFieldIndexed(string $uri, string $index, string $name, mixed $dictionary, mixed $entry): object {
@@ -1246,13 +1246,13 @@ class RemoteTasksService {
 
     /**
      * construct collection item indexed property delete command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property delete command
 	 */
     public function deleteFieldIndexed(string $uri, string $index): object {
@@ -1265,14 +1265,14 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property create command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property create command
 	 */
     public function createFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object {
@@ -1294,14 +1294,14 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property update command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property update command
 	 */
     public function updateFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object {
@@ -1334,13 +1334,13 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property delete command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
-	 * 
+	 *
 	 * @return object collection item property delete command
 	 */
     public function deleteFieldExtendedByName(string $collection, string $name, string $type): object {
@@ -1360,13 +1360,13 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property create command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property create command
 	 */
     public function createFieldExtendedByTag(string $tag, string $type, mixed $value): object {
@@ -1388,13 +1388,13 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property update command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 * 
+	 *
 	 * @return object collection item property update command
 	 */
     public function updateFieldExtendedByTag(string $tag, string $type, mixed $value): object {
@@ -1427,12 +1427,12 @@ class RemoteTasksService {
 
     /**
      * construct collection item extended property delete command
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $tag - property tag
      * @param string $type - property type
-	 * 
+	 *
 	 * @return object collection item property delete command
 	 */
     public function deleteFieldExtendedByTag(string $tag, string $type): object {
@@ -1452,16 +1452,16 @@ class RemoteTasksService {
 
 	/**
      * construct collection item time zone property
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $tag - time zone name
-	 * 
+	 *
 	 * @return object collection item time zone property
 	 */
     public function constructTimeZone(string $name): object {
 		// retrive time zone properties
-		$zone = \OCA\EWS\Utile\TimeZoneEWS::find($name);
+		$zone = \OCA\EWS\Utils\TimeZoneEWS::find($name);
         // construct time zone object
         $o = new \OCA\EWS\Components\EWS\Type\TimeZoneDefinitionType;
 		$o->Id = $zone->id;
@@ -1524,15 +1524,15 @@ class RemoteTasksService {
 
 	/**
      * convert remote TaskType object to TaskObject
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param TaskType $data - item as TaskType object
-	 * 
+	 *
 	 * @return TaskObject item as TaskObject
 	 */
 	public function toTaskObject(TaskType $data): TaskObject {
-		
+
 		// create object
 		$o = new TaskObject();
 		// Origin
@@ -1599,9 +1599,9 @@ class RemoteTasksService {
 				$o->addTag($entry);
 			}
 		}
-		
+
 		// Notification(s)
-		if (isset($data->ReminderIsSet) && isset($data->ReminderMinutesBeforeStart)) { 
+		if (isset($data->ReminderIsSet) && isset($data->ReminderMinutesBeforeStart)) {
 			$w = new DateInterval('PT' . $data->ReminderMinutesBeforeStart . 'M');
 			$w->invert = 1;
 			$o->addNotification(
@@ -1622,7 +1622,7 @@ class RemoteTasksService {
 			}
 			// Daily
 			if (isset($data->Recurrence->DailyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'A';
 				$o->Occurrence->Precision = 'D';
 
@@ -1635,12 +1635,12 @@ class RemoteTasksService {
             }
 			// Weekly
 			if (isset($data->Recurrence->WeeklyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'A';
 				$o->Occurrence->Precision = 'W';
-				
+
 				if (isset($data->Recurrence->WeeklyRecurrence->Interval)) {
-					$o->Occurrence->Interval = $data->Recurrence->WeeklyRecurrence->Interval;	
+					$o->Occurrence->Interval = $data->Recurrence->WeeklyRecurrence->Interval;
 				}
 				if (isset($data->Recurrence->WeeklyRecurrence->NumberOfOccurrences)) {
 					$o->Occurrence->Iterations = $data->Recurrence->WeeklyRecurrence->NumberOfOccurrences;
@@ -1651,12 +1651,12 @@ class RemoteTasksService {
             }
 			// Monthly Absolute
 			if (isset($data->Recurrence->AbsoluteMonthlyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'A';
 				$o->Occurrence->Precision = 'M';
-				
+
 				if (isset($data->Recurrence->AbsoluteMonthlyRecurrence->Interval)) {
-					$o->Occurrence->Interval = $data->Recurrence->AbsoluteMonthlyRecurrence->Interval;	
+					$o->Occurrence->Interval = $data->Recurrence->AbsoluteMonthlyRecurrence->Interval;
 				}
 				if (isset($data->Recurrence->AbsoluteMonthlyRecurrence->NumberOfOccurrences)) {
 					$o->Occurrence->Iterations = $data->Recurrence->AbsoluteMonthlyRecurrence->NumberOfOccurrences;
@@ -1667,12 +1667,12 @@ class RemoteTasksService {
             }
 			// Monthly Relative
 			if (isset($data->Recurrence->RelativeMonthlyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'R';
 				$o->Occurrence->Precision = 'M';
-				
+
 				if (isset($data->Recurrence->RelativeMonthlyRecurrence->Interval)) {
-					$o->Occurrence->Interval = $data->Recurrence->RelativeMonthlyRecurrence->Interval;	
+					$o->Occurrence->Interval = $data->Recurrence->RelativeMonthlyRecurrence->Interval;
 				}
 				if (isset($data->Recurrence->RelativeMonthlyRecurrence->DaysOfWeek)) {
 					$o->Occurrence->OnDayOfWeek = $this->fromDaysOfWeek($data->Recurrence->RelativeMonthlyRecurrence->DaysOfWeek, true);
@@ -1683,12 +1683,12 @@ class RemoteTasksService {
             }
 			// Yearly Absolute
 			if (isset($data->Recurrence->AbsoluteYearlyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'A';
 				$o->Occurrence->Precision = 'Y';
-				
+
 				if (isset($data->Recurrence->AbsoluteYearlyRecurrence->Interval)) {
-					$o->Occurrence->Interval = $data->Recurrence->AbsoluteYearlyRecurrence->Interval;	
+					$o->Occurrence->Interval = $data->Recurrence->AbsoluteYearlyRecurrence->Interval;
 				}
 				if (isset($data->Recurrence->AbsoluteYearlyRecurrence->NumberOfOccurrences)) {
 					$o->Occurrence->ExpiresCount = $data->Recurrence->AbsoluteYearlyRecurrence->NumberOfOccurrences;
@@ -1702,10 +1702,10 @@ class RemoteTasksService {
             }
 			// Yearly Relative
 			if (isset($data->Recurrence->RelativeYearlyRecurrence)) {
-				
+
 				$o->Occurrence->Pattern = 'R';
 				$o->Occurrence->Precision = 'Y';
-				
+
 				if (isset($data->Recurrence->RelativeYearlyRecurrence->DaysOfWeek)) {
 					$o->Occurrence->OnDayOfWeek = $this->fromDaysOfWeek($data->Recurrence->RelativeYearlyRecurrence->DaysOfWeek, true);
 				}
@@ -1729,13 +1729,13 @@ class RemoteTasksService {
 		if (isset($data->Attachments) && is_array($data->Attachments)) {
 			foreach($data->Attachments->FileAttachment as $entry) {
 				if ($entry->ContentType == 'application/octet-stream') {
-					$type = \OCA\EWS\Utile\MIME::fromFileName($entry->Name);
+					$type = \OCA\EWS\Utils\MIME::fromFileName($entry->Name);
 				} else {
 					$type = $entry->ContentType;
 				}
 				$o->addAttachment(
 					'D',
-					$entry->AttachmentId->Id, 
+					$entry->AttachmentId->Id,
 					$entry->Name,
 					$type,
 					'B',
@@ -1768,15 +1768,15 @@ class RemoteTasksService {
 
 	/**
      * convert remote status to task object status
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $status - remote status value
-	 * 
+	 *
 	 * @return string task object status value
 	 */
 	public function fromStatus(?string $status): string {
-		
+
 		// status conversion reference
 		$statuses = array(
 			'NotStarted' => 'N',
@@ -1793,20 +1793,20 @@ class RemoteTasksService {
 			// return default status value
 			return 'N';
 		}
-		
+
 	}
 
 	/**
      * convert task object status to remote status
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param int $status - task object status value
-	 * 
+	 *
 	 * @return string remote status value
 	 */
 	public function toStatus(?string $status): string {
-		
+
 		// sensitivity conversion reference
 		$statuses = array(
 			'N' => 'NotStarted',
@@ -1828,12 +1828,12 @@ class RemoteTasksService {
 
 	/**
      * convert remote days of the week to task object days of the week
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $days - remote days of the week values(s)
 	 * @param bool $group - flag to check if days are grouped
-	 * 
+	 *
 	 * @return array task object days of the week values(s)
 	 */
 	public function fromDaysOfWeek(string $days, bool $group = false ): array {
@@ -1877,16 +1877,16 @@ class RemoteTasksService {
 
 	/**
      * convert task object days of the week to remote days of the week
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $days - task object days of the week values(s)
-	 * @param bool $group - flag to check if days can be grouped 
-	 * 
+	 * @param bool $group - flag to check if days can be grouped
+	 *
 	 * @return string remote days of the week values(s)
 	 */
 	public function toDaysOfWeek(array $days, bool $group = false): string {
-		
+
 		// days conversion reference
 		$_tm = array(
 			1 => 'Monday',
@@ -1929,11 +1929,11 @@ class RemoteTasksService {
 
 	/**
      * convert remote days of the month to task object days of the month
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $days - remote days of the month values(s)
-	 * 
+	 *
 	 * @return array task object days of the month values(s)
 	 */
 	public function fromDaysOfMonth(string $days): array {
@@ -1947,11 +1947,11 @@ class RemoteTasksService {
 
 	/**
      * convert task object days of the month to remote days of the month
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $days - task object days of the month values(s)
-	 * 
+	 *
 	 * @return string remote days of the month values(s)
 	 */
 	public function toDaysOfMonth(array $days): string {
@@ -1965,11 +1965,11 @@ class RemoteTasksService {
 
 	/**
      * convert remote week of the month to task object week of the month
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $weeks - remote week of the month values(s)
-	 * 
+	 *
 	 * @return array task object week of the month values(s)
 	 */
 	public function fromWeekOfMonth(string $weeks): array {
@@ -1997,11 +1997,11 @@ class RemoteTasksService {
 
 	/**
      * convert task object week of the month to remote week of the month
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $weeks - task object week of the month values(s)
-	 * 
+	 *
 	 * @return string remote week of the month values(s)
 	 */
 	public function toWeekOfMonth(array $weeks): string {
@@ -2030,11 +2030,11 @@ class RemoteTasksService {
 
 	/**
      * convert remote month of the year to task object month of the year
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $months - remote month of the year values(s)
-	 * 
+	 *
 	 * @return array task object month of the year values(s)
 	 */
 	public function fromMonthOfYear(string $months): array {
@@ -2069,11 +2069,11 @@ class RemoteTasksService {
 
 	/**
      * convert task object month of the year to remote month of the year
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param array $weeks - task object month of the year values(s)
-	 * 
+	 *
 	 * @return string remote month of the year values(s)
 	 */
 	public function toMonthOfYear(array $months): string {
@@ -2111,15 +2111,15 @@ class RemoteTasksService {
 
 	/**
      * convert remote sensitivity to task object sensitivity
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $level - remote sensitivity value
-	 * 
+	 *
 	 * @return int task object sensitivity value
 	 */
 	public function fromSensitivity(?string $level): int {
-		
+
 		// sensitivity conversion reference
 		$levels = array(
 			'Normal' => 0,
@@ -2135,20 +2135,20 @@ class RemoteTasksService {
 			// return default sensitivity value
 			return 0;
 		}
-		
+
 	}
 
 	/**
      * convert task object sensitivity to remote sensitivity
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param int $level - task object sensitivity value
-	 * 
+	 *
 	 * @return string remote sensitivity value
 	 */
 	public function toSensitivity(?int $level): string {
-		
+
 		// sensitivity conversion reference
 		$levels = array(
 			0 => 'Normal',
@@ -2169,15 +2169,15 @@ class RemoteTasksService {
 
 	/**
      * convert remote importance to task object priority
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $level - remote importance value
-	 * 
+	 *
 	 * @return int task object priority value
 	 */
 	public function fromImportance(?string $level): int {
-		
+
 		// EWS: 0 = low, 1 = normal (default), 2 = high
 		// VTODO: 0 = undefined, 1-3 = high, 4-6 = normal, 7-9 = low
 
@@ -2191,17 +2191,17 @@ class RemoteTasksService {
 		else {
 			return 5;		// normal priority
 		}
-		
-		
+
+
 	}
 
 	/**
      * convert task object priority to remote importance
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param int $level - task object priority value
-	 * 
+	 *
 	 * @return string remote importance value
 	 */
 	public function toImportance(?int $level): string {
@@ -2224,15 +2224,15 @@ class RemoteTasksService {
 
 	/**
      * convert remote attendee response to task object response
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param sting $response - remote attendee response value
-	 * 
+	 *
 	 * @return string task object attendee response value
 	 */
 	public function fromAttendeeResponse(?string $response): string {
-		
+
 		// response conversion reference
 		$responses = array(
 			'Accept' => 'A',
@@ -2250,20 +2250,20 @@ class RemoteTasksService {
 			// return default response value
 			return 'N';
 		}
-		
+
 	}
 
 	/**
      * convert task object attendee response to remote attendee response
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $response - task object attendee response value
-	 * 
+	 *
 	 * @return string remote attendee response value
 	 */
 	public function toAttendeeResponse(?string $response): string {
-		
+
 		// response conversion reference
 		$responses = array(
 			'A' => 'Accept',

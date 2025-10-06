@@ -21,251 +21,298 @@
 *
 -->
 
+<script setup lang="ts">
+import {computed, reactive} from 'vue'
+import axios from '@nextcloud/axios'
+import {loadState} from '@nextcloud/initial-state'
+import {showError, showSuccess} from '@nextcloud/dialogs'
+import {translate as t} from '@nextcloud/l10n'
+
+import {
+	NcButton,
+	NcCheckboxRadioSwitch,
+	NcSelect,
+	NcTextField
+} from '@nextcloud/vue'
+import CheckIcon from 'vue-material-design-icons/Check.vue'
+
+import EwsIcon from './icons/EwsIcon.vue'
+
+import {APP_ID, generateAppUrl} from "../utils"
+import type {AdminConfiguration} from "../types";
+
+
+const state = reactive<AdminConfiguration>(loadState(APP_ID, 'admin-configuration'))
+
+const newApprovedAccountServer = reactive({
+	server: "",
+});
+
+const transportVerification = computed({
+	get() {
+		return state.transport_verification === '1'
+	},
+	set(value: boolean) {
+		state.transport_verification = value ? '1' : '0'
+	},
+})
+
+const transportLog = computed({
+	get() {
+		return state.transport_log === '1'
+	},
+	set(value: boolean) {
+		state.transport_log = value ? '1' : '0'
+	},
+})
+
+// Validate required fields
+const isValid = computed(() => newApprovedAccountServer.server.trim() !== "");
+
+// Add a new item only if valid
+function addItem() {
+	if (!isValid.value) {
+		return;
+	}
+	state.approved_account_servers.push(newApprovedAccountServer.server);
+	newApprovedAccountServer.server = "";
+}
+
+// Remove item by index
+function removeItem(index) {
+	state.approved_account_servers.splice(index, 1);
+}
+
+const onSaveClick = async () => {
+	const req = {
+		values: {
+			transport_verification: state.transport_verification,
+			transport_log: state.transport_log,
+			transport_log_path: state.transport_log_path,
+			harmonization_mode: state.harmonization_mode,
+			harmonization_thread_duration: state.harmonization_thread_duration,
+			harmonization_thread_pause: state.harmonization_thread_pause,
+			ms365_tenant_id: state.ms365_tenant_id,
+			ms365_application_id: state.ms365_application_id,
+			ms365_application_secret: state.ms365_application_secret,
+			approved_account_servers: state.approved_account_servers,
+		},
+	}
+	const url = generateAppUrl('/admin-configuration')
+	try {
+		await axios.put(url, req);
+		showSuccess(t(APP_ID, 'EWS admin configuration saved'));
+	} catch (error: any) {
+		showError(
+			t(APP_ID, 'Failed to save EWS admin configuration') +
+			': ' + error.response?.request?.responseText
+		);
+	}
+}
+</script>
+
 <template>
 	<div id="ews_settings" class="section">
 		<div class="ews-page-title">
-			<EwsIcon :size="32" />
-			<h2>{{ t('integration_ews', 'Exchange EWS Connector') }}</h2>
+			<EwsIcon :size="32"/>
+			<h2>{{ t(APP_ID, 'Exchange EWS Connector') }}</h2>
 		</div>
-		<div class="ews-section-general">
-			<div class="description">
-				{{ t('integration_ews', 'Select the system settings for Exchange Integration') }}
-			</div>
-			<div class="parameter">
-				<label>
-					{{ t('integration_ews', 'Synchronization Mode') }}
+		<div class="section">
+			<h3>{{t(APP_ID, 'Select the system settings for Exchange Integration') }}</h3>
+			<div class="setting-row">
+				<label for="ews-harmonization_mode">
+					{{ t(APP_ID, 'Synchronization Mode') }}
 				</label>
-				<NcSelect v-model="state.harmonization_mode"
-					:reduce="item => item.id"
-					:options="[{label: 'Passive', id: 'P'}, {label: 'Active', id: 'A'}]" />
+				<NcSelect input-id="ews-harmonization_mode"
+						  v-model="state.harmonization_mode"
+						  :reduce="item => item.id"
+						  :options="[{label: 'Passive', id: 'P'}, {label: 'Active', id: 'A'}]"/>
 			</div>
-			<div v-if="state.harmonization_mode === 'A'" class="parameter">
-				<label>
-					{{ t('integration_ews', 'Synchronization Thread Duration') }}
+			<div v-if="state.harmonization_mode === 'A'" class="setting-row">
+				<label for="ews-thread-duration">
+					{{
+						t(APP_ID, 'Synchronization Thread Duration')
+					}}
 				</label>
 				<input id="ews-thread-duration"
-					v-model="state.harmonization_thread_duration"
-					type="text"
-					:autocomplete="'off'"
-					:autocorrect="'off'"
-					:autocapitalize="'none'">
+					   v-model="state.harmonization_thread_duration"
+					   type="text"
+					   :autocomplete="'off'"
+					   :autocorrect="'off'"
+					   :autocapitalize="'none'">
 				<label>
-					{{ t('integration_ews', 'Seconds') }}
+					{{ t(APP_ID, 'Seconds') }}
 				</label>
 			</div>
-			<div v-if="state.harmonization_mode === 'A'" class="parameter">
-				<label>
-					{{ t('integration_ews', 'Synchronization Thread Pause') }}
-				</label>
-				<input id="ews-thread-pause"
-					v-model="state.harmonization_thread_pause"
-					type="text"
-					:autocomplete="off"
-					:autocorrect="off"
-					:autocapitalize="none">
-				<label>
-					{{ t('integration_ews', 'Seconds') }}
-				</label>
-			</div>
-			<div>
-				<NcCheckboxRadioSwitch :checked.sync="transportVerification" type="switch">
-					{{ t('integration_ews', 'Secure Transport Verification (SSL Certificate Verification). Should always be ON, unless connecting to a Exchange system over an internal LAN.') }}
-				</NcCheckboxRadioSwitch>
-			</div>
-			<div>
-				<NcCheckboxRadioSwitch :checked.sync="transportLog" type="switch">
-					{{ t('integration_ews', 'Enable Transport Logging') }}
-				</NcCheckboxRadioSwitch>
-			</div>
-			<div v-if="state.transport_log === '1'" class="parameter">
-				<label>
-					{{ t('integration_ews', 'Location of Transport Log') }}
+			<div v-if="state.harmonization_mode === 'A'" class="setting-row">
+				<label for="ews-thread-pause">
+					{{ t(APP_ID, 'Synchronization Thread Pause') }}
 				</label>
 				<input id="ews-thread-pause"
-					v-model="state.transport_log_path"
-					type="text"
-					:autocomplete="off"
-					:autocorrect="off"
-					:autocapitalize="none">
+					   v-model="state.harmonization_thread_pause"
+					   type="text"
+					   autocomplete="off"
+					   autocorrect="off"
+					   autocapitalize="none">
+				<label>
+					{{ t(APP_ID, 'Seconds') }}
+				</label>
+			</div>
+			<div class="setting-row">
+				<NcCheckboxRadioSwitch v-model="transportVerification"
+									   type="switch">
+					{{
+						t(APP_ID, 'Secure Transport Verification (SSL Certificate Verification). Should always be ON, unless connecting to a Exchange system over an internal LAN.')
+					}}
+				</NcCheckboxRadioSwitch>
+			</div>
+			<div class="setting-row">
+				<NcCheckboxRadioSwitch v-model="transportLog" type="switch">
+					{{ t(APP_ID, 'Enable Transport Logging') }}
+				</NcCheckboxRadioSwitch>
+			</div>
+			<div v-if="state.transport_log === '1'" class="setting-row">
+				<label for="ews-thread-pause">
+					{{ t(APP_ID, 'Location of Transport Log') }}
+				</label>
+				<input id="ews-thread-pause"
+					   v-model="state.transport_log_path"
+					   type="text"
+					   autocomplete="off"
+					   autocorrect="off"
+					   autocapitalize="none">
 			</div>
 		</div>
-		<br>
-		<div class="ews-section-ms365">
-			<div class="description">
-				{{ t('integration_ews', 'Microsoft 365 Authentication Settings') }}
-			</div>
-			<div class="parameter">
+		<div class="section">
+			<h3>{{t(APP_ID, 'Microsoft 365 Authentication Settings')}}</h3>
+			<div class="setting-row">
 				<label for="ews-microsoft-tenant-id">
-					<EwsIcon />
-					{{ t('integration_ews', 'Tenant ID') }}
+					<EwsIcon/>
+					{{ t(APP_ID, 'Tenant ID') }}
 				</label>
 				<input id="ews-microsoft-tenant-id"
-					v-model="state.ms365_tenant_id"
-					type="text"
-					:placeholder="t('integration_ews', '')"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="none"
-					:style="{ width: '48ch' }">
+					   v-model="state.ms365_tenant_id"
+					   type="text"
+					   :placeholder="t(APP_ID, '')"
+					   autocomplete="off"
+					   autocorrect="off"
+					   autocapitalize="none"
+					   :style="{ width: '48ch' }">
 			</div>
-			<div class="parameter">
+			<div class="setting-row">
 				<label for="ews-microsoft-application-id">
-					<EwsIcon />
-					{{ t('integration_ews', 'Application ID') }}
+					<EwsIcon/>
+					{{ t(APP_ID, 'Application ID') }}
 				</label>
 				<input id="ews-microsoft-application-id"
-					v-model="state.ms365_application_id"
-					type="text"
-					:placeholder="t('integration_ews', '')"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="none"
-					:style="{ width: '48ch' }">
+					   v-model="state.ms365_application_id"
+					   type="text"
+					   :placeholder="t(APP_ID, '')"
+					   autocomplete="off"
+					   autocorrect="off"
+					   autocapitalize="none"
+					   :style="{ width: '48ch' }">
 			</div>
-			<div class="parameter">
+			<div class="setting-row">
 				<label for="ews-microsoft-application-secret">
-					<EwsIcon />
-					{{ t('integration_ews', 'Application Secret') }}
+					<EwsIcon/>
+					{{ t(APP_ID, 'Application Secret') }}
 				</label>
 				<input id="ews-microsoft-application-secret"
-					v-model="state.ms365_application_secret"
-					type="password"
-					:placeholder="t('integration_ews', '')"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="none"
-					:style="{ width: '48ch' }">
+					   v-model="state.ms365_application_secret"
+					   type="password"
+					   :placeholder="t(APP_ID, '')"
+					   autocomplete="off"
+					   autocorrect="off"
+					   autocapitalize="none"
+					   :style="{ width: '48ch' }">
 			</div>
 		</div>
-		<br>
-		<div class="ews-section-actions">
+		<div class="section">
+			<h3>{{t(APP_ID, 'Approved Account Servers') }}</h3>
+			<div class="setting-row">
+				<ul>
+					<li
+						v-for="(item, index) in state.approved_account_servers"
+						:key="index"
+						class="setting-row"
+					>
+						<div>
+							<strong>{{ item }}</strong>
+						</div>
+						<NcButton
+							@click="removeItem(index)"
+						>✕
+						</NcButton>
+					</li>
+					<li v-if="state.approved_account_servers.length === 0">
+						{{
+							t(APP_ID, 'No servers added yet. No restrictions applied')
+						}}
+					</li>
+				</ul>
+			</div>
+			<div class="setting-row">
+				<label for="new_approved_account_server">
+					{{ t(APP_ID, 'New Approved Account Server') }}
+				</label>
+				<NcTextField id="new_approved_account_server"
+							 v-model="newApprovedAccountServer.server"
+							 @keydown.enter="addItem"
+				/>
+				<NcButton @click="addItem" :disabled="!isValid">
+					{{ t(APP_ID, 'Add') }}
+				</NcButton>
+			</div>
+		</div>
+		<div class="section">
 			<NcButton @click="onSaveClick()">
 				<template #icon>
-					<CheckIcon />
+					<CheckIcon/>
 				</template>
-				{{ t('integration_ews', 'Save') }}
+				{{ t(APP_ID, 'Save') }}
 			</NcButton>
 		</div>
 	</div>
 </template>
 
-<script>
-import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
-import { loadState } from '@nextcloud/initial-state'
-import { showSuccess, showError } from '@nextcloud/dialogs'
-
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
-import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
-
-import EwsIcon from './icons/EwsIcon.vue'
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-
-export default {
-	name: 'AdminSettings',
-
-	components: {
-		NcButton,
-		NcCheckboxRadioSwitch,
-		NcSelect,
-		EwsIcon,
-		CheckIcon,
-	},
-
-	props: [],
-
-	data() {
-		return {
-			readonly: true,
-			state: loadState('integration_ews', 'admin-configuration'),
-		}
-	},
-
-	computed: {
-		transportVerification: {
-			get() {
-				return (this.state.transport_verification === '1')
-			},
-			set(value) {
-				this.state.transport_verification = (value === true) ? '1' : '0'
-			},
-		},
-		transportLog: {
-			get() {
-				return (this.state.transport_log === '1')
-			},
-			set(value) {
-				this.state.transport_log = (value === true) ? '1' : '0'
-			},
-		},
-	},
-
-	methods: {
-		onSaveClick() {
-			const req = {
-				values: {
-					transport_verification: this.state.transport_verification,
-					transport_log: this.state.transport_log,
-					transport_log_path: this.state.transport_log_path,
-					harmonization_mode: this.state.harmonization_mode,
-					harmonization_thread_duration: this.state.harmonization_thread_duration,
-					harmonization_thread_pause: this.state.harmonization_thread_pause,
-					ms365_tenant_id: this.state.ms365_tenant_id,
-					ms365_application_id: this.state.ms365_application_id,
-					ms365_application_secret: this.state.ms365_application_secret,
-				},
-			}
-			const url = generateUrl('/apps/integration_ews/admin-configuration')
-			axios.put(url, req)
-				.then((response) => {
-					showSuccess(t('integration_ews', 'EWS admin configuration saved'))
-				})
-				.catch((error) => {
-					showError(
-						t('integration_ews', 'Failed to save EWS admin configuration')
-						+ ': ' + error.response.request.responseText
-					)
-				})
-				.then(() => {
-				})
-		},
-	},
-}
-</script>
-
 <style scoped lang="scss">
 #ews_settings {
+	.section {
+		margin-bottom: 1.5em;
+	}
+
+	.setting-row {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		padding: 0.4em 0;
+		//border-bottom: 1px solid var(--color-border);
+	}
+
+	.setting-row label {
+		flex: 0 0 auto;
+		font-weight: 500;
+	}
+
+	.setting-row button {
+		flex: 0 0 auto;
+	}
+
+	.setting-row input,
+	.setting-row select {
+		flex: 1 1 auto;
+		max-width: 250px;
+	}
+
 	.ews-page-title {
 		display: flex;
 		vertical-align: middle;
 	}
-	.ews-page-title h2 {
-		padding-left: 1%;
-	}
-	.ews-section-actions {
-		display: flex;
-		align-items: center;
-	}
-	.ews-section-general {
-		padding-bottom: 1%;
-	}
-	.ews-section-general .description {
-		padding-bottom: 1%;
-	}
-	.ews-section-general .parameter label {
-		display: inline-block;
-		width: 32ch;
-	}
-	.ews-section-ms365 {
-		padding-bottom: 1%;
-	}
-	.ews-section-ms365 .description {
-		padding-bottom: 1%;
-	}
-	.ews-section-ms365 .parameter label {
-		display: inline-block;
-		width: 24ch;
+
+	h3 {
+		font-weight: bolder;
+		font-size: larger;
 	}
 }
 </style>

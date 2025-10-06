@@ -28,6 +28,7 @@ namespace OCA\EWS\Commands;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use OCP\IUserManager;
@@ -36,7 +37,10 @@ use OCA\EWS\Service\CoreService;
 
 class Connect extends Command {
 
-	public function __construct(IUserManager $userManager, CoreService $CoreService) {
+    private IUserManager $userManager;
+    private CoreService $CoreService;
+
+    public function __construct(IUserManager $userManager, CoreService $CoreService) {
 		parent::__construct();
         $this->userManager = $userManager;
         $this->CoreService = $CoreService;
@@ -46,6 +50,7 @@ class Connect extends Command {
 		$this
 			->setName('ews:connect')
 			->setDescription('Connects a user to EWS Server')
+			->addOption('ServiceCharset', null, InputOption::VALUE_OPTIONAL, 'Charset used for authentication', 'UTF-8')
             ->addArgument('user',
 				InputArgument::REQUIRED,
 				'User whom to connect to the EWS Service')
@@ -71,10 +76,10 @@ class Connect extends Command {
 	 * @param OutputInterface $output
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
+		$service_charset = $input->getOption('ServiceCharset') ?? 'UTF-8';
         $uid = $input->getArgument('user');
         $service_id = $input->getArgument('ServiceId');
         $service_secret = $input->getArgument('ServiceSecret');
-        $service_charset = $input->getArgument('ServiceSecret') ?? 'UTF-8';
         $service_validate = (empty($input->getArgument('ServiceValidate'))) ? true : filter_var($input->getArgument('ServiceValidate'), FILTER_VALIDATE_BOOLEAN);
 		$service_location = (empty($input->getArgument('ServiceLocation'))) ? '' : $input->getArgument('ServiceLocation');
 		$service_version = (empty($input->getArgument('ServiceVersion'))) ? '' : $input->getArgument('ServiceVersion');
@@ -88,7 +93,7 @@ class Connect extends Command {
 		if ($service_validate === true) {
 			$flags[] = 'VALIDATE';
 		}
-		
+
 		if ($service_validate === false && empty($service_version)) {
 			$output->writeln("<error>Failed: Service version is required when validation is set to false. Possible values are Exchange2007, Exchange2007_SP1, Exchange2009, Exchange2010, Exchange2010_SP1, Exchange2010_SP2, Exchange2013, Exchange2013_SP1, Exchange2016</error>");
 			return 1;

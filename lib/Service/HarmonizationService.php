@@ -49,10 +49,6 @@ class HarmonizationService {
 	 */
 	private $logger;
 	/**
-	 * @var INotificationManager
-	 */
-	private $notificationManager;
-	/**
 	 * @var ConfigurationService
 	 */
 	private $ConfigurationService;
@@ -84,7 +80,7 @@ class HarmonizationService {
 	 * @var HarmonizationThreadService
 	 */
 	private $HarmonizationThreadService;
-	
+
 
 	public function __construct (string $appName,
 								LoggerInterface $logger,
@@ -110,9 +106,9 @@ class HarmonizationService {
 
 	/**
 	 * Perform harmonization for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
 	 * @param string $mode	running mode (S - Service, M - Manually)
 	 *
@@ -123,7 +119,7 @@ class HarmonizationService {
 		// update harmonization state and start time
 		$this->ConfigurationService->setHarmonizationState($uid, true);
 		$this->ConfigurationService->setHarmonizationStart($uid);
-		$this->ConfigurationService->setHarmonizationHeartBeat($uid);		
+		$this->ConfigurationService->setHarmonizationHeartBeat($uid);
 		// retrieve Configuration
 		$Configuration = $this->ConfigurationService->retrieveUser($uid);
 		$Configuration = $this->ConfigurationService->toUserConfigurationObject($Configuration);
@@ -172,11 +168,11 @@ class HarmonizationService {
 				}
 				$this->logger->info('Finished Harmonization of Contacts for ' . $uid);
 			}
-		
+
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
 
 		// events harmonization
@@ -221,13 +217,13 @@ class HarmonizationService {
 				}
 				$this->logger->info('Finished Harmonization of Events for ' . $uid);
 			}
-		
+
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
-		
+
 		// tasks harmonization
 		try {
 			// evaluate, if tasks app is available and tasks harmonization is turned on
@@ -272,9 +268,9 @@ class HarmonizationService {
 			}
 
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
 
 		// update harmonization state and end time
@@ -286,9 +282,9 @@ class HarmonizationService {
 
 	/**
 	 * Perform harmonization for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
 	 *
 	 * @return void
@@ -301,7 +297,7 @@ class HarmonizationService {
 		$this->ConfigurationService->setHarmonizationState($uid, true);
 		$this->ConfigurationService->setHarmonizationStart($uid);
 		$this->ConfigurationService->setHarmonizationHeartBeat($uid);
-		
+
 		// retrieve Configuration
 		$Configuration = $this->ConfigurationService->retrieveUser($uid);
 		$Configuration = $this->ConfigurationService->toUserConfigurationObject($Configuration);
@@ -354,9 +350,9 @@ class HarmonizationService {
 			}
 
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
 
 		// events harmonization
@@ -403,12 +399,12 @@ class HarmonizationService {
 				}
 				$this->logger->info('Finished Harmonization of Events for ' . $uid);
 			}
-			
+
 
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
 
 		// tasks harmonization
@@ -457,16 +453,16 @@ class HarmonizationService {
 			}
 
 		} catch (Exception $e) {
-			
+
 			throw new Exception($e, 1);
-			
+
 		}
 		// update harmonization state and end time
 		$this->ConfigurationService->setHarmonizationState($uid, false);
 		$this->ConfigurationService->setHarmonizationEnd($uid);
 	}
 
-	
+
 	public function connectEvents(string $uid, int $duration, string $ctype): ?object {
 
 		// retrieve correlations
@@ -510,7 +506,7 @@ class HarmonizationService {
 		$RemoteStore = $this->CoreService->createClient($uid);
 		// execute command
 		$rs = $this->RemoteCommonService->fetchEvents($RemoteStore, $id, $token);
-		
+
 		if (isset($rs->CreatedEvent)) {
 			foreach ($rs->CreatedEvent as $entry) {
 				// do nothing
@@ -535,7 +531,7 @@ class HarmonizationService {
 					// aquire water mark
 					$token = $entry->Watermark;
 				}
-				
+
 				$w[] = ['C', ($entry->Watermark == $rs->PreviousWatermark), $entry->Watermark];
 			}
 		}

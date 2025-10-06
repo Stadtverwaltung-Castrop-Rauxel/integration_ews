@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\EWS\AppInfo;
 
-use OCP\IConfig;
+use OCP\IAppConfig;
 use OCP\App\IAppManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -48,37 +48,37 @@ use OCA\EWS\Notification\Notifier;
  * @package OCA\EWS\AppInfo
  */
 class Application extends App implements IBootstrap {
-    // assign application identification
-    public const APP_ID = 'integration_ews';
+	// assign application identification
+	public const APP_ID = 'integration_ews';
 
-    public function __construct(array $urlParams = []) {
-        parent::__construct(self::APP_ID, $urlParams);
+	private IAppConfig $appConfig;
 
-        // retrieve harmonization mode
-        $mode = \OC::$server->getConfig()->getAppValue(Application::APP_ID, 'harmonization_mode');
-        $appmanager = $this->getContainer()->get(IAppManager::class);
-        $contacts = $appmanager->isInstalled('contacts');
-        $calendar = $appmanager->isInstalled('calendar');
+	public function __construct(array $urlParams = []) {
+		parent::__construct(self::APP_ID, $urlParams);
 
-        // register notifications
-        $manager = $this->getContainer()->get(INotificationManager::class);
-        $manager->registerNotifierService(Notifier::class);
-        // register event handlers
-        $dispatcher = $this->getContainer()->get(IEventDispatcher::class);
-        $dispatcher->addServiceListener(UserDeletedEvent::class, UserDeletedListener::class);
+		$appmanager = $this->getContainer()->get(IAppManager::class);
+		$contacts = $appmanager->isInstalled('contacts');
+		$calendar = $appmanager->isInstalled('calendar');
 
-        if ($contacts == true) {
-            $dispatcher->addServiceListener(AddressBookDeletedEvent::class, AddressBookDeletedListener::class);
-        }
-        
-        if ($calendar == true) {
-            $dispatcher->addServiceListener(CalendarDeletedEvent::class, CalendarDeletedListener::class);
-        }
-    }
+		// register notifications
+		$manager = $this->getContainer()->get(INotificationManager::class);
+		$manager->registerNotifierService(Notifier::class);
+		// register event handlers
+		$dispatcher = $this->getContainer()->get(IEventDispatcher::class);
+		$dispatcher->addServiceListener(UserDeletedEvent::class, UserDeletedListener::class);
 
-    public function register(IRegistrationContext $context): void {
-    }
+		if ($contacts == true) {
+			$dispatcher->addServiceListener(AddressBookDeletedEvent::class, AddressBookDeletedListener::class);
+		}
 
-    public function boot(IBootContext $context): void {
-    }
+		if ($calendar == true) {
+			$dispatcher->addServiceListener(CalendarDeletedEvent::class, CalendarDeletedListener::class);
+		}
+	}
+
+	public function register(IRegistrationContext $context): void {
+	}
+
+	public function boot(IBootContext $context): void {
+	}
 }

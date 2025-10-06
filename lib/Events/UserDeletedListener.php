@@ -60,10 +60,10 @@ class UserDeletedListener implements IEventListener {
 			try {
 				$this->CorrelationsService->deleteByUserId($event->getUser()->getUID());
 				$this->HarmonizationThreadService->terminate($event->getUser()->getUID());
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				$this->logger->warning($e->getMessage(), ['uid' => $event->getUser()->getUID()]);
 			}
 		}
-		
+
     }
 }

@@ -77,17 +77,17 @@ try {
 		// evaluate if user parameter exists
 		if (isset($parameters["u"])) {
 			// assign user id
-			$uid = \OCA\EWS\Utile\Sanitizer::username($parameters["u"]);
+			$uid = \OCA\EWS\Utils\Sanitizer::username($parameters["u"]);
 		}
 	}
 	else {
 		// evaluate if user parameter exists
 		if (isset($_GET["u"])) {
 			// assign user id
-			$uid = \OCA\EWS\Utile\Sanitizer::username($_GET["u"]);
+			$uid = \OCA\EWS\Utils\Sanitizer::username($_GET["u"]);
 		}
 	}
-	
+
 	// evaluate, if user parameter is present
 	if (empty($uid)) {
 		$logger->info("Harmonization thread failed missing required parameters", ['app' => 'integration_ews']);
@@ -152,14 +152,14 @@ try {
 	$ts = $HarmonizationService->connectEvents($uid, 15, 'TC');
 
 	while ((time() - $executionStart) < $executionDuration) {
-		
+
 		// update thread heart beat
 		$HarmonizationThreadService->setHeartBeat($uid, time());
 
 		/**
-		 * 
+		 *
 		 * TODO: evaluate if user still exists and is active
-		 * 
+		 *
 		 */
 		// evaluate if nextcloud is in maintenance mode
 		if ((bool) \OC::$server->getSystemConfig()->getValue('maintenance', false)) {
@@ -182,7 +182,7 @@ try {
 		if (isset($ts)) {
 			$ts = $HarmonizationService->consumeEvents($uid, $ts->Id, $ts->Token, 'TC');
 		}
-		
+
 		// execute actions
 		$HarmonizationService->performLiveHarmonization($uid);
 

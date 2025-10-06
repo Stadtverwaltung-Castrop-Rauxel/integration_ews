@@ -27,8 +27,17 @@
         <command>kill</command>
         <lib>curl</lib>
         <lib>soap</lib>
-        <nextcloud min-version="26" max-version="28"/>
+        <nextcloud min-version="30" max-version="33"/>
+        <app>
+            <id>dav</id>
+            <min-version>1.34.0</min-version>
+        </app>
     </dependencies>
+    <!--
+    <background-jobs>
+        <job>OCA\EWS\Tasks\HarmonizationLauncher</job>
+    </background-jobs>
+    -->
     <commands>
 		<command>OCA\EWS\Commands\Connect</command>
         <command>OCA\EWS\Commands\Correlate</command>
@@ -38,7 +47,7 @@
     <settings>
         <admin>OCA\EWS\Settings\AdminSettings</admin>
         <admin-section>OCA\EWS\Settings\AdminSection</admin-section>
-        <personal>OCA\EWS\Settings\UserSettings</personal>
-        <personal-section>OCA\EWS\Settings\UserSection</personal-section>
+        <personal>OCA\EWS\Settings\PersonalSettings</personal>
+        <personal-section>OCA\EWS\Settings\PersonalSection</personal-section>
     </settings>
 </info>

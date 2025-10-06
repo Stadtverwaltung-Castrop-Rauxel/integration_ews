@@ -23,6 +23,7 @@ declare(strict_types=1);
 */
 
 $appId = OCA\EWS\AppInfo\Application::APP_ID;
+\OCP\Util::addStyle($appId, $appId . '-adminSettings');
 \OCP\Util::addScript($appId, $appId . '-adminSettings');
 ?>
 

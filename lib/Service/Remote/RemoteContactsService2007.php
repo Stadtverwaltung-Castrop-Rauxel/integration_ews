@@ -38,10 +38,10 @@ use OCA\EWS\Components\EWS\Type\ContactItemType;
 use OCA\EWS\Objects\ContactCollectionObject;
 use OCA\EWS\Objects\ContactObject;
 use OCA\EWS\Objects\ContactAttachmentObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
 
 class RemoteContactsService2007 extends RemoteContactsService {
-	
+
 	public function __construct (string $appName,
 								LoggerInterface $logger,
 								RemoteCommonService $RemoteCommonService) {
@@ -51,20 +51,20 @@ class RemoteContactsService2007 extends RemoteContactsService {
 	}
 
     public function configure($configuration, EWSClient $DataStore) : void {
-		
+
         parent::configure($configuration, $DataStore);
 		// assign configuration
 		$this->Configuration = $configuration;
 		// assign remote data store
 		$this->DataStore = $DataStore;
-		
+
 	}
-    
+
     /**
-     * construct collection of default remote object properties 
-     * 
+     * construct collection of default remote object properties
+     *
      * @since Release 1.0.15
-	 * 
+	 *
 	 * @return object
 	 */
     public function constructDefaultItemProperties(): object {
@@ -110,7 +110,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
 			foreach ($_properties as $entry) {
 				$this->DefaultItemProperties->FieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType($entry);
 			}
-            
+
             // construct indexed property collection
 			$_properties = [
                 ['contacts:EmailAddress', 'EmailAddress1'],
@@ -183,12 +183,12 @@ class RemoteContactsService2007 extends RemoteContactsService {
 
 	/**
      * create collection item in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param ContactObject $so - Source Data
-	 * 
+	 *
 	 * @return ContactObject
 	 */
 	public function createCollectionItem(string $cid, ContactObject $so): ?ContactObject {
@@ -401,14 +401,14 @@ class RemoteContactsService2007 extends RemoteContactsService {
 
      /**
      * update collection item in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
      * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $istate - Collection Item State
      * @param ContactObject $so - Source Data
-	 * 
+	 *
 	 * @return ContactObject
 	 */
 	public function updateCollectionItem(string $cid, string $iid, string $istate, ContactObject $so): ?ContactObject {
@@ -534,7 +534,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
                         );
                     }
                     // locality
-                    if (!empty($entry->Locality)) {    
+                    if (!empty($entry->Locality)) {
                         $rm[] = $this->updateFieldIndexed(
                             'contacts:PhysicalAddress:City',
                             $type,
@@ -557,7 +557,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
                         );
                     }
                     // region
-                    if (!empty($entry->Region)) {  
+                    if (!empty($entry->Region)) {
                         $rm[] = $this->updateFieldIndexed(
                             'contacts:PhysicalAddress:State',
                             $type,
@@ -689,7 +689,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
                         'PhoneNumbers',
                         new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryType(),
                         new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryEntryType(
-                            ($tc['Count'] > 1) ? $type . $tc['Count'] : $type, 
+                            ($tc['Count'] > 1) ? $type . $tc['Count'] : $type,
                             $entry->Number
                         )
                     );
@@ -812,7 +812,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
         if (!empty($so->Notes)) {
             $rm[] = $this->updateFieldUnindexed(
                 'item:Body',
-                'Body', 
+                'Body',
                 new \OCA\EWS\Components\EWS\Type\BodyType(
                     'Text',
                     $so->Notes
@@ -846,19 +846,19 @@ class RemoteContactsService2007 extends RemoteContactsService {
         } else {
             return null;
         }
-        
+
     }
 
     /**
      * update collection item with uuid in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $iid - Collection Item State
      * @param string $cid - Collection Item UUID
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object {
@@ -878,12 +878,12 @@ class RemoteContactsService2007 extends RemoteContactsService {
 
     /**
      * create collection item attachment in local storage
-     * 
+     *
      * @since Release 1.0.22
-     * 
+     *
 	 * @param string $aid - Affiliation ID
      * @param array $sc - Collection of EventAttachmentObject(S)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createCollectionItemAttachment(string $aid, array $batch): array {
@@ -901,7 +901,7 @@ class RemoteContactsService2007 extends RemoteContactsService {
 			$co->Name = $entry->Name;
 			$co->ContentId = $entry->Name;
 			$co->ContentType = $entry->Type;
-			
+
 			switch ($entry->Encoding) {
 				case 'B':
 					$co->Content = $entry->Data;

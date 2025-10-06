@@ -49,17 +49,17 @@ try {
 		// evaluate if user name exists
 		if (isset($parameters["u"])) {
 			// assign user name
-			$uid = \OCA\EWS\Utile\Sanitizer::username($parameters["u"]);
+			$uid = \OCA\EWS\Utils\Sanitizer::username($parameters["u"]);
 		}
 	}
 	else {
 		// evaluate if user name exists
 		if (isset($_GET["u"])) {
 			// assign user name
-			$uid = \OCA\EWS\Utile\Sanitizer::username($_GET["u"]);
+			$uid = \OCA\EWS\Utils\Sanitizer::username($_GET["u"]);
 		}
 	}
-	
+
 	// evaluate, if user name is present
 	if (empty($uid)) {
 		$logger->info('Test ended, missing required parameters', ['app' => 'integration_ews']);
@@ -77,7 +77,7 @@ try {
 	$ConfigurationService = \OC::$server->get(\OCA\EWS\Service\ConfigurationService::class);
 	$CoreService = \OC::$server->get(\OCA\EWS\Service\CoreService::class);
 	$HarmonizationService = \OC::$server->get(\OCA\EWS\Service\HarmonizationService::class);
-	
+
 	// execute initial harmonization
 	$HarmonizationService->performHarmonization($uid, 'S');
 

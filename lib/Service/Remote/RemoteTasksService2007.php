@@ -37,7 +37,7 @@ use OCA\EWS\Components\EWS\Type\TaskType;
 use OCA\EWS\Objects\TaskCollectionObject;
 use OCA\EWS\Objects\TaskObject;
 use OCA\EWS\Objects\TaskAttachmentObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
 
 class RemoteTasksService2007 extends RemoteTasksService {
 
@@ -50,7 +50,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 	}
 
 	public function configure($configuration, EWSClient $DataStore) : void {
-		
+
 		parent::configure($configuration, $DataStore);
 
 		// assign configuration
@@ -60,18 +60,18 @@ class RemoteTasksService2007 extends RemoteTasksService {
 		// assign timezones
 		$this->SystemTimeZone = $configuration->SystemTimeZone;
 		$this->UserTimeZone = $configuration->UserTimeZone;
-		
+
 	}
 
 	/**
      * update collection item in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param TaskObject $so - Source Data
-	 * 
+	 *
 	 * @return TaskObject
 	 */
 	public function updateCollectionItem(string $cid, string $iid, string $istate, TaskObject $so): ?TaskObject {
@@ -87,7 +87,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
         else {
             $rd[] = $this->deleteFieldExtendedByName('PublicStrings', 'DAV:uid', 'String');
         }
-		
+
         // Starts On
         if (!empty($so->StartsOn)) {
 			// clone start date
@@ -141,7 +141,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
         if (!empty($so->Notes)) {
             $rm[] = $this->updateFieldUnindexed(
                 'item:Body',
-                'Body', 
+                'Body',
                 new \OCA\EWS\Components\EWS\Type\BodyType(
                     'Text',
                     $so->Notes
@@ -275,7 +275,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeMonthlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeMonthlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeMonthlyRecurrence->Interval = '1';
@@ -311,7 +311,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeYearlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeYearlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeYearlyRecurrence->Interval = '1';
@@ -327,7 +327,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 					}
 				}
 			}
-			
+
 			$rm[] = $this->updateFieldUnindexed('task:Recurrence', 'Recurrence', $f);
 		}
 		else {
@@ -356,13 +356,13 @@ class RemoteTasksService2007 extends RemoteTasksService {
 
 	/**
      * update collection item with uuid in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $cid - Collection Item UUID
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object {
@@ -382,11 +382,11 @@ class RemoteTasksService2007 extends RemoteTasksService {
 
 	/**
      * delete collection item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return bool Ture - successfully destroyed / False - failed to destory
 	 */
     public function deleteCollectionItem(string $iid): bool {
@@ -397,7 +397,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 		try {
 			$result = $this->RemoteCommonService->deleteItem($this->DataStore, array($o), 'HardDelete', ['TaskOccurrences' => 'AllOccurrences']);
 		} catch (\Throwable $e) {
-			if (str_contains($e->message, 'ErrorItemNotFound')) {
+			if (str_contains($e->getMessage(), 'ErrorItemNotFound')) {
 				$result = true;
 			}
 			else {
@@ -414,12 +414,12 @@ class RemoteTasksService2007 extends RemoteTasksService {
 
 	/**
      * create collection item attachment in local storage
-     * 
+     *
      * @since Release 1.0.16
-     * 
+     *
 	 * @param string $aid - Affiliation ID
      * @param array $sc - Collection of TaskAttachmentObject(S)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createCollectionItemAttachment(string $aid, array $batch): array {
@@ -437,7 +437,7 @@ class RemoteTasksService2007 extends RemoteTasksService {
 			$co->Name = $entry->Name;
 			$co->ContentId = $entry->Name;
 			$co->ContentType = $entry->Type;
-			
+
 			switch ($entry->Encoding) {
 				case 'B':
 					$co->Content = $entry->Data;

@@ -184,13 +184,13 @@ class CoreService {
 
 	/**
 	 * Connects to account to verify details, on success saves details to user settings
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid					nextcloud user id
 	 * @param string $service_bauth_id		account username
 	 * @param string $service_bauth_secret	account secret
-	 * 
+	 *
 	 * @return object
 	 */
 	public function locateAccount(string $service_bauth_id, string $service_bauth_secret): ?object {
@@ -281,7 +281,7 @@ class CoreService {
 
 	/**
 	 * Connects to account, verifies details, on success saves details to user settings
-	 * 
+	 *
 	 * @param string $uid					nextcloud user id
 	 * @param string $service_bauth_id		account username
      * @param string $service_bauth_secret	account secret
@@ -294,7 +294,7 @@ class CoreService {
      * @since Release 1.0.0
 	 *
 	 */
-	public function connectAccountAlternate(string $uid, string $service_bauth_id, string $service_bauth_secret, string $service_bauth_charset, string $service_location = '', string $service_version = '', array $flags = []): bool {
+	public function connectAccountAlternate(string $uid, string $service_bauth_id, string $service_bauth_secret, ?string $service_bauth_charset, string $service_location = '', string $service_version = '', array $flags = []): bool {
 
 		// define place holders
 		$connect = false;
@@ -324,11 +324,11 @@ class CoreService {
 			}
 		}
 		// validate server
-		if (!\OCA\EWS\Utile\Validator::host($service_location)) {
+		if (!\OCA\EWS\Utils\Validator::host($service_location)) {
 			return false;
 		}
 		// validate auth id
-		if (!\OCA\EWS\Utile\Validator::username($service_bauth_id)) {
+		if (!\OCA\EWS\Utils\Validator::username($service_bauth_id)) {
 			return false;
 		}
 		// validate auth secret
@@ -339,9 +339,9 @@ class CoreService {
 		if (in_array("VALIDATE", $flags)) {
 			// construct remote data store client
 			$RemoteStore = new EWSClient(
-				$service_location, 
+				$service_location,
 				new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
-				'Exchange2007_SP1'
+				EWSClient::SERVICE_VERSION_2007_SP1
 			);
 			// retrieve and evaluate transport verification option
 			if ($this->ConfigurationService->retrieveSystemValue('transport_verification') == '0') {
@@ -416,13 +416,13 @@ class CoreService {
 
 	/**
 	 * Connects to account, verifies details, on success saves details to user settings
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid				nextcloud user id
 	 * @param string $code				authentication code
 	 * @param array $flags
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function connectAccountMS365(string $uid, string $code, array $flags): bool {
@@ -461,12 +461,12 @@ class CoreService {
 
 	/**
 	 * Reauthorize to account, verifies details, on success saves details to user settings
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid				nextcloud user id
 	 * @param string $code				authentication refresh code
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function refreshAccountMS365(string $uid, string $code): bool {
@@ -500,15 +500,15 @@ class CoreService {
 
 	/**
 	 * Removes all users settings, correlations, etc for specific user
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return void
 	 */
 	public function disconnectAccount(string $uid): void {
-		
+
 		// deregister task
 		$this->TaskService->remove(\OCA\EWS\Tasks\HarmonizationLauncher::class, ['uid' => $uid]);
 		// terminate harmonization thread
@@ -522,11 +522,11 @@ class CoreService {
 
 	/**
 	 * Connects Mail App
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return void
 	 */
 	public function connectMail(string $uid, object $configuration): void {
@@ -547,13 +547,13 @@ class CoreService {
 		if (!isset($configuration->SMTP) && !isset($configuration->SMTPS)) {
 			return;
 		}
-		//construct mail account manager 
+		//construct mail account manager
 		$mam = \OC::$server->get(\OCA\Mail\Service\AccountService::class);
 		// retrieve configured mail account
 		$accounts = $mam->findByUserId($uid);
 		// search for existing account that matches
 		foreach ($accounts as $entry) {
-			if ($configuration->UserEMailAddress == $entry->getEmail() || 
+			if ($configuration->UserEMailAddress == $entry->getEmail() ||
 			    $configuration->UserSMTPAddress == $entry->getEmail()) {
 				return;
 			}
@@ -577,7 +577,7 @@ class CoreService {
 		$account->setInboundSslMode($imap->AuthMode);
 		$account->setInboundUser($imap->AuthId);
 		$account->setInboundPassword($this->ConfigurationService->encrypt($configuration->UserSecret));
-		
+
 		// evaluate if type is SMTPS is present
 		if (isset($configuration->SMTPS)) {
 			$smtp = $configuration->SMTPS;
@@ -596,11 +596,11 @@ class CoreService {
 	}
 	/**
 	 * Retrieves local collections for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return array of local collection(s) and attributes
 	 */
 	public function fetchLocalCollections(string $uid): array {
@@ -636,15 +636,15 @@ class CoreService {
 
 	/**
 	 * Retrieves remote collections for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return array of remote collection(s) and attributes
 	 */
 	public function fetchRemoteCollections(string $uid): array {
-		
+
 		// create remote store client
 		$RemoteStore = $this->createClient($uid);
 		// retrieve Configuration
@@ -699,11 +699,11 @@ class CoreService {
 
 	/**
 	 * Retrieves collection correlations for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return array of collection correlation(s) and attributes
 	 */
 	public function fetchCorrelations(string $uid): array {
@@ -727,18 +727,18 @@ class CoreService {
 
 	/**
 	 * Deposit collection correlations for all modules
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
 	 * @param array $cc		contacts collection(s) correlations
 	 * @param array $ec		events collection(s) correlations
 	 * @param array $tc		tasks collection(s) correlations
-	 * 
+	 *
 	 * @return array of collection correlation(s) and attributes
 	 */
 	public function depositCorrelations(string $uid, array $cc, array $ec, array $tc): void {
-		
+
 		// terminate harmonization thread, in case the user changed any correlations
 		$this->HarmonizationThreadService->terminate($uid);
 		// deposit contacts correlations
@@ -774,7 +774,7 @@ class CoreService {
 						}
 					}
 					catch (Exception $e) {
-						
+
 					}
 				}
 			}
@@ -812,7 +812,7 @@ class CoreService {
 						}
 					}
 					catch (Exception $e) {
-						
+
 					}
 				}
 			}
@@ -850,7 +850,7 @@ class CoreService {
 						}
 					}
 					catch (Exception $e) {
-						
+
 					}
 				}
 			}
@@ -859,11 +859,11 @@ class CoreService {
 
 	/**
 	 * Create remote data store client (EWS Client)
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	nextcloud user id
-	 * 
+	 *
 	 * @return EWSClient
 	 */
 	public function createClient(string $uid): EWSClient {
@@ -888,8 +888,8 @@ class CoreService {
 					$account_oauth_expiry = $this->ConfigurationService->retrieveUserValue($uid, 'account_oauth_expiry');
 					// construct remote data store client
 					$this->RemoteStore = new EWSClient(
-						$service_location, 
-						new \OCA\EWS\Components\EWS\AuthenticationBearer($account_oauth_access, $account_oauth_expiry), 
+						$service_location,
+						new \OCA\EWS\Components\EWS\AuthenticationBearer($account_oauth_access, $account_oauth_expiry),
 						$service_version
 					);
 					// retrieve and evaluate transport verification option
@@ -915,7 +915,7 @@ class CoreService {
 					$service_bauth_charset = $this->ConfigurationService->retrieveUserValue($uid, 'account_bauth_charset') ?? 'UTF-8';
 					// construct remote data store client
 					$this->RemoteStore = new EWSClient(
-						$service_location, 
+						$service_location,
 						new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
 						$service_version
 					);
@@ -939,29 +939,29 @@ class CoreService {
 
 	/**
 	 * Destroys remote data store client (EWS Client)
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param EWSClient $Client	nextcloud user id
-	 * 
+	 *
 	 * @return void
 	 */
 	public function destroyClient(EWSClient $Client): void {
-		
+
 		// destory remote data store client
 		$Client = null;
 
 	}
-	
+
 	/**
 	 * publish user notification
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid		nextcloud user id
 	 * @param array $subject	notification type
 	 * @param array $params		notification paramaters to pass
-	 * 
+	 *
 	 * @return array of collection correlation(s) and attributes
 	 */
 	public function publishNotice(string $uid, string $subject, array $params): void {
@@ -976,5 +976,5 @@ class CoreService {
 		// submit notification
 		$this->notificationManager->notify($notification);
 	}
-	
+
 }

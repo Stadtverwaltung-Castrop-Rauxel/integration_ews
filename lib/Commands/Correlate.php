@@ -47,8 +47,9 @@ class Correlate extends Command {
 	private $_Configuration;
 	private $_RemoteStore;
 	private $_LocalStore;
+    private IUserManager $userManager;
 
-	public function __construct(IUserManager $userManager, ConfigurationService $ConfigurationService, CoreService $CoreService) {
+    public function __construct(IUserManager $userManager, ConfigurationService $ConfigurationService, CoreService $CoreService) {
 		parent::__construct();
         $this->userManager = $userManager;
 		$this->_ConfigurationService = $ConfigurationService;
@@ -100,7 +101,7 @@ class Correlate extends Command {
 	 * @param OutputInterface $output
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		
+
 		// retrieve arrguments
         $uid = $input->getArgument('user');
         $module = strtolower($input->getArgument('module'));
@@ -183,7 +184,7 @@ class Correlate extends Command {
 					$this->preformCorrelation($uid, $remote, $local, $match, $create);
 					break;
 			}
-			
+
 			$output->writeln("<info>Success: Correlation(s) Initialized</info>");
 		}
 		catch (\Throwable $th) {
@@ -196,7 +197,7 @@ class Correlate extends Command {
 	}
 
 	private function preformCorrelation(string $uid, string $remote, string $local, bool $match, bool $create) {
-		
+
 		if (!empty($remote) || !empty($local)) {
 			$this->preformCorrelationSpecific($uid, $remote, $local, $match, $create);
 		}
@@ -257,7 +258,7 @@ class Correlate extends Command {
 		// evaluate, if local collection was not found, remote collection was found and create flag was set
 		if ($create === true && empty($lid) && !empty($rid)) {
 			// create collection
-			$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utile\UUID::v4(), $remote, true);
+			$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utils\UUID::v4(), $remote, true);
 			// evaluate if collection id exists
 			if (isset($collection->Id)) {
 				$lid = $collection->Id;
@@ -302,7 +303,7 @@ class Correlate extends Command {
 		$LocalCollections = $this->_LocalService->listCollections($uid, true);
 
 		foreach ($RemoteCollections as $entry) {
-			
+
 			// extract remote id and name
 			$rid = (string) $entry['id'];
 			$rname = (string) $entry['name'];
@@ -321,7 +322,7 @@ class Correlate extends Command {
 			// evaluate if create flag is true and local id is empty
 			elseif ($create === true && empty($lid)) {
 				// create collection
-				$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utile\UUID::v4(), $rname, true);
+				$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utils\UUID::v4(), $rname, true);
 				// evaluate if collection id exists
 				if (isset($collection->Id)) {
 					$lid = $collection->Id;

@@ -407,7 +407,7 @@ class Autodiscover
         if ($server) {
             if ($version === null) {
                 // EWS class default.
-                $version = EWSClient::VERSION_2007;
+                $version = EWSClient::SERVICE_VERSION_2007;
             }
             return new EWSClient(
                 $server,
@@ -594,7 +594,8 @@ class Autodiscover
             CURLOPT_CUSTOMREQUEST   => 'POST',
             CURLOPT_POSTFIELDS      => $this->getAutoDiscoverRequest(),
             CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_USERPWD         => $this->username . ':' . $this->password,
+            CURLOPT_USERNAME        => $this->username,
+			CURLOPT_PASSWORD        => $this->password,
             CURLOPT_TIMEOUT         => $timeout,
             CURLOPT_CONNECTTIMEOUT  => $this->connection_timeout,
             CURLOPT_FOLLOWLOCATION  => true,
@@ -858,14 +859,13 @@ class Autodiscover
     protected function parseVersion2007($minorversion)
     {
         switch ($minorversion) {
-            case 0:
-                return EWSClient::VERSION_2007;
-            case 1:
+			case 1:
             case 2:
             case 3:
-                return EWSClient::VERSION_2007_SP1;
-            default:
-                return EWSClient::VERSION_2007;
+                return EWSClient::SERVICE_VERSION_2007_SP1;
+			case 0:
+			default:
+                return EWSClient::SERVICE_VERSION_2007;
         }
     }
 
@@ -879,14 +879,13 @@ class Autodiscover
     protected function parseVersion2010($minorversion)
     {
         switch ($minorversion) {
-            case 0:
-                return EWSClient::VERSION_2010;
-            case 1:
-                return EWSClient::VERSION_2010_SP1;
+			case 1:
+                return EWSClient::SERVICE_VERSION_2010_SP1;
             case 2:
-                return EWSClient::VERSION_2010_SP2;
-            default:
-                return EWSClient::VERSION_2010;
+                return EWSClient::SERVICE_VERSION_2010_SP2;
+			case 0:
+			default:
+                return EWSClient::SERVICE_VERSION_2010;
         }
     }
 
@@ -900,8 +899,8 @@ class Autodiscover
     protected function parseVersion2013($majorbuild)
     {
         return ($majorbuild == 847
-            ? EWSClient::VERSION_2013_SP1
-            : EWSClient::VERSION_2013);
+            ? EWSClient::SERVICE_VERSION_2013_SP1
+            : EWSClient::SERVICE_VERSION_2013);
     }
 
     /**
@@ -911,7 +910,7 @@ class Autodiscover
      */
     protected function parseVersion2016()
     {
-        return EWSClient::VERSION_2016;
+        return EWSClient::SERVICE_VERSION_2016;
     }
 
     /**

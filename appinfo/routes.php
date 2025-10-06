@@ -26,15 +26,15 @@ declare(strict_types=1);
 return [
 	'routes' => [
 		['name' => 'AdminConfiguration#depositConfiguration', 'url' => '/admin-configuration', 'verb' => 'PUT'],
-		['name' => 'UserConfiguration#ConnectAlternate', 'url' => '/connect-alternate', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#ConnectMS365', 'url' => '/connect-ms365', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#Disconnect', 'url' => '/disconnect', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#Harmonize', 'url' => '/harmonize', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#fetchLocalCollections', 'url' => '/fetch-local-collections', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#fetchRemoteCollections', 'url' => '/fetch-remote-collections', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#fetchCorrelations', 'url' => '/fetch-correlations', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#depositCorrelations', 'url' => '/deposit-correlations', 'verb' => 'PUT'],
-		['name' => 'UserConfiguration#fetchPreferences', 'url' => '/fetch-preferences', 'verb' => 'GET'],
-		['name' => 'UserConfiguration#depositPreferences', 'url' => '/deposit-preferences', 'verb' => 'PUT'],
+		['name' => 'PersonalConfiguration#ConnectAlternate', 'url' => '/connect-alternate', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#ConnectMS365', 'url' => '/connect-ms365', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#Disconnect', 'url' => '/disconnect', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#Harmonize', 'url' => '/harmonize', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#fetchLocalCollections', 'url' => '/fetch-local-collections', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#fetchRemoteCollections', 'url' => '/fetch-remote-collections', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#fetchCorrelations', 'url' => '/fetch-correlations', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#depositCorrelations', 'url' => '/deposit-correlations', 'verb' => 'PUT'],
+		['name' => 'PersonalConfiguration#fetchPreferences', 'url' => '/fetch-preferences', 'verb' => 'GET'],
+		['name' => 'PersonalConfiguration#depositPreferences', 'url' => '/deposit-preferences', 'verb' => 'PUT'],
 	]
 ];

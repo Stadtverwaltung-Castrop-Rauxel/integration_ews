@@ -36,7 +36,10 @@ use OCA\EWS\Service\HarmonizationService;
 
 class Harmonize extends Command {
 
-	public function __construct(IUserManager $userManager, HarmonizationService $HarmonizationService) {
+    private IUserManager $userManager;
+    private HarmonizationService $HarmonizationService;
+
+    public function __construct(IUserManager $userManager, HarmonizationService $HarmonizationService) {
 		parent::__construct();
         $this->userManager = $userManager;
         $this->HarmonizationService = $HarmonizationService;

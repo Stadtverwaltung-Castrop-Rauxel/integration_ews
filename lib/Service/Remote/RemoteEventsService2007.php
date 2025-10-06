@@ -27,17 +27,11 @@ namespace OCA\EWS\Service\Remote;
 
 use Datetime;
 use DateTimeZone;
-use DateInterval;
-use Psr\Log\LoggerInterface;
-
-use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Service\Remote\RemoteCommonService;
 use OCA\EWS\Components\EWS\EWSClient;
 use OCA\EWS\Components\EWS\Type\CalendarItemType;
-use OCA\EWS\Objects\EventCollectionObject;
 use OCA\EWS\Objects\EventObject;
-use OCA\EWS\Objects\EventAttachmentObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
+use Psr\Log\LoggerInterface;
 
 class RemoteEventsService2007 extends RemoteEventsService {
 
@@ -50,7 +44,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 	}
 
 	public function configure($configuration, EWSClient $DataStore) : void {
-		
+
 		parent::configure($configuration, $DataStore);
 
 		// assign configuration
@@ -60,14 +54,14 @@ class RemoteEventsService2007 extends RemoteEventsService {
 		// assign timezones
 		$this->SystemTimeZone = $configuration->SystemTimeZone;
 		$this->UserTimeZone = $configuration->UserTimeZone;
-		
+
 	}
 
 	/**
-     * construct collection of default remote object properties 
-     * 
+     * construct collection of default remote object properties
+     *
      * @since Release 1.0.15
-	 * 
+	 *
 	 * @return object
 	 */
 	public function constructDefaultItemProperties(): object {
@@ -136,12 +130,12 @@ class RemoteEventsService2007 extends RemoteEventsService {
 
 	/**
      * create collection item in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param EventObject $so - Source Data
-	 * 
+	 *
 	 * @return EventObject
 	 */
 	public function createCollectionItem(string $cid, EventObject $so): ?EventObject {
@@ -180,16 +174,16 @@ class RemoteEventsService2007 extends RemoteEventsService {
 		else {
 			$ro->IsAllDayEvent = false;
 		}
-		// evaluate if global time zone present 
-		if ($so->TimeZone instanceof \DateTimeZone) {
+		// evaluate if global time zone present
+		if ($so->TimeZone instanceof DateTimeZone) {
 			$tz = $so->TimeZone;
 		}
 		// evaluate if start time zone is present
-		elseif ($so->StartsTZ instanceof \DateTimeZone) {
+		elseif ($so->StartsTZ instanceof DateTimeZone) {
 			$tz = $so->StartsTZ;
 		}
 		// evaluate if user default time zone is present
-		elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+		elseif ($this->UserTimeZone instanceof DateTimeZone) {
 			$tz = $this->UserTimeZone;
 		}
 		// use system default time zone if no other option was present
@@ -350,7 +344,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$ro->Recurrence->RelativeMonthlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeMonthlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$ro->Recurrence->RelativeMonthlyRecurrence->Interval = '1';
@@ -388,7 +382,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$ro->Recurrence->RelativeYearlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeYearlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$ro->Recurrence->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$ro->Recurrence->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$ro->Recurrence->RelativeYearlyRecurrence->Interval = '1';
@@ -422,7 +416,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 				*/
 			}
 		}
-		
+
 		// execute command
         $rs = $this->RemoteCommonService->createItem($this->DataStore, $cid, $ro);
         // process response
@@ -446,14 +440,14 @@ class RemoteEventsService2007 extends RemoteEventsService {
 
 	/**
      * update collection item in remote storage
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
 	 * @param string $istate - Collection Item State
      * @param EventObject $so - Source Data
-	 * 
+	 *
 	 * @return EventObject
 	 */
 	public function updateCollectionItem(string $cid, string $iid,  string $istate, EventObject $so): ?EventObject {
@@ -511,7 +505,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
         if (!empty($so->Notes)) {
             $rm[] = $this->updateFieldUnindexed(
                 'item:Body',
-                'Body', 
+                'Body',
                 new \OCA\EWS\Components\EWS\Type\BodyType(
                     'HTML',
                     $so->Notes
@@ -521,16 +515,16 @@ class RemoteEventsService2007 extends RemoteEventsService {
             $rd[] = $this->deleteFieldUnindexed('item:Body');
         }
 		// TimeZone / MeetingTimeZone
-		// evaluate if global time zone present 
-		if ($so->TimeZone instanceof \DateTimeZone) {
+		// evaluate if global time zone present
+		if ($so->TimeZone instanceof DateTimeZone) {
 			$tz = $so->TimeZone;
 		}
 		// evaluate if start time zone is present
-		elseif ($so->StartsTZ instanceof \DateTimeZone) {
+		elseif ($so->StartsTZ instanceof DateTimeZone) {
 			$tz = $so->StartsTZ;
 		}
 		// evaluate if user default time zone is present
-		elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+		elseif ($this->UserTimeZone instanceof DateTimeZone) {
 			$tz = $this->UserTimeZone;
 		}
 		// use system default time zone if no other option was present
@@ -709,7 +703,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeMonthlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeMonthlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeMonthlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeMonthlyRecurrence->Interval = '1';
@@ -745,7 +739,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 				elseif ($so->Occurrence->Pattern == 'R') {
 					$f->RelativeYearlyRecurrence = new \OCA\EWS\Components\EWS\Type\RelativeYearlyRecurrencePatternType();
 					if (!empty($so->Occurrence->Interval)) {
-						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;	
+						$f->RelativeYearlyRecurrence->Interval = $so->Occurrence->Interval;
 					}
 					else {
 						$f->RelativeYearlyRecurrence->Interval = '1';
@@ -761,7 +755,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 					}
 				}
 			}
-			
+
 			$rm[] = $this->updateFieldUnindexed('calendar:Recurrence', 'Recurrence', $f);
 
 			// Occurrence Exclusions
@@ -809,14 +803,14 @@ class RemoteEventsService2007 extends RemoteEventsService {
 
 	/**
      * update collection item with uuid in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
 	 * @param string $istate - Collection Item State
      * @param string $cid - Collection Item UUID
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object {
@@ -837,12 +831,12 @@ class RemoteEventsService2007 extends RemoteEventsService {
 
 	/**
      * create collection item attachment in local storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param string $aid - Affiliation ID
      * @param array $sc - Collection of EventAttachmentObject(S)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createCollectionItemAttachment(string $aid, array $batch): array {
@@ -860,7 +854,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
 			$co->Name = $entry->Name;
 			$co->ContentId = $entry->Name;
 			$co->ContentType = $entry->Type;
-			
+
 			switch ($entry->Encoding) {
 				case 'B':
 					$co->Content = $entry->Data;
@@ -894,15 +888,15 @@ class RemoteEventsService2007 extends RemoteEventsService {
     }
 
 	/**
-     * Calculates Duration from  
-     * 
+     * Calculates Duration from
+     *
      * @since Release 1.0.15
-     * 
+     *
      * @param DataTime $Start
 	 * @param DataTime $End
-     * 
-     * @return string 
-     */ 
+     *
+     * @return string
+     */
 	public function constructDuration(DateTime $Start, DateTime $End): ?string {
 
 		return $Start->diff($End)->format('P%dD%hH%mM');
@@ -911,17 +905,17 @@ class RemoteEventsService2007 extends RemoteEventsService {
 
 	/**
      * Converts time zone name to EWS (Microsoft/Windows) time zone object
-     * 
+     *
      * @since Release 1.0.15
-     * 
+     *
      * @param string $name
-     * 
+     *
      * @return object valid EWS time zone object on success, or null on failure
-     */ 
+     */
 	public function constructTimeZone(string $name): object {
 
 		// retrive time zone properties
-		$tz = \OCA\EWS\Utile\TimeZoneEWS::find($name);
+		$tz = \OCA\EWS\Utils\TimeZoneEWS::find($name);
 		$tzname = $tz->Id;
 		$tzoffset = $tz->Name;
 		// calculate offset from zone description

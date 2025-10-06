@@ -2,30 +2,31 @@
 //declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Service;
 
-use Exception;
+use OCP\Exceptions\AppConfigException;
+use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 
 use OCP\IConfig;
@@ -35,13 +36,17 @@ use OCP\App\IAppManager;
 
 use OCA\EWS\AppInfo\Application;
 
+/**
+ * TODO: Migrate string constants to an enum for
+ */
 class ConfigurationService {
 
 	const ProviderAlternate = 'A';
 	const ProviderMS365 = 'MS365';
 
 	/**
-	 * Default System Configuration 
+	 * Default System Configuration
+	 *
 	 * @var array
 	 * */
 	private const _SYSTEM = [
@@ -54,10 +59,16 @@ class ConfigurationService {
 		'ms365_tenant_id' => '',
 		'ms365_application_id' => '',
 		'ms365_application_secret' => '',
+		'approved_account_servers' => []
+	];
+
+	private const _SYSTEM_ARRAY = [
+		'approved_account_servers' => 1,
 	];
 
 	/**
-	 * Default System Secure Parameters 
+	 * Default System Secure Parameters
+	 *
 	 * @var array
 	 * */
 	private const _SYSTEM_SECURE = [
@@ -67,7 +78,8 @@ class ConfigurationService {
 	];
 
 	/**
-	 * Default User Configuration 
+	 * Default User Configuration
+	 *
 	 * @var array
 	 * */
 	private const _USER = [
@@ -100,7 +112,8 @@ class ConfigurationService {
 	];
 
 	/**
-	 * Default User Secure Parameters 
+	 * Default User Secure Parameters
+	 *
 	 * @var array
 	 * */
 	private const _USER_SECURE = [
@@ -113,10 +126,13 @@ class ConfigurationService {
 	private $_logger;
 
 	/** @var IConfig */
-	private $_ds;
-	
+	private $_config;
+
+	/** @var IAppConfig */
+	private $_appConfig;
+
 	/** @var ICrypto */
-	private $_cs;
+	private $_crypto;
 
 	/** @var IUserManager */
 	private $_usermanager;
@@ -124,43 +140,44 @@ class ConfigurationService {
 	/** @var IAppManager */
 	private $_appmanager;
 
-	public function __construct(LoggerInterface $logger, IConfig $config, ICrypto $crypto, IUserManager $userManager, IAppManager $appManager)
-	{
+
+	public function __construct(LoggerInterface $logger, IConfig $config, IAppConfig $appConfig, ICrypto $crypto, IUserManager $userManager, IAppManager $appManager) {
 		$this->_logger = $logger;
-		$this->_ds = $config;
-		$this->_cs = $crypto;
+		$this->_config = $config;
+		$this->_crypto = $crypto;
 		$this->_usermanager = $userManager;
 		$this->_appmanager = $appManager;
+		$this->_appConfig = $appConfig;
 	}
 
 	/**
 	 * Retrieves account provider
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return string acount provider id
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function retrieveProvider(string $uid): string {
-		
+
 		// retrieve and return account provider
-		return $this->retrieveUserValue($uid, 'account_provider');;
+		return $this->retrieveUserValue($uid, 'account_provider');
 
 	}
 
 	/**
 	 * Deposit accout provider
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param string $id		account provider id 
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param string $id account provider id
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function depositProvider(string $uid, string $id): void {
-		
+
 		// deposit account provider
 		$this->depositUserValue($uid, 'account_provider', $id);
 
@@ -168,20 +185,20 @@ class ConfigurationService {
 
 	/**
 	 * Retrieves collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param array $keys		collection of configuration parameter keys
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param array $keys collection of configuration parameter keys
+	 *
 	 * @return array of key/value pairs, of configuration parameter
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function retrieveUser(string $uid, ?array $keys = null): array {
 
 		// define parameters place holder
 		$parameters = [];
 		// evaluate if we are looking for specific parameters
-		
+
 		if (!isset($keys) || count($keys) == 0) {
 			// retrieve all user configuration keys
 			$keys = array_keys(self::_USER);
@@ -196,17 +213,16 @@ class ConfigurationService {
 			$parameters['system_tasks'] = $this->isTasksAppAvailable($uid);
 			$parameters['user_id'] = $uid;
 			// user default time zone
-			$v = $this->_ds->getUserValue($uid, 'core', 'timezone');
+			$v = $this->_config->getUserValue($uid, 'core', 'timezone');
 			if (!empty($v)) {
 				$parameters['user_timezone'] = $v;
 			}
 			// user events attachment path
-			$v = $this->_ds->getUserValue($uid, 'dav', 'attachmentsFolder');
+			$v = $this->_config->getUserValue($uid, 'dav', 'attachmentsFolder');
 			if (!empty($v)) {
 				$parameters['events_attachment_path'] = $v;
 			}
-		}
-		else {
+		} else {
 			// retrieve specific user configuration values
 			foreach ($keys as $entry) {
 				$parameters[$entry] = $this->retrieveUserValue($uid, $entry);
@@ -223,18 +239,26 @@ class ConfigurationService {
 
 	/**
 	 * Deposit collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid			nextcloud user id
-	 * @param array $parameters		collection of key/value pairs, of parameters
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param array $parameters collection of key/value pairs, of parameters
+	 *
 	 * @return void
+	 * @throws AppConfigException
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function depositUser($uid, array $parameters): void {
-		
+
+		$approvedServers = $this->getApprovedAccountServers();
+
 		// deposit system configuration parameters
 		foreach ($parameters as $key => $value) {
+			if ($key == 'account_server' && !empty($approvedServers) && !in_array($value, $approvedServers)) {
+				$msg = "App configuration for \"$key\" is invalid.";
+				$this->_logger->warning($msg, ['app' => Application::APP_ID]);
+				throw new AppConfigException($msg);
+			}
 			$this->depositUserValue($uid, $key, $value);
 		}
 
@@ -242,19 +266,19 @@ class ConfigurationService {
 
 	/**
 	 * Destroy collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param array $keys		collection of configuration parameter keys
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param array $keys collection of configuration parameter keys
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function destroyUser(string $uid, ?array $keys = null): void {
 
 		// evaluate if we are looking for specific parameters
 		if (!isset($keys) || count($keys) == 0) {
-			$keys = $this->_ds->getUserKeys($uid, Application::APP_ID);
+			$keys = $this->_config->getUserKeys($uid, Application::APP_ID);
 		}
 		// destroy system configuration parameter
 		foreach ($keys as $entry) {
@@ -262,27 +286,27 @@ class ConfigurationService {
 		}
 
 	}
-	
+
 	/**
 	 * Retrieves single system configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param string $key		configuration parameter key
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param string $key configuration parameter key
+	 *
 	 * @return string configuration parameter value
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function retrieveUserValue(string $uid, string $key): string {
 
 		// retrieve configured parameter value
-		$value = $this->_ds->getUserValue($uid, Application::APP_ID, $key);
+		$value = $this->_config->getUserValue($uid, Application::APP_ID, $key);
 		// evaluate if value was returned
 		if ($value != '') {
 			// evaluate if parameter is on the secure list and is not empty
 			if (isset(self::_USER_SECURE[$key]) && !empty($value)) {
 				try {
-					$value = $this->_cs->decrypt($value);
+					$value = $this->_crypto->decrypt($value);
 				} catch (\Throwable $th) {
 					// Do nothing just return the original value
 				}
@@ -298,53 +322,53 @@ class ConfigurationService {
 
 	/**
 	 * Deposit single system configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param string $key		configuration parameter key
-	 * @param string $value		configuration parameter value
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param string $key configuration parameter key
+	 * @param string $value configuration parameter value
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function depositUserValue(string $uid, string $key, string $value): void {
-		
+
 		// trim whitespace
 		$value = trim($value);
 		// evaluate if parameter is on the secure list
 		if (isset(self::_USER_SECURE[$key]) && !empty($value)) {
-			$value = $this->_cs->encrypt($value);
+			$value = $this->_crypto->encrypt($value);
 		}
 		// deposit user configuration parameter value
-		$this->_ds->setUserValue($uid, Application::APP_ID, $key, $value);
+		$this->_config->setUserValue($uid, Application::APP_ID, $key, $value);
 
 	}
 
 	/**
 	 * Destroy single user configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param string $key		configuration parameter keys
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param string $key configuration parameter keys
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function destroyUserValue(string $uid, string $key): void {
 
 		// destroy user configuration parameter
-		$this->_ds->deleteUserValue($uid, Application::APP_ID, $key);
+		$this->_config->deleteUserValue($uid, Application::APP_ID, $key);
 
 	}
 
 	/**
 	 * Retrieves collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param array $keys	collection of configuration parameter keys
-	 * 
+	 *
+	 * @param array $keys collection of configuration parameter keys
+	 *
 	 * @return array of key/value pairs, of configuration parameter
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function retrieveSystem(?array $keys = null): array {
 
@@ -355,7 +379,11 @@ class ConfigurationService {
 		// retrieve system configuration values
 		$parameters = [];
 		foreach ($keys as $entry) {
-			$parameters[$entry] = $this->retrieveSystemValue($entry);
+			if (array_key_exists($entry, self::_SYSTEM_ARRAY)) {
+				$parameters[$entry] = $this->retrieveSystemArray($entry);
+			} else {
+				$parameters[$entry] = $this->retrieveSystemValue($entry);
+			}
 		}
 		// return configuration parameters
 		return $parameters;
@@ -364,37 +392,41 @@ class ConfigurationService {
 
 	/**
 	 * Deposit collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param array $parameters	collection of key/value pairs, of parameters
-	 * 
+	 *
+	 * @param array $parameters collection of key/value pairs, of parameters
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function depositSystem(array $parameters): void {
-		
+
 		// deposit system configuration parameters
 		foreach ($parameters as $key => $value) {
-			$this->depositSystemValue($key, $value);
+			if (array_key_exists($key, self::_SYSTEM_ARRAY) && is_array($value)) {
+				$this->depositSystemArray($key, $value);
+			} else {
+				$this->depositSystemValue($key, $value);
+			}
 		}
 
 	}
 
-	
+
 	/**
 	 * Destroy collection of system configuration parameters
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param array $keys	collection of configuration parameter keys
-	 * 
+	 *
+	 * @param array $keys collection of configuration parameter keys
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function destroySystem(?array $keys = null): void {
 
 		// evaluate if we are looking for specific parameters
 		if (!isset($keys) || count($keys) == 0) {
-			$keys = $this->_ds->getAppKeys(Application::APP_ID);
+			$keys = $this->_appConfig->getKeys(Application::APP_ID);
 		}
 		// destroy system configuration parameter
 		foreach ($keys as $entry) {
@@ -405,23 +437,23 @@ class ConfigurationService {
 
 	/**
 	 * Retrieves single system configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $key	configuration parameter key
-	 * 
+	 *
+	 * @param string $key configuration parameter key
+	 *
 	 * @return string configuration parameter value
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function retrieveSystemValue(string $key): string {
 
 		// retrieve configured parameter value
-		$value = $this->_ds->getAppValue(Application::APP_ID, $key);
+		$value = $this->_appConfig->getValueString(Application::APP_ID, $key);
 		// evaluate if value was returned
 		if ($value != '') {
 			// evaluate if parameter is on the secure list and is not empty
-			if (isset(self::_SYSTEM_SECURE[$key])  && !empty($value)) {
+			if (isset(self::_SYSTEM_SECURE[$key]) && !empty($value)) {
 				try {
-					$value = $this->_cs->decrypt($value);
+					$value = $this->_crypto->decrypt($value);
 				} catch (\Throwable $th) {
 					// Do nothing just return the original value
 				}
@@ -436,50 +468,86 @@ class ConfigurationService {
 	}
 
 	/**
-	 * Deposit single system configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $key		configuration parameter key
-	 * @param string $value		configuration parameter value
-	 * 
-	 * @return void
+	 * Retrieves single system configuration parameter which is an array
+	 *
+	 * @param string $key configuration parameter key
+	 *
+	 * @return string configuration parameter value
 	 */
-	public function depositSystemValue(string $key, string $value): void {
-		
-		// trim whitespace
-		$value = trim($value);
-		// evaluate if parameter is on the secure list
-		if (isset(self::_SYSTEM_SECURE[$key]) && !empty($value)) {
-			$value = $this->_cs->encrypt($value);
+	public function retrieveSystemArray(string $key): array {
+
+		// retrieve configured parameter value
+		$value = $this->_appConfig->getValueArray(Application::APP_ID, $key);
+		// evaluate if value was returned
+		if ($value == '') {
+			// return default system configuration value
+			return self::_SYSTEM[$key];
+		} else {
+			// return configuration parameter value
+			return $value;
 		}
-		// deposit system configuration parameter value
-		$this->_ds->setAppValue(Application::APP_ID, $key, $value);
 
 	}
 
 	/**
-	 * Destroy single system configuration parameter
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 * Deposit single system configuration parameter
+	 *
+	 * @param string $key configuration parameter key
+	 * @param string $value configuration parameter value
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
+	 */
+	public function depositSystemValue(string $key, string $value): void {
+
+		// trim whitespace
+		$value = trim($value);
+		// evaluate if parameter is on the secure list
+		if (isset(self::_SYSTEM_SECURE[$key]) && !empty($value)) {
+			$value = $this->_crypto->encrypt($value);
+		}
+		// deposit system configuration parameter value
+		$this->_appConfig->setValueString(Application::APP_ID, $key, $value);
+	}
+
+	/**
+	 * Deposit single system configuration parameter
+	 *
+	 * @param string $key configuration parameter key
+	 * @param array $value configuration parameter value
+	 *
+	 * @return void
+	 * @since Release 1.0.0
+	 *
+	 */
+	public function depositSystemArray(string $key, array $value): void {
+		// deposit system configuration parameter value
+		$this->_appConfig->setValueArray(Application::APP_ID, $key, $value);
+	}
+
+	/**
+	 * Destroy single system configuration parameter
+	 *
+	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function destroySystemValue(string $key): void {
 
 		// destroy system configuration parameter
-		$this->_ds->deleteAppValue(Application::APP_ID, $key);
+		$this->_appConfig->deleteKey(Application::APP_ID, $key);
 
 	}
 
 	/**
 	 * Converts key/value paired attribute array to object properties
-	 * 
+	 *
+	 * @param string $parameters collection of key/value paired attributes
+	 *
+	 * @return \OCA\EWS\Objects\ConfigurationObject
 	 * @since Release 1.0.0
-	 * 
-	 * @param string $parameters	collection of key/value paired attributes
-	 * 
-	 * @return ConfigurationObject
+	 *
 	 */
 	public function toUserConfigurationObject(array $parameters): \OCA\EWS\Objects\ConfigurationObject {
 
@@ -568,11 +636,47 @@ class ConfigurationService {
 	}
 
 	/**
-	 * Gets harmonization mode
-	 * 
+	 * Gets approved account servers
+	 *
+	 * @return string[] approved account servers
 	 * @since Release 1.0.0
-	 * 
+	 *
+	 */
+	public function getApprovedAccountServers(): array {
+
+		// retrieve approved account servers
+		$approvedAccountServers = $this->retrieveSystemArray('approved_account_servers');
+		// return approved account servers or default
+		if (!empty($approvedAccountServers)) {
+			return $approvedAccountServers;
+		} else {
+			return self::_SYSTEM['approved_account_servers'];
+		}
+
+	}
+
+	/**
+	 * Sets approved account servers
+	 *
+	 * @param string[] $approvedAccountServers approved account servers
+	 *
+	 * @return void
+	 * @since Release 1.0.0
+	 *
+	 */
+	public function setApprovedAccountServers(array $approvedAccountServers): void {
+
+		// set approved account servers
+		$this->depositSystemArray('approved_account_servers', $approvedAccountServers);
+
+	}
+
+	/**
+	 * Gets harmonization mode
+	 *
 	 * @return string harmonization mode (default P - passive)
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationMode(): string {
 
@@ -581,8 +685,7 @@ class ConfigurationService {
 		// return harmonization mode or default
 		if (!empty($mode)) {
 			return $mode;
-		}
-		else {
+		} else {
 			return self::_SYSTEM['harmonization_mode'];
 		}
 
@@ -590,81 +693,82 @@ class ConfigurationService {
 
 	/**
 	 * Sets harmonization mode
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $mode		harmonization mode (A - Active / P - Passive)
-	 * 
+	 *
+	 * @param string $mode harmonization mode (A - Active / P - Passive)
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationMode(string $mode): void {
-		
+
 		// set harmonization mode
 		$this->depositSystemValue('harmonization_mode', $mode);
 
 	}
 
+
 	/**
 	 * Gets harmonization state
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationState(string $uid): bool {
 
 		// retrieve state
-		return (bool) $this->retrieveUserValue($uid, 'account_harmonization_state');
+		return (bool)$this->retrieveUserValue($uid, 'account_harmonization_state');
 
 	}
 
 	/**
 	 * Sets harmonization state
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param bool $state		harmonization state (true/false)
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param bool $state harmonization state (true/false)
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationState(string $uid, bool $state): void {
-		
+
 		// deposit state
 		$this->depositUserValue($uid, 'account_harmonization_state', $state);
 
 	}
 
-	
+
 	/**
 	 * Gets harmonization start
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return int
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationStart(string $uid): int {
 
 		// return time stamp
-		return (int) $this->retrieveUserValue($uid, 'account_harmonization_start');
+		return (int)$this->retrieveUserValue($uid, 'account_harmonization_start');
 
 	}
 
 	/**
 	 * Sets harmonization start
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationStart(string $uid): void {
-		
+
 		// deposit time stamp
 		$this->depositUserValue($uid, 'account_harmonization_start', time());
 
@@ -672,31 +776,31 @@ class ConfigurationService {
 
 	/**
 	 * Gets harmonization end
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return int
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationEnd(string $uid): int {
 
 		// return time stamp
-		return (int) $this->retrieveUserValue($uid, 'account_harmonization_end');
+		return (int)$this->retrieveUserValue($uid, 'account_harmonization_end');
 
 	}
 
 	/**
 	 * Sets harmonization end
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationEnd(string $uid): void {
-		
+
 		// deposit time stamp
 		$this->depositUserValue($uid, 'account_harmonization_end', time());
 
@@ -704,31 +808,31 @@ class ConfigurationService {
 
 	/**
 	 * Gets harmonization heart beat
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return int
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationHeartBeat(string $uid): int {
 
 		// return time stamp
-		return (int) $this->retrieveUserValue($uid, 'account_harmonization_hb');
+		return (int)$this->retrieveUserValue($uid, 'account_harmonization_hb');
 
 	}
 
 	/**
 	 * Sets harmonization heart beat
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationHeartBeat(string $uid): void {
-		
+
 		// deposit time stamp
 		$this->depositUserValue($uid, 'account_harmonization_hb', time());
 
@@ -736,37 +840,36 @@ class ConfigurationService {
 
 	/**
 	 * Gets harmonization thread run duration interval
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return string harmonization thread run duration interval (default 3600 seconds)
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationThreadDuration(): int {
 
 		// retrieve value
 		$interval = $this->retrieveSystemValue('harmonization_thread_duration');
-		
+
 		// return value or default
 		if (is_numeric($interval)) {
 			return intval($interval);
-		}
-		else {
-			return intval($self::_SYSTEM['harmonization_thread_duration']);
+		} else {
+			return intval(self::_SYSTEM['harmonization_thread_duration']);
 		}
 
 	}
 
 	/**
 	 * Sets harmonization thread pause interval
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $interval		harmonization thread pause interval in seconds
-	 * 
+	 *
+	 * @param string $interval harmonization thread pause interval in seconds
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationThreadDuration(int $interval): void {
-		
+
 		// set value
 		$this->depositSystemValue('harmonization_thread_duration', $interval);
 
@@ -774,37 +877,36 @@ class ConfigurationService {
 
 	/**
 	 * Gets harmonization thread pause interval
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return string harmonization thread pause interval (default 5 seconds)
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationThreadPause(): int {
 
 		// retrieve value
 		$interval = $this->retrieveSystemValue('harmonization_thread_pause');
-		
+
 		// return value or default
 		if (is_numeric($interval)) {
 			return intval($interval);
-		}
-		else {
-			return intval($self::_SYSTEM['harmonization_thread_pause']);
+		} else {
+			return intval(self::_SYSTEM['harmonization_thread_pause']);
 		}
 
 	}
 
 	/**
 	 * Sets harmonization thread pause interval
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $interval		harmonization thread pause interval in seconds
-	 * 
+	 *
+	 * @param string $interval harmonization thread pause interval in seconds
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationThreadPause(int $interval): void {
-		
+
 		// set value
 		$this->depositSystemValue('harmonization_thread_pause', $interval);
 
@@ -812,12 +914,12 @@ class ConfigurationService {
 
 	/**
 	 * Gets harmonization thread id
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return string|null thread id if exists | null if does not exist
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationThreadId(string $uid): int {
 
@@ -826,8 +928,7 @@ class ConfigurationService {
 		// return thread id
 		if (is_numeric($tid)) {
 			return intval($tid);
-		}
-		else {
+		} else {
 			return 0;
 		}
 
@@ -835,29 +936,29 @@ class ConfigurationService {
 
 	/**
 	 * Sets harmonization thread id
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid		nextcloud user id
-	 * @param string $tid		thread id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param string $tid thread id
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationThreadId(string $uid, int $tid): void {
-		
+
 		// update harmonization thread id
-		$this->depositUserValue($uid, 'account_harmonization_tid', (string) $tid);
+		$this->depositUserValue($uid, 'account_harmonization_tid', (string)$tid);
 
 	}
 
 	/**
 	 * Gets harmonization thread heart beat
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 *
 	 * @return int thread heart beat time stamp if exists | null if does not exist
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function getHarmonizationThreadHeartBeat(string $uid): int {
 
@@ -865,9 +966,8 @@ class ConfigurationService {
 		$thb = $this->retrieveUserValue($uid, 'account_harmonization_thb');
 		// return thread heart beat
 		if (is_numeric($thb)) {
-			return (int) $thb;
-		}
-		else {
+			return (int)$thb;
+		} else {
 			return 0;
 		}
 
@@ -875,16 +975,16 @@ class ConfigurationService {
 
 	/**
 	 * Sets harmonization thread heart beat
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	nextcloud user id
-	 * @param int $thb		thread heart beat time stamp
-	 * 
+	 *
+	 * @param string $uid nextcloud user id
+	 * @param int $thb thread heart beat time stamp
+	 *
 	 * @return void
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function setHarmonizationThreadHeartBeat(string $uid, int $thb): void {
-		
+
 		// update harmonization thread id
 		$this->depositUserValue($uid, 'account_harmonization_thb', $thb);
 
@@ -892,10 +992,10 @@ class ConfigurationService {
 
 	/**
 	 * retrieve contacts app status
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function isMailAppAvailable(string $uid): bool {
 
@@ -906,10 +1006,10 @@ class ConfigurationService {
 
 	/**
 	 * retrieve contacts app status
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function isContactsAppAvailable(string $uid): bool {
 
@@ -920,10 +1020,10 @@ class ConfigurationService {
 
 	/**
 	 * retrieve calendar app status
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function isCalendarAppAvailable(string $uid): bool {
 
@@ -934,10 +1034,10 @@ class ConfigurationService {
 
 	/**
 	 * retrieve task app status
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function isTasksAppAvailable(string $uid): bool {
 
@@ -948,10 +1048,10 @@ class ConfigurationService {
 
 	/**
 	 * retrieve account status
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return bool
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function isAccountConnected(string $uid): bool {
 
@@ -962,27 +1062,27 @@ class ConfigurationService {
 
 	/**
 	 * encrypt string
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return string
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function encrypt(string $value): string {
 
-		return $this->_cs->encrypt($value);
+		return $this->_crypto->encrypt($value);
 
 	}
 
 	/**
 	 * decrypt string
-	 * 
-	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @return string
+	 * @since Release 1.0.0
+	 *
 	 */
 	public function decrypt(string $value): string {
 
-		return $this->_cs->decrypt($value);
+		return $this->_crypto->decrypt($value);
 
 	}
 }

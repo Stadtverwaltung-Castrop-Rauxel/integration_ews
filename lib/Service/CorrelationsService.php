@@ -54,8 +54,8 @@ class CorrelationsService {
 
 	}
 
-	public function findByUserId(string $uid): array {
-		
+	public function findByUserId(string $uid): ?array {
+
 		try {
 			return $this->mapper->findByUserId($uid);
 		} catch (DoesNotExistException $e) {
@@ -66,8 +66,8 @@ class CorrelationsService {
 
 	}
 
-	public function findByType(string $uid, string $type): array {
-		
+	public function findByType(string $uid, string $type): ?array {
+
 		try {
 			return $this->mapper->findByType($uid, $type);
 		} catch (DoesNotExistException $e) {
@@ -112,7 +112,7 @@ class CorrelationsService {
 
 	}
 
-	public function fetch(string $id): Correlation {
+	public function fetch(string $id): ?Correlation {
 
 		try {
 			return $this->mapper->fetch($id);

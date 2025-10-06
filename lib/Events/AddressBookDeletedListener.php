@@ -54,7 +54,7 @@ class AddressBookDeletedListener implements IEventListener {
 			try {
 				// retrieve collection and object attributes
 				$ec = $event->getAddressBookData();
-				// determine ids and state  
+				// determine ids and state
 				$uid = str_replace('principals/users/', '', $ec['principaluri']);
 				$cid = (string) $ec['id'];
 				// retrieve collection correlation
@@ -65,10 +65,10 @@ class AddressBookDeletedListener implements IEventListener {
 					$this->CorrelationsService->deleteByAffiliationId($cc->getuid(),(string) $cc->getid());
 					$this->CorrelationsService->delete($cc);
 				}
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				$this->logger->warning($e->getMessage(), ['uid' => $event->getUser()->getUID()]);
 			}
 		}
-		
+
     }
 }

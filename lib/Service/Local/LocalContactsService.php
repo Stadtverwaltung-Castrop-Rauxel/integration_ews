@@ -31,10 +31,10 @@ use Psr\Log\LoggerInterface;
 use OCA\DAV\CardDAV\CardDavBackend;
 
 use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Db\ContactsUtile;
+use OCA\EWS\Db\ContactsUtil;
 use \OCA\EWS\Objects\ContactCollectionObject;
 use \OCA\EWS\Objects\ContactObject;
-use OCA\EWS\Utile\UUID;
+use OCA\EWS\Utils\UUID;
 
 use Sabre\VObject\Reader;
 use Sabre\VObject\Component\VCard;
@@ -53,41 +53,41 @@ class LocalContactsService {
 	 */
 	public ?CardDavBackend $DataStore = null;
     /**
-	 * @var ContactsUtile
+	 * @var ContactsUtil
 	 */
-    private $ContactsUtile;
+    private $ContactsUtil;
 
-	public function __construct (string $appName, LoggerInterface $logger, ContactsUtile $ContactsUtile) {
+	public function __construct (string $appName, LoggerInterface $logger, ContactsUtil $ContactsUtil) {
 		$this->logger = $logger;
-        $this->ContactsUtile = $ContactsUtile;
+        $this->ContactsUtil = $ContactsUtil;
 	}
 
     public function configure($configuration, CardDavBackend $DataStore) : void {
-		
+
 		// assign configuration
 		$this->Configuration = $configuration;
 		// assign local data store
 		$this->DataStore = $DataStore;
-		
+
 	}
-    
+
 	/**
      * retrieve list of all collections in local storage
-     * 
+     *
 	 * @param string $uid - User ID
-	 * 
+	 *
 	 * @return array of collections
 	 */
 	public function listCollections(string $uid, bool $filterDeleted = false): array {
 
-        // retrieve all local collections 
+        // retrieve all local collections
         $collections = $this->DataStore->getAddressBooksForUser('principals/users/' . $uid);
 		// construct collections list
 		$data = array();
 		foreach ($collections as $entry) {
             // evaluate if deleted filter is on, and if task list is deleted
-            if ($filterDeleted && 
-                isset($entry['{http://nextcloud.com/ns}deleted-at']) && 
+            if ($filterDeleted &&
+                isset($entry['{http://nextcloud.com/ns}deleted-at']) &&
                 is_numeric($entry['{http://nextcloud.com/ns}deleted-at'])) {
                 continue;
             }
@@ -100,9 +100,9 @@ class LocalContactsService {
 
 	 /**
      * retrieve properties for specific collection from local storage
-     * 
+     *
 	 * @param string $cid - Collection Id
-	 * 
+	 *
 	 * @return object of collection properties
 	 */
 	public function fetchCollection(string $cid): ?ContactCollectionObject {
@@ -121,14 +121,14 @@ class LocalContactsService {
             return null;
         }
     }
-    
+
     /**
      * create collection in local storage
-     * 
+     *
      * @param string $uid - User ID
 	 * @param string $cid - Collection URI
      * @param string $name - Collection Name
-	 * 
+	 *
 	 * @return ContactCollectionObject
 	 */
 	public function createCollection(string $uid, string $cid, string $name): ?ContactCollectionObject {
@@ -137,8 +137,8 @@ class LocalContactsService {
         if (!empty($uid) && !empty($cid)) {
             // create item in data store
             $result = $this->DataStore->createAddressBook(
-                'principals/users/' . $uid, 
-                $cid, 
+                'principals/users/' . $uid,
+                $cid,
                 array('{DAV:}displayname' => $name)
             );
         }
@@ -153,9 +153,9 @@ class LocalContactsService {
 
     /**
      * delete collection from local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
-	 * 
+	 *
 	 * @return bool true - successfully delete / false - failed to delete
 	 */
 	public function deleteCollection(string $cid): bool {
@@ -176,10 +176,10 @@ class LocalContactsService {
 
 	/**
      * retrieve changes for specific collection from local storage
-     * 
+     *
 	 * @param string $cid - Collection Id
      * @param string $state - Collection Id
-	 * 
+	 *
 	 * @return array of collection changes
 	 */
 	public function fetchCollectionChanges(string $cid, string $state): array {
@@ -188,21 +188,21 @@ class LocalContactsService {
         $lcc = $this->DataStore->getChangesForAddressBook($cid, $state, null, null);
         // return collection chamges
 		return $lcc;
-        
+
     }
 
     /**
      * find collection object by uuid in local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $uuid - Item UUID
-	 * 
+	 *
 	 * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
 	 */
 	public function findCollectionItemByUUID(string $cid, string $uuid): ?ContactObject {
-        
+
         // search data store for object
-        $lo = $this->ContactsUtile->findByUUID($cid, $uuid);
+        $lo = $this->ContactsUtil->findByUUID($cid, $uuid);
         // evaluate result
         if (is_array($lo) && count($lo) > 0) {
             $lo = $lo[0];
@@ -224,17 +224,17 @@ class LocalContactsService {
 
 	/**
      * retrieve collection item from local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
 	 */
 	public function fetchCollectionItem(string $cid, string $iid): ?ContactObject {
 
         // retrieve collection item
 		//$lo = $this->DataStore->getCard($cid, $iid);
-        $lo = $this->ContactsUtile->findByURI($cid, $iid);
+        $lo = $this->ContactsUtil->findByURI($cid, $iid);
 		// evaluate result
         if (is_array($lo) && count($lo) > 0) {
             $lo = $lo[0];
@@ -255,10 +255,10 @@ class LocalContactsService {
 
     /**
      * create collection item in local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param ContactObject $data - Item Data
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function createCollectionItem(string $cid, ContactObject $data): ?object {
@@ -277,14 +277,14 @@ class LocalContactsService {
         }
 
     }
-    
+
     /**
      * update collection item in local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
      * @param ContactObject $co - Item Data
-	 * 
+	 *
 	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
 	public function updateCollectionItem(string $cid, string $iid, ContactObject $co): ?object {
@@ -304,13 +304,13 @@ class LocalContactsService {
         }
 
     }
-    
+
     /**
      * delete collection item from local storage
-     * 
+     *
 	 * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 * 
+	 *
 	 * @return bool true - successfully delete / false - failed to delete
 	 */
 	public function deleteCollectionItem(string $cid, string $iid): bool {
@@ -328,12 +328,12 @@ class LocalContactsService {
         }
 
     }
-    
+
     /**
      * convert vcard object to contact object
-     * 
+     *
 	 * @param VCard $vo - source object
-	 * 
+	 *
 	 * @return ContactObject converted object
 	 */
 	public function toContactObject(VCard $vo): ContactObject {
@@ -350,7 +350,7 @@ class LocalContactsService {
         }
 		// Name
         if (isset($vo->N)) {
-            // 
+            //
             [$last, $first, $other, $prefix, $suffix] = $vo->N->getParts();
             // assign properties
             $co->Name->Last = $this->sanitizeString($last);
@@ -382,7 +382,7 @@ class LocalContactsService {
                     $co->Photo->Data = $vo->UID;
                     $co->addAttachment(
                         $vo->UID,
-                        $vo->UID . '.' . \OCA\EWS\Utile\MIME::toExtension($p[0][1]),
+                        $vo->UID . '.' . \OCA\EWS\Utils\MIME::toExtension($p[0][1]),
                         $p[0][1],
                         'B64',
                         'CP',
@@ -428,12 +428,12 @@ class LocalContactsService {
         if (isset($vo->TEL)) {
             foreach($vo->TEL as $entry) {
                 // evaluate if type contains sub type and return, split type in to primary/secondary or primary and empty secondary
-                [$primary, $secondary] = (str_contains($entry->parameters()['TYPE']->getValue(), ',')) ? 
+                [$primary, $secondary] = (str_contains($entry->parameters()['TYPE']->getValue(), ',')) ?
                                          explode(',', trim($entry->parameters()['TYPE']->getValue())) :
                                          [$entry->parameters()['TYPE']->getValue(), ''];
                 $co->addPhone(
                     $primary,
-                    $secondary, 
+                    $secondary,
                     $this->sanitizeString($entry->getValue())
                 );
             }
@@ -443,7 +443,7 @@ class LocalContactsService {
         if (isset($vo->EMAIL)) {
             foreach($vo->EMAIL as $entry) {
                 $co->addEmail(
-                    strtoupper(trim($entry->parameters()['TYPE']->getValue())), 
+                    strtoupper(trim($entry->parameters()['TYPE']->getValue())),
                     $this->sanitizeString($entry->getValue())
                 );
             }
@@ -452,7 +452,7 @@ class LocalContactsService {
         if (isset($vo->IMPP)) {
             foreach($vo->IMPP as $entry) {
                 $co->addIMPP(
-                    strtoupper(trim($entry->parameters()['TYPE']->getValue())), 
+                    strtoupper(trim($entry->parameters()['TYPE']->getValue())),
                     $this->sanitizeString($entry->getValue())
                 );
             }
@@ -478,8 +478,8 @@ class LocalContactsService {
 			$co->Occupation->Organization = $this->sanitizeString($vo->ORG->getValue());
 		}
 		// Occupation Title
-        if (isset($vo->TITLE)) { 
-			$co->Occupation->Title = $this->sanitizeString($vo->TITLE->getValue()); 
+        if (isset($vo->TITLE)) {
+			$co->Occupation->Title = $this->sanitizeString($vo->TITLE->getValue());
 		}
 		// Occupation Role
 		if (isset($vo->ROLE)) {
@@ -489,7 +489,7 @@ class LocalContactsService {
 		if (isset($vo->LOGO)) {
 			$co->Occupation->Logo = trim($vo->LOGO->getValue());
 		}
-                
+
         // Relation
         if (isset($vo->RELATED)) {
             $co->addRelation(
@@ -530,9 +530,9 @@ class LocalContactsService {
 
     /**
      * Convert contact object to vcard object
-     * 
+     *
 	 * @param ContactObject $co - source object
-	 * 
+	 *
 	 * @return VCard converted object
 	 */
     public function fromContactObject(ContactObject $co): VCard {
@@ -632,11 +632,11 @@ class LocalContactsService {
         if (count($co->Phone) > 0) {
             foreach ($co->Phone as $entry) {
                 $vo->add(
-                    'TEL', 
+                    'TEL',
                     $entry->Number,
                     array (
                         'TYPE'=> (isset($entry->SubType)) ? $entry->Type . ',' . $entry->SubType : $entry->Type
-                    ) 
+                    )
                 );
             }
         }
@@ -644,7 +644,7 @@ class LocalContactsService {
         if (count($co->Email) > 0) {
             foreach ($co->Email as $entry) {
                 $vo->add(
-                    'EMAIL', 
+                    'EMAIL',
                     $entry->Address,
                     array (
                         'TYPE'=>$entry->Type
@@ -656,7 +656,7 @@ class LocalContactsService {
         if (count($co->IMPP) > 0) {
             foreach ($co->IMPP as $entry) {
                 $vo->add(
-                    'IMPP', 
+                    'IMPP',
                     $entry->Address,
                     array (
                         'TYPE'=>$entry->Type
@@ -724,7 +724,7 @@ class LocalContactsService {
         if (count($co->Relation) > 0) {
             foreach ($co->Relation as $entry) {
                 $vo->add(
-                    'RELATED', 
+                    'RELATED',
                     $entry->Value,
                     array (
                         'TYPE'=>$entry->Type
@@ -769,7 +769,7 @@ class LocalContactsService {
         $value = trim($value);
         // return value or null
         return $value === '' ? null : $value;
-        
+
     }
-    
+
 }
