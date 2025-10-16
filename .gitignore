@@ -18,6 +18,4 @@ tests/.phpunit.result.cache
 
 /translationfiles/
 /node_modules/
-/js/
-/css/
 /log/

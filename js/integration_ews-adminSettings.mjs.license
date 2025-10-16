@@ -1,0 +1,7 @@
+SPDX-License-Identifier: AGPL-3.0
+SPDX-FileCopyrightText: Sebastian Krupinski <krupinski01@gmail.com> (https://github.com/ksainc/)
+
+This file is generated from multiple sources. Included packages:
+- integration_ews
+	- version: 1.0.37
+	- license: AGPL-3.0
