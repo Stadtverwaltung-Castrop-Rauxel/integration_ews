@@ -1,0 +1,7 @@
+{ "translations": {
+    "Tenant ID" : "Anwendungs-ID (Mandant)",
+    "Application ID" : "Anwendungs-ID (Client)",
+    "Application Secret" : "Geheimer Clientschlüssel",
+    "Save" : "Speichern"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

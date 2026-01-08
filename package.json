@@ -58,7 +58,6 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint-config": "^0.3.0",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-stylelint": "^6.0.0",
-    "vite-plugin-vue-devtools": "^8.0.2"
+    "vite-plugin-stylelint": "^6.0.0"
   }
 }

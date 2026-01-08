@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.38 - XXXX-XX-XX
+### Additions
+- Add support for PHP > 8.5
+- Add configuration to restrict on-premise EWS servers available for users
+### Modifications
+- Refactor frontend to TypeScript and latest NextCloud
+
 ## 1.0.37 - 2024-01-25
 ### Modifications
 - Improved handling of missing remote items during remote fetch

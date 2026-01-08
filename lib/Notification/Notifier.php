@@ -32,7 +32,7 @@ use OCP\L10N\IFactory;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
-use OCA\EWS\AppInfo\Application;
+use OCP\Notification\UnknownNotificationException;
 
 class Notifier implements INotifier {
 
@@ -87,13 +87,13 @@ class Notifier implements INotifier {
 	 * @param INotification $notification
 	 * @param string $languageCode The code of the language that should be used to prepare the notification
 	 * @return INotification
-	 * @throws InvalidArgumentException When the notification was not prepared by a notifier
+	 * @throws UnknownNotificationException When the notification was not prepared by a notifier
 	 * @since 9.0.0
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
 		if ($notification->getApp() !== 'integration_ews') {
 			// Not my app => throw
-			throw new InvalidArgumentException();
+			throw new UnknownNotificationException();
 		}
 
 		$l = $this->factory->get('integration_ews', $languageCode);
@@ -141,7 +141,7 @@ class Notifier implements INotifier {
 				if ($p['LocalDeleted'] > 0) { $content .= $p['LocalDeleted'] . " - Local "; }
 				if ($p['RemoteDeleted'] > 0) { $content .= $p['RemoteDeleted'] . " - Remote "; }
 			}
-			
+
 			$notification->setParsedSubject("Events Syncronized \n");
 			$notification->setRichMessage($content);
 
@@ -165,7 +165,7 @@ class Notifier implements INotifier {
 				if ($p['LocalDeleted'] > 0) { $content .= $p['LocalDeleted'] . " - Local "; }
 				if ($p['RemoteDeleted'] > 0) { $content .= $p['RemoteDeleted'] . " - Remote "; }
 			}
-			
+
 			$notification->setParsedSubject("Tasks Syncronized \n");
 			$notification->setRichMessage($content);
 

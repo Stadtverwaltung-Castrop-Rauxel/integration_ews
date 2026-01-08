@@ -89,6 +89,7 @@ class ConfigurationService {
 		'account_server' => '',
 		'account_bauth_id' => '',
 		'account_bauth_secret' => '',
+		'account_bauth_charset' => 'UTF-8',
 		'account_protocol' => 'Exchange2007',
 		'account_connected' => '0',
 		'account_harmonization_state' => '0',

@@ -30,6 +30,8 @@ use Throwable;
 use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 
@@ -73,8 +75,6 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels connect click event
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @param string $account_id		users login name
 	 * @param string $account_secret	users login password
      * @param string $account_charset   users login charset
@@ -82,6 +82,7 @@ class PersonalConfigurationController extends Controller {
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function ConnectAlternate(string $account_id, string $account_secret, ?string $account_charset, string $account_server, string $flag): DataResponse {
 
 		// evaluate if user id is present
@@ -108,19 +109,18 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels connect click event
 	 *
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * @param string $server			server domain or ip
 	 * @param string $account_id		users login name
 	 * @param string $account_secret	users login password
 	 *
 	 * @return DataResponse|DataResponse
 	 */
-	public function ConnectMS365(string $code): TemplateResponse|DataResponse {
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function ConnectMS365(?string $code): TemplateResponse|DataResponse {
 
 		// evaluate if user id is present
-		if ($this->userId === null) {
+		if ($this->userId === null || empty($code)) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
 		}
 		// assign flags
@@ -141,10 +141,9 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels disconnect click event
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function Disconnect(): DataResponse {
 
 		// evaluate if user id is present
@@ -166,10 +165,9 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels synchronize click event
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function Harmonize(): DataResponse {
 
 		// evaluate if user id is present
@@ -216,10 +214,9 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels local collections fetch requests
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function fetchLocalCollections(): DataResponse {
 
 		// evaluate if user id is present
@@ -266,12 +263,11 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handels save correlations requests
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @param array $values key/value pairs to save
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function depositCorrelations(array $ContactCorrelations, array $EventCorrelations, array $TaskCorrelations): DataResponse {
 
 		// evaluate if user id is present
@@ -322,12 +318,11 @@ class PersonalConfigurationController extends Controller {
 	/**
 	 * handles save preferences requests
 	 *
-	 * @NoAdminRequired
-	 *
 	 * @param array $values key/value pairs to save
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
 	public function depositPreferences(array $values): DataResponse {
 
 		// evaluate if user id is present

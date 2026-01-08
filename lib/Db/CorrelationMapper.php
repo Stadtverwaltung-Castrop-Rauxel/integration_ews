@@ -28,6 +28,7 @@ namespace OCA\EWS\Db;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -42,15 +43,15 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlations from data store by user id
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	user id
-	 * 
+	 *
 	 * @return array of Correlation objects
 	 */
 	public function findByUserId(string $uid): array {
-		
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
@@ -62,16 +63,16 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlations from data store by correlation type
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	user id
 	 * @param string $type	correlation type - CC / CO / EC / EO
-	 * 
+	 *
 	 * @return array of Correlation objects
 	 */
 	public function findByType(string $uid, string $type): array {
-		
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
@@ -85,17 +86,17 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlation from data store by local object id
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	user id
 	 * @param string $loid	local object id
 	 * @param string $lcid	local collection id
-	 * 
+	 *
 	 * @return Correlation
 	 */
 	public function findByLocalId(string $uid, string $type, string $loid, string $lcid = null): Correlation {
-		
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		if ($lcid) {
@@ -119,17 +120,17 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlation from data store by remote object id
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	user id
 	 * @param string $roid	remote object id
 	 * @param string $rcid	remote collection id
-	 * 
+	 *
 	 * @return Correlation
 	 */
 	public function findByRemoteId(string $uid, string $type, string $roid, string $rcid = null): Correlation {
-		
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		if ($rcid) {
@@ -152,13 +153,13 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlations from data store
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $uid	user id
 	 * @param string $loid	local object id
 	 * @param string $roid	remote object id
-	 * 
+	 *
 	 * @return Correlation
 	 */
 	public function find(string $uid, string $loid, string $roid): Correlation {
@@ -177,11 +178,11 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * retrieve correlation from data store
-	 * 
+	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param string $id	correlation id
-	 * 
+	 *
 	 * @return Correlation
 	 */
 	public function fetch(string $id): Correlation {
@@ -197,59 +198,62 @@ class CorrelationMapper extends QBMapper {
 
 	/**
 	 * delete correlations from data store by user id
-	 * 
+	 *
+	 * @param string $uid user id
+	 *
+	 * @return int
+	 * @throws Exception
 	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	user id
-	 * 
-	 * @return mixed
+	 *
 	 */
-	public function deleteByUserId(string $uid): mixed {
+	public function deleteByUserId(string $uid): int {
 
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete($this->DataStoreTable)
 			->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
 		// execute command and return result
-		return $qb->execute();
+		return $qb->executeStatement();
 
 	}
 
 	/**
 	 * delete correlations from data store by affiliation id
-	 * 
+	 *
+	 * @param string $uid user id
+	 * @param string $aid affiliation id
+	 *
+	 * @return int
+	 * @throws Exception
 	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	user id
-	 * @param string $aid	affiliation id
-	 * 
-	 * @return mixed
+	 *
 	 */
-	public function deleteByAffiliationId(string $uid, string $aid): mixed {
-		
+	public function deleteByAffiliationId(string $uid, string $aid): int {
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete($this->DataStoreTable)
 			->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
 			->andWhere($qb->expr()->eq('aid', $qb->createNamedParameter($aid)));
 		// execute command and return result
-		return $qb->execute();
+		return $qb->executeStatement();
 
 	}
 
 	/**
 	 * delete correlations from data store by local and remote collection id
-	 * 
+	 *
+	 * @param string $uid user id
+	 * @param string $lcid local collection id
+	 * @param string $rcid remote collection id
+	 *
+	 * @return int
+	 * @throws Exception
 	 * @since Release 1.0.0
-	 * 
-	 * @param string $uid	user id
-	 * @param string $lcid	local collection id
-	 * @param string $rcid	remote collection id
-	 * 
-	 * @return mixed
+	 *
 	 */
-	public function deleteByUserIdAndCollectionId(string $uid, string $lcid, string $rcid): mixed {
-		
+	public function deleteByUserIdAndCollectionId(string $uid, string $lcid, string $rcid): int {
+
 		// construct data store command
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete($this->DataStoreTable)
@@ -257,7 +261,7 @@ class CorrelationMapper extends QBMapper {
 			->andWhere($qb->expr()->eq('lcid', $qb->createNamedParameter($lcid)))
 			->andWhere($qb->expr()->eq('rcid', $qb->createNamedParameter($rcid)));
 		// execute command and return result
-		return $qb->execute();
+		return $qb->executeStatement();
 
 	}
 }
