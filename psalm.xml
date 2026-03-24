@@ -9,13 +9,17 @@
 >
     <projectFiles>
         <directory name="lib"/>
-        <ignoreFiles>
+		<directory name="appinfo" />
+
+		<ignoreFiles>
             <directory name="vendor"/>
-        </ignoreFiles>
+			<directory name="../../lib" />
+		</ignoreFiles>
     </projectFiles>
     <extraFiles>
         <directory name="vendor"/>
     </extraFiles>
+
     <issueHandlers>
     </issueHandlers>
 </psalm>

@@ -3,7 +3,7 @@
 
 /**
 * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-* 
+*
 * @author Sebastian Krupinski <krupinski01@gmail.com>
 *
 * @license AGPL-3.0-or-later
@@ -25,6 +25,7 @@
 
 namespace OCA\EWS\Components\EWS;
 
+use AllowDynamicProperties;
 use CurlHandle;
 use RuntimeException;
 
@@ -33,6 +34,7 @@ use RuntimeException;
  *
  * @package OCA\EWS\Components\EWS\EWSClient
  */
+#[AllowDynamicProperties]
 class EWSClientMock extends \SoapClient
 {
 
@@ -68,14 +70,14 @@ class EWSClientMock extends \SoapClient
     /**
      * Exchange Web Services WSDL description file
      *
-     * @var string 
+     * @var string
      */
     protected string $_service_description_file = DIRECTORY_SEPARATOR . 'Assets' . DIRECTORY_SEPARATOR . 'services.wsdl';
 
     /**
      * Exchange Web Services version that we are going to connect with
      *
-     * @var string 
+     * @var string
      */
     protected string $_service_version  = self::SERVICE_VERSION_2010_SP2;
 
@@ -92,7 +94,7 @@ class EWSClientMock extends \SoapClient
      * @var \OCA\EWS\Components\EWS\Type\ExchangeImpersonationType
      */
     protected $_client_impersonate = null;
-    
+
     /**
      * Constructor for the ExchangeWebServices class
      *
@@ -126,7 +128,7 @@ class EWSClientMock extends \SoapClient
 		$this->callWithXmlEntityLoader(function () use ($sdf, $so): void {
 			parent::__construct($sdf, $so);
 		});
-        
+
     }
 
     /**
@@ -150,11 +152,11 @@ class EWSClientMock extends \SoapClient
      * @param string $location          Service location URL (https://domain/path/service)
      * @param string $action            Command action/name
      * @param string $version           Messaging Version (SOAP Version)
-     * @param string $unidirectional    Command does not return response
-     * 
-     * @return string|null              
+     * @param string $oneWay    Command does not return response
+     *
+     * @return string|null
      */
-    public function __doRequest($request, $location, $action, $version, $unidirectional = 0): null|string {
+    public function __doRequest($request, $location, $action, $version, $oneWay = 0): null|string {
 
         // retrieve the action
         $action = substr($action, strrpos($action, '/') + 1);
@@ -164,7 +166,7 @@ class EWSClientMock extends \SoapClient
         }
         // evaluate if response exists
         if (!file_exists($location . DIRECTORY_SEPARATOR . 'Response-' . $action . '.xml')) {
-            
+
             throw new RuntimeException("The mock response file for the specified action does not exist");
         }
         // deposit request message
@@ -225,7 +227,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * Enables or disables retention of raw request headers sent
-     * 
+     *
      * @param bool $value           ture or false flag
      */
     public function retainTransportRequestHeader(bool $value): void {
@@ -234,7 +236,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * Enables or disables retention of raw request body sent
-     * 
+     *
      * @param bool $value           ture or false flag
      */
     public function retainTransportRequestBody(bool $value): void {
@@ -243,7 +245,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * Enables or disables retention of raw response headers recieved
-     * 
+     *
      * @param bool $value           ture or false flag
      */
     public function retainTransportResponseHeader(bool $value): void {
@@ -252,7 +254,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * Enables or disables retention of raw response body recieved
-     * 
+     *
      * @param bool $value           ture or false flag
      */
     public function retainTransportResponseBody(bool $value): void {
@@ -261,7 +263,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * returns last retained raw request header sent
-     * 
+     *
      * @return string
      */
     public function discloseTransportRequestHeader(): string {
@@ -270,7 +272,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * returns last retained raw request body sent
-     * 
+     *
      * @return string
      */
     public function discloseTransportRequestBody(): string {
@@ -279,7 +281,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * returns last retained raw response header recieved
-     * 
+     *
      * @return string
      */
     public function discloseTransportResponseHeader(): string {
@@ -288,7 +290,7 @@ class EWSClientMock extends \SoapClient
 
     /**
      * returns last retained raw response body recieved
-     * 
+     *
      * @return string
      */
     public function discloseTransportResponseBody(): string {
@@ -301,7 +303,7 @@ class EWSClientMock extends \SoapClient
      * @return string
      */
     public function getLocation(): string {
-        
+
         // return version information
         return $this->_transport_location;
 
@@ -329,7 +331,7 @@ class EWSClientMock extends \SoapClient
      * @return string
      */
     public function getVersion(): string {
-        
+
         // return version information
         return $this->_service_version;
 
@@ -355,7 +357,7 @@ class EWSClientMock extends \SoapClient
      * @return string
      */
     public function getTimezone(): string {
-        
+
         // return timezone information
         return $this->_client_timezone;
 
@@ -371,7 +373,7 @@ class EWSClientMock extends \SoapClient
         // store timezone
         $this->_client_timezone = $value;
         // We need to re-build the SOAP headers.
-        $this-_constructServiceHeader();
+        $this->_constructServiceHeader();
 
     }
 
@@ -381,7 +383,7 @@ class EWSClientMock extends \SoapClient
      * @return \OCA\EWS\Components\EWS\Type\ExchangeImpersonationType
      */
     public function getImpersonation(): mixed {
-        
+
         // return impersonation information
         return $this->_client_impersonate;
 

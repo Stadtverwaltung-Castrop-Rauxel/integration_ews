@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 ### Additions
 - Add support for PHP > 8.5
 - Add configuration to restrict on-premise EWS servers available for users
+- Fix issues with undefined classes an methods
+- Refactor HarmonizationThread, HarmonizationThreadLauncher and HarmonizationThreadService
 ### Modifications
 - Refactor frontend to TypeScript and latest NextCloud
 

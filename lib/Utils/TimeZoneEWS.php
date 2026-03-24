@@ -1582,7 +1582,6 @@ class TimeZoneEWS {
 		'Romance Standard Time' => 'Europe/Paris',
 		'Russian Standard Time' => 'Europe/Moscow',
 		'Russia Time Zone 10' => 'Asia/Srednekolymsk',
-		'Kamchatka Standard Time' => 'Asia/Kamchatka',
 		'Russia Time Zone 3' => 'Europe/Samara',
 		'SA Eastern Standard Time' => 'America/Cayenne',
 		'SA Pacific Standard Time' => 'America/Bogota',

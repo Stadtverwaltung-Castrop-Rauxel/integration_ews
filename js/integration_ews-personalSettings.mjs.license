@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: Sebastian Krupinski <krupinski01@gmail.com> (https://git
 
 This file is generated from multiple sources. Included packages:
 - @nextcloud/vue
-	- version: 9.3.1
+	- version: 9.6.0
 	- license: AGPL-3.0-or-later
 - integration_ews
 	- version: 1.0.37

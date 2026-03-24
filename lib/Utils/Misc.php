@@ -99,7 +99,7 @@ class Misc {
 			$tztrns = $tz->getTransitions(strtotime('2023-1-1'), strtotime('2023-12-31'));
 
 			if (count($tztrns) == 1) {
-				$zones[$zonelc]['stoff'] = $dt->format('P');;
+				$zones[$zonelc]['stoff'] = $dt->format('P');
 				$zones[$zonelc]['sttrn'] = null;
 				$zones[$zonelc]['dlabbr'] = null;
 				$zones[$zonelc]['dloff'] = null;
@@ -188,6 +188,12 @@ class Misc {
 		fclose($file);
     }
 
+    /**
+     * @deprecated broken implementation TimeZoneEAS does not exist.
+     * @param $RemoteStore
+     * @return void
+     * @throws \Exception
+     */
     function generateEWS($RemoteStore) {
 
 		$RemoteCommonService = \OC::$server->get(\OCA\EWS\Service\Remote\RemoteCommonService::class);

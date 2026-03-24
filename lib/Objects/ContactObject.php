@@ -63,7 +63,7 @@ class ContactObject {
     private ?string $URI = null;
     private array $Attachments = [];
     private ?array $Other = [];
-	
+
 	public function __construct($data = null) {
         $this->Data = (object) array();
         $this->Data->Original = (object) array();
@@ -119,9 +119,9 @@ class ContactObject {
     }
 
     public function addRelation(string $type, string $value) {
-        $this->Phone[] = new ContactRelationObject($type, $value);
+        $this->Phone[] = new ContactRelationshipObject($type, $value);
     }
-    
+
     public function addAttachment(string $id, ?string $name = null, ?string $type = null, ?string $encoding = null, ?string $flag = null, ?string $size = null,  ?string $data = null) {
         $this->Attachments[] = new ContactAttachmentObject($id, $name, $type, $encoding, $flag, $size, $data);
     }

@@ -25,16 +25,15 @@
 
 namespace OCA\EWS\Service;
 
+use OCA\EWS\AppInfo\Application;
+use OCA\EWS\Enums\SubscriptionTypes;
+use OCP\App\IAppManager;
 use OCP\Exceptions\AppConfigException;
 use OCP\IAppConfig;
-use Psr\Log\LoggerInterface;
-
 use OCP\IConfig;
-use OCP\Security\ICrypto;
 use OCP\IUserManager;
-use OCP\App\IAppManager;
-
-use OCA\EWS\AppInfo\Application;
+use OCP\Security\ICrypto;
+use Psr\Log\LoggerInterface;
 
 /**
  * TODO: Migrate string constants to an enum for
@@ -918,7 +917,7 @@ class ConfigurationService {
 	 *
 	 * @param string $uid nextcloud user id
 	 *
-	 * @return string|null thread id if exists | null if does not exist
+	 * @return int thread id if exists | 0 if does not exist
 	 * @since Release 1.0.0
 	 *
 	 */
@@ -1074,13 +1073,14 @@ class ConfigurationService {
 
 	}
 
-	/**
-	 * decrypt string
-	 *
-	 * @return string
-	 * @since Release 1.0.0
-	 *
-	 */
+    /**
+     * decrypt string
+     *
+     * @return string
+     * @throws \Exception
+     * @since Release 1.0.0
+     *
+     */
 	public function decrypt(string $value): string {
 
 		return $this->_crypto->decrypt($value);

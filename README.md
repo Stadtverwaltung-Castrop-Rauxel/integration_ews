@@ -56,9 +56,6 @@ This app has some minimal requirements for passive synchronization and a few mor
 ##### Active Synchronization Requirements
 
 - PHP CLI Installed
-- PHP permission to shell_exec
-- PHP access to ps command
-- PHP access to kill command
 
 ## Installation
 

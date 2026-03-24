@@ -15,15 +15,19 @@
     "ext-curl": "*",
     "ext-soap": "*"
   },
+  "suggest": {
+    "ext-posix": "Used for harmonization thread",
+    "ext-pcntl": "Used for harmonization thread"
+  },
   "require-dev": {
+    "nextcloud/coding-standard": "^v1.4",
+    "nextcloud/ocp": "^33.0",
     "phpunit/phpunit": "^12",
     "psalm/phar": "^6.13",
     "psr/log": "^3.0.2",
-    "sabre/dav": "^4.7",
     "roave/security-advisories": "dev-latest",
-    "symfony/event-dispatcher": "^v5.4.45",
-    "nextcloud/ocp": "dev-master@dev",
-    "nextcloud/coding-standard": "^v1.4"
+    "sabre/dav": "^4.7",
+    "symfony/event-dispatcher": "^v5.4.45"
   },
   "scripts": {
     "lint": "find . -name \\*.php -not -path './vendor/*' -print0 | xargs -0 -n1 php -l",

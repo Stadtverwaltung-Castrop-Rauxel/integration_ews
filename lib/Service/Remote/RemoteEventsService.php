@@ -294,7 +294,7 @@ class RemoteEventsService {
      *
 	 * @param string $iid - Collection Item ID
 	 *
-	 * @return ContactObject
+	 * @return ?EventObject
 	 */
 	public function fetchCollectionItem(string $iid): ?EventObject {
 
@@ -2130,7 +2130,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $days - remote days of the week values(s)
+	 * @param string $days - remote days of the week values(s)
 	 * @param bool $group - flag to check if days are grouped
 	 *
 	 * @return array event object days of the week values(s)
@@ -2231,7 +2231,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $days - remote days of the month values(s)
+	 * @param string $days - remote days of the month values(s)
 	 *
 	 * @return array event object days of the month values(s)
 	 */
@@ -2267,7 +2267,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $weeks - remote week of the month values(s)
+	 * @param string $weeks - remote week of the month values(s)
 	 *
 	 * @return array event object week of the month values(s)
 	 */
@@ -2332,7 +2332,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $months - remote month of the year values(s)
+	 * @param string $months - remote month of the year values(s)
 	 *
 	 * @return array event object month of the year values(s)
 	 */
@@ -2413,7 +2413,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - remote sensitivity value
+	 * @param string $level - remote sensitivity value
 	 *
 	 * @return int event object sensitivity value
 	 */
@@ -2471,7 +2471,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - remote importance value
+	 * @param string $level - remote importance value
 	 *
 	 * @return int event object priority value
 	 */
@@ -2525,7 +2525,7 @@ class RemoteEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $response - remote attendee response value
+	 * @param string $response - remote attendee response value
 	 *
 	 * @return string event object attendee response value
 	 */

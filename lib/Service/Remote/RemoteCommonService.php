@@ -42,9 +42,9 @@ use OCA\EWS\Components\EWS\Enumeration\UnindexedFieldURIType;
 
 /**
  * Remote Common Service Class
- * 
+ *
  * This class contains a collection of function that build EWS commands
- * and execute them on a Exchange Data Store 
+ * and execute them on a Exchange Data Store
  *
  * @since Release 1.0.0
  */
@@ -56,7 +56,7 @@ class RemoteCommonService {
 	// Folder Types
 	const TYPE_FOLDER_BASE = 'msgfolderroot';
 	const TYPE_FOLDER_PUBLIC = 'publicfoldersroot';
-	// 
+	//
 	const PS_PUBLIC_STRINGS	= '00020329-0000-0000-C000-000000000046';
 	// Search Extent
 	const SCOPE_SEARCH_BROAD = 'Deep';
@@ -74,9 +74,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve list of all folders starting with root folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $base
@@ -87,7 +87,7 @@ class RemoteCommonService {
 	 * 		Folder Object on success / Null on failure
 	 */
 	public function fetchFolders(EWSClient $DataStore, string $base = 'D', object $additional = null): ?object {
-		
+
 		// construct the request
 		$request = new \OCA\EWS\Components\EWS\Type\FindFolderType();
 		// define start
@@ -120,7 +120,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -134,9 +134,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve list of specific folders starting with root folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $type
@@ -146,12 +146,12 @@ class RemoteCommonService {
 	 * @param object $additional
 	 * 		Additional Properties to return ( Object of NonEmptyArrayOfPathsToElementType )
 	 * @param string $source
-	 * 		Source domain ( U - User | P - Public ) 
+	 * 		Source domain ( U - User | P - Public )
 	 * @return object
 	 * 		Folder Object on success / Null on failure
 	 */
 	public function fetchFoldersByType(EWSClient $DataStore, string $type, string $base = 'D', object $additional = null, string $source = 'U'): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\FindFolderType();
 		$request->FolderShape = new \OCA\EWS\Components\EWS\Type\FolderResponseShapeType();
@@ -199,7 +199,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -213,9 +213,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve all information for specific folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
@@ -230,7 +230,7 @@ class RemoteCommonService {
 	 * 		Folder Object on success / Null on failure
 	 */
 	public function fetchFolder(EWSClient $DataStore, string $fid, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\GetFolderType();
 		// define target
@@ -265,7 +265,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -279,9 +279,9 @@ class RemoteCommonService {
 
 	/**
      * create folder in remote storage
-	 * 
+	 *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
@@ -292,7 +292,7 @@ class RemoteCommonService {
 	 * 		Folders Object on success / Null on failure
 	 */
 	public function createFolder(EWSClient $DataStore, string $fid, object $data, bool $ftype = false): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\CreateFolderType();
 		// define target
@@ -329,7 +329,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -343,20 +343,20 @@ class RemoteCommonService {
 
 	/**
      * delete folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $ids
 	 * 		Collection Id's List
 	 * @param string $type
-	 * 		 
+	 *
 	 * @return object
 	 * 		True on success / False on failure
 	 */
 	public function deleteFolder(EWSClient $DataStore, array $batch = null, string $type = 'SoftDelete'): ?bool {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\DeleteFolderType();
 		$request->DeleteType = $type;
@@ -372,7 +372,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -386,9 +386,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve list of changes for specific folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
@@ -407,7 +407,7 @@ class RemoteCommonService {
 	 * 		Folder Changes Object on success / Null on failure
 	 */
 	public function fetchFolderChanges(EWSClient $DataStore, string $fid, string $state, bool $ftype = false, int $max = 512, string $base = 'I', object $additional = null): object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\SyncFolderItemsType();
 		// define target
@@ -440,7 +440,7 @@ class RemoteCommonService {
 			$request->ItemShape->AdditionalProperties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
 		}
 		// define required essential properties
-		
+
 		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
 			'PublicStrings',
 			null,
@@ -457,7 +457,7 @@ class RemoteCommonService {
 			null,
 			'String'
 		);
-		
+
 		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
 			null,
 			null,
@@ -485,7 +485,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -500,9 +500,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve all items in specific folder from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
@@ -521,7 +521,7 @@ class RemoteCommonService {
 	 * 		Item Object on success / Null on failure
 	 */
 	public function fetchItems(EWSClient $DataStore, string $fid, bool $ftype = false, int $ioffset = 0, int $ilimit = 512, string $base = 'I', object $additional = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
 		// define target
@@ -560,7 +560,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -574,9 +574,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve information for specific item from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $uuid
@@ -593,7 +593,7 @@ class RemoteCommonService {
 	 * 		Item Object on success / Null on failure
 	 */
 	public function findItem(EWSClient $DataStore, string $fid, object $restriction, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
 		// define target
@@ -672,7 +672,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -686,9 +686,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve all information for specific item by uuid from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $uuid
@@ -705,7 +705,7 @@ class RemoteCommonService {
 	 * 		Item Object on success / Null on failure
 	 */
 	public function findItemByUUID(EWSClient $DataStore, string $fid, string $uuid, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
 		// define target
@@ -809,9 +809,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve all information for specific item from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param array $ioc
@@ -824,7 +824,7 @@ class RemoteCommonService {
 	 * 		Item Object on success / Null on failure
 	 */
 	public function fetchItem(EWSClient $DataStore, array $ioc, string $base = 'D', object $additional = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\GetItemType();
 		// define target
@@ -893,7 +893,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -907,19 +907,19 @@ class RemoteCommonService {
 
 	/**
      * create item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
 	 * 		Folder ID
-	 * 
+	 *
 	 * @return object
 	 * 		Attachement Collection Object on success / Null on failure
 	 */
 	public function createItem(EWSClient $DataStore, string $fid, object $data): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\CreateItemType();
 		$request->SendMeetingInvitations = 'SendToNone';
@@ -947,7 +947,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -961,9 +961,9 @@ class RemoteCommonService {
 
 	/**
      * update item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $fid
@@ -982,7 +982,7 @@ class RemoteCommonService {
 	 * 		Items Array on success / Null on failure
 	 */
 	public function updateItem(EWSClient $DataStore, string $fid, string $iid, string $istate = null, array $additions = null, array $modifications = null, array $deletions = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\UpdateItemType();
 		$request->ConflictResolution = 'AlwaysOverwrite';
@@ -1005,7 +1005,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1019,9 +1019,9 @@ class RemoteCommonService {
 
 	/**
      * delete item in remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore - Storage Interface
 	 * @param string $ids
 	 * 		Item ID's Array
@@ -1031,7 +1031,7 @@ class RemoteCommonService {
 	 * 		Attachement Collection Object on success / Null on failure
 	 */
 	public function deleteItem(EWSClient $DataStore, array $ids = null, string $type = 'SoftDelete', array $options = []): ?bool {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\DeleteItemType();
 		$request->SendMeetingCancellations = 'SendToNone';
@@ -1051,7 +1051,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1065,9 +1065,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve item attachment(s) from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $ids
@@ -1076,7 +1076,7 @@ class RemoteCommonService {
 	 * 		Attachement Collection Object on success / Null on failure
 	 */
 	public function fetchAttachment(EWSClient $DataStore, array $batch): ?array {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\GetAttachmentType();
 		// define target(s)
@@ -1094,7 +1094,7 @@ class RemoteCommonService {
 			if ($entry->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($entry->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1108,9 +1108,9 @@ class RemoteCommonService {
 
 	/**
      * create item attachment(s) from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param array $batch
@@ -1119,7 +1119,7 @@ class RemoteCommonService {
 	 * 		Attachement Collection Object on success / Null on failure
 	 */
 	public function createAttachment(EWSClient $DataStore, string $iid, array $batch): array {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\CreateAttachmentType();
 		// define target
@@ -1141,7 +1141,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1155,9 +1155,9 @@ class RemoteCommonService {
 
 	/**
      * delete item attachment(s) from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param array $batch
@@ -1166,7 +1166,7 @@ class RemoteCommonService {
 	 * 		Attachement Collection Object on success / Null on failure
 	 */
 	public function deleteAttachment(EWSClient $DataStore, array $batch): array {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\DeleteAttachmentType();
 		// define target(s) to delete
@@ -1195,9 +1195,9 @@ class RemoteCommonService {
 
 	/**
      * retrieve time zone information from remote storage
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @param string $zone
@@ -1206,12 +1206,12 @@ class RemoteCommonService {
 	 * 		Item Object on success / Null on failure
 	 */
 	public function fetchTimeZone(EWSClient $DataStore, string $zone = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\GetServerTimeZonesType();
 		// define target
 		if (!empty($zone)) {
-			$request->Ids = \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfTimeZoneIdType();
+			$request->Ids = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfTimeZoneIdType();
 			$request->Ids->Id[] = $zone;
 		}
 		// execute request
@@ -1224,7 +1224,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1238,16 +1238,16 @@ class RemoteCommonService {
 
 	/**
      * connect to event nofifications
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @return object
 	 * 		Items Object on success / Null on failure
 	 */
 	public function connectEvents(EWSClient $DataStore, int $duration, array $ids = null, array $dids = null, array $types = null): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\SubscribeType();
 		$request->PullSubscriptionRequest = new \OCA\EWS\Components\EWS\Type\PullSubscriptionRequestType();
@@ -1282,7 +1282,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1296,16 +1296,16 @@ class RemoteCommonService {
 
 	/**
      * disconnect from event nofifications
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @return object
 	 * 		Items Object on success / Null on failure
 	 */
 	public function disconnectEvents(EWSClient $DataStore, string $id): ?bool {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\UnsubscribeType();
 		$request->SubscriptionId = $id;
@@ -1319,7 +1319,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
@@ -1333,16 +1333,16 @@ class RemoteCommonService {
 
 	/**
      * observe event nofifications
-     * 
+     *
      * @since Release 1.0.0
-     * 
+     *
 	 * @param EWSClient $DataStore
 	 * 		Storage Interface
 	 * @return object
 	 * 		Items Object on success / Null on failure
 	 */
 	public function fetchEvents(EWSClient $DataStore, string $id, string $token): ?object {
-		
+
 		// construct request
 		$request = new \OCA\EWS\Components\EWS\Request\GetEventsType();
 		$request->SubscriptionId = $id;
@@ -1357,7 +1357,7 @@ class RemoteCommonService {
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
-			// evaluate if response contained a warning 
+			// evaluate if response contained a warning
 			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}

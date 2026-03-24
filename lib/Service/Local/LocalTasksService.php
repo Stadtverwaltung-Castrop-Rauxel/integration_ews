@@ -654,7 +654,7 @@ class LocalTasksService {
         }
         // Status
         if (isset($vo->STATUS)) {
-            $to->Status = $this->fromStatus($vo->STATUS->getValue());;
+            $to->Status = $this->fromStatus($vo->STATUS->getValue());
         }
         // Priority
         if (isset($vo->PRIORITY)) {
@@ -1007,7 +1007,7 @@ class LocalTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $frequency - local frequency value
+	 * @param string $frequency - local frequency value
 	 *
 	 * @return int task object occurrence precision value
 	 */
@@ -1136,7 +1136,7 @@ class LocalTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $status - local status value
+	 * @param string $status - local status value
 	 *
 	 * @return string task object status value
 	 */
@@ -1195,7 +1195,7 @@ class LocalTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - local class value
+	 * @param string $level - local class value
 	 *
 	 * @return int|null task object sensitivity value
 	 */
@@ -1251,7 +1251,7 @@ class LocalTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $action - local alarm action value
+	 * @param string $action - local alarm action value
 	 *
 	 * @return int task object alarm action type value
 	 */
@@ -1307,7 +1307,7 @@ class LocalTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $period - local duration period value
+	 * @param string $period - local duration period value
 	 *
 	 * @return DateInterval task object date interval object
 	 */

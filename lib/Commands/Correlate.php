@@ -120,7 +120,7 @@ class Correlate extends Command {
 			return 1;
 		}
 
-		if (array_search($module, ['contacts', 'events', 'tasks']) === false) {
+		if (!in_array($module, ['contacts', 'events', 'tasks'])) {
 			$output->writeln("<error>Failed: Invalid module specified, must be (contacts, events, tasks)</error>");
 			return 1;
 		}

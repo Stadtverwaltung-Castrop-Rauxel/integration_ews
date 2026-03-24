@@ -23,6 +23,8 @@
 *
 */
 
+use OCA\EWS\Enums\SubscriptionTypes;
+
 require_once __DIR__ . '/../../../../lib/versioncheck.php';
 
 try {
@@ -34,7 +36,8 @@ try {
 	$executionPause = 60;
 	$uid = null;
 
-	$logger = \OC::$server->getLogger();
+    $logger = \OC::$server->get(\OCP\ILogger::class);
+    $systemConfig = \OC::$server->get(\OC\SystemConfig::class);
 
 	// evaluate if script was started from console
 	if (php_sapi_name() == 'cli') {
@@ -96,14 +99,14 @@ try {
 	}
 
 	// evaluate if nextcloud is installed
-	if (!(bool) \OC::$server->getConfig()->getSystemValue('installed', false)) {
+	if (!(bool) $systemConfig->getValue('installed', false)) {
 		$logger->info("Harmonization thread failed system installed status is false", ['app' => 'integration_ews']);
 		echo "Harmonization thread failed system installed status is false" . PHP_EOL;
 		exit(0);
 	}
 
 	// evaluate if nextcloud is in maintenance mode
-	if ((bool) \OC::$server->getSystemConfig()->getValue('maintenance', false)) {
+	if ((bool) $systemConfig->getValue('maintenance', false)) {
 		$logger->info("Harmonization thread failed system maintenance mode is on", ['app' => 'integration_ews']);
 		echo "Harmonization thread failed system maintenance mode is on" . PHP_EOL;
 		exit(0);
@@ -113,7 +116,7 @@ try {
 	@set_time_limit($executionDuration);
 
 	// load all apps to get all api routes properly setup
-	OC_App::loadApps();
+    \OC::$server->get(\OCP\App\IAppManager::class)->loadApps();
 
 	// initilize required services
 	$ConfigurationService = \OC::$server->get(\OCA\EWS\Service\ConfigurationService::class);
@@ -147,9 +150,9 @@ try {
 	// execute initial harmonization
 	$HarmonizationService->performHarmonization($uid, 'S');
 	// connect to remote events queue(s)
-	$cs = $HarmonizationService->connectEvents($uid, 15, 'CC');
-	$es = $HarmonizationService->connectEvents($uid, 15, 'EC');
-	$ts = $HarmonizationService->connectEvents($uid, 15, 'TC');
+	$cs = $HarmonizationService->connectEvents($uid, 15, SubscriptionTypes::CC);
+	$es = $HarmonizationService->connectEvents($uid, 15, SubscriptionTypes::EC);
+	$ts = $HarmonizationService->connectEvents($uid, 15, SubscriptionTypes::TC);
 
 	while ((time() - $executionStart) < $executionDuration) {
 
@@ -162,7 +165,7 @@ try {
 		 *
 		 */
 		// evaluate if nextcloud is in maintenance mode
-		if ((bool) \OC::$server->getSystemConfig()->getValue('maintenance', false)) {
+		if ((bool) $systemConfig->getValue('maintenance', false)) {
 			$executionConclusion = 'EM';
 			break;
 		}
@@ -174,13 +177,13 @@ try {
 
 		// consume events from feed(s)
 		if (isset($cs)) {
-			$cs = $HarmonizationService->consumeEvents($uid, $cs->Id, $cs->Token, 'CC');
+			$cs = $HarmonizationService->consumeEvents($uid, $cs->Id, $cs->Token, SubscriptionTypes::CC);
 		}
 		if (isset($es)) {
-			$es = $HarmonizationService->consumeEvents($uid, $es->Id, $es->Token, 'EC');
+			$es = $HarmonizationService->consumeEvents($uid, $es->Id, $es->Token, SubscriptionTypes::EC);
 		}
 		if (isset($ts)) {
-			$ts = $HarmonizationService->consumeEvents($uid, $ts->Id, $ts->Token, 'TC');
+			$ts = $HarmonizationService->consumeEvents($uid, $ts->Id, $ts->Token, SubscriptionTypes::TC);
 		}
 
 		// execute actions
@@ -217,12 +220,7 @@ try {
 	}
 
 	exit();
-} catch (Exception $ex) {
-	$logger->logException($ex, ['app' => 'integration_ews']);
-	$logger->info('Harmonization thread ended unexpectedly', ['app' => 'integration_ews']);
-	echo $ex . PHP_EOL;
-	exit(1);
-} catch (Error $ex) {
+} catch (Exception|Error $ex) {
 	$logger->logException($ex, ['app' => 'integration_ews']);
 	$logger->info('Harmonization thread ended unexpectedly', ['app' => 'integration_ews']);
 	echo $ex . PHP_EOL;

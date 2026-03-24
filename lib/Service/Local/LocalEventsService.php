@@ -1191,7 +1191,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $frequency - local frequency value
+	 * @param string $frequency - local frequency value
 	 *
 	 * @return int event object occurrence precision value
 	 */
@@ -1320,7 +1320,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - local class value
+	 * @param string $level - local class value
 	 *
 	 * @return int|null event object sensitivity value
 	 */
@@ -1376,7 +1376,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $role - local attendee role value
+	 * @param string $role - local attendee role value
 	 *
 	 * @return int event object attendee attendance value
 	 */
@@ -1434,7 +1434,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $status - local attendee status value
+	 * @param string $status - local attendee status value
 	 *
 	 * @return int event object attendee status value
 	 */
@@ -1494,7 +1494,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $action - local alarm action value
+	 * @param string $action - local alarm action value
 	 *
 	 * @return int event object alarm action type value
 	 */
@@ -1550,7 +1550,7 @@ class LocalEventsService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $period - local duration period value
+	 * @param string $period - local duration period value
 	 *
 	 * @return DateInterval event object date interval object
 	 */

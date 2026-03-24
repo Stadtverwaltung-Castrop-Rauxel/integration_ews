@@ -25,22 +25,10 @@
 
 namespace OCA\EWS\Service;
 
-use DateTime;
 use Exception;
-use Throwable;
-use Psr\Log\LoggerInterface;
-
-use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Components\EWS\EWSClient;
-use OCA\EWS\Service\ConfigurationService;
-use OCA\EWS\Service\CoreService;
-use OCA\EWS\Service\CorrelationsService;
-use OCA\EWS\Service\ContactsService;
-use OCA\EWS\Service\EventsService;
-use OCA\EWS\Service\TasksService;
-use OCA\EWS\Service\HarmonizationThreadService;
+use OCA\EWS\Enums\SubscriptionTypes;
 use OCA\EWS\Service\Remote\RemoteCommonService;
-use OCA\EWS\Tasks\HarmonizationLauncher;
+use Psr\Log\LoggerInterface;
 
 class HarmonizationService {
 
@@ -154,7 +142,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize contacts collections
-						$statistics = $this->ContactsService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->ContactsService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'contacts_harmonized', (array)$statistics);
@@ -203,7 +191,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize events collections
-						$statistics = $this->EventsService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->EventsService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'events_harmonized', (array)$statistics);
@@ -252,7 +240,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize tasks collections
-						$statistics = $this->TasksService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->TasksService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'tasks_harmonized', (array)$statistics);
@@ -310,7 +298,7 @@ class HarmonizationService {
 			if ($this->ConfigurationService->isContactsAppAvailable($uid) && $Configuration->ContactsHarmonize > 0) {
 				$this->logger->info('Started Harmonization of Contacts for ' . $uid);
 				// assign remote data store
-				$this->ContactsService->RemoteStore = $RemoteStore;
+				$this->ContactsService->configure($Configuration, $RemoteStore);
 				// retrieve list of collections correlations
 				$correlations = $this->CorrelationsService->findByType($uid, CorrelationsService::ContactCollection);
 				// iterate through correlation items
@@ -334,7 +322,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize contacts collections
-						$statistics = $this->ContactsService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->ContactsService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'contacts_harmonized', (array)$statistics);
@@ -385,7 +373,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize events collections
-						$statistics = $this->EventsService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->EventsService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'events_harmonized', (array)$statistics);
@@ -437,7 +425,7 @@ class HarmonizationService {
 						$correlation->sethlockhb(time());
 						$this->CorrelationsService->update($correlation);
 						// harmonize tasks collections
-						$statistics = $this->TasksService->performHarmonization($correlation, $Configuration);
+						$statistics = $this->TasksService->performHarmonization($correlation);
 						// evaluate if anything was done and publish notice if needed
 						if ($statistics->total() > 0) {
 							$this->CoreService->publishNotice($uid,'tasks_harmonized', (array)$statistics);
@@ -463,7 +451,10 @@ class HarmonizationService {
 	}
 
 
-	public function connectEvents(string $uid, int $duration, string $ctype): ?object {
+	public function connectEvents(string $uid, int $duration, SubscriptionTypes|string $ctype): ?object {
+
+		// Normalize ctype
+		$ctype = $ctype instanceof SubscriptionTypes ? $ctype->value : $ctype;
 
 		// retrieve correlations
 		$cc = $this->CorrelationsService->findByType($uid, $ctype);
@@ -498,7 +489,10 @@ class HarmonizationService {
 
 	}
 
-	public function consumeEvents(string $uid, string $id, string $token, string $ctype): ?object {
+	public function consumeEvents(string $uid, string $id, string $token, SubscriptionTypes|string $ctype): ?object {
+
+		// Normalize ctype
+		$ctype = $ctype instanceof SubscriptionTypes ? $ctype->value : $ctype;
 
 		// construct state place holder
 		$state = false;
@@ -509,8 +503,10 @@ class HarmonizationService {
 
 		if (isset($rs->CreatedEvent)) {
 			foreach ($rs->CreatedEvent as $entry) {
+                //TODO: Check $entry-FolderId and $state
 				// do nothing
-			}
+                $token = $entry->Watermark;
+            }
 		}
 
 		if (isset($rs->ModifiedEvent)) {
@@ -531,32 +527,37 @@ class HarmonizationService {
 					// aquire water mark
 					$token = $entry->Watermark;
 				}
-
-				$w[] = ['C', ($entry->Watermark == $rs->PreviousWatermark), $entry->Watermark];
 			}
 		}
 
 		if (isset($rs->DeletedEvent)) {
 			foreach ($rs->DeletedEvent as $entry) {
-				// do nothing
-			}
+                //TODO: Check $entry-FolderId and $state
+                // do nothing
+                $token = $entry->Watermark;
+            }
 		}
 
 		if (isset($rs->CopiedEvent)) {
 			foreach ($rs->CopiedEvent as $entry) {
-				// do nothing
+                //TODO: Check $entry-FolderId and $state
+                // do nothing
+                $token = $entry->Watermark;
 			}
 		}
 
 		if (isset($rs->MovedEvent)) {
 			foreach ($rs->MovedEvent as $entry) {
-				// do nothing
+                //TODO: Check $entry-FolderId and $state
+                // do nothing
+                $token = $entry->Watermark;
 			}
 		}
 
 		if (isset($rs->StatusEvent)) {
 			foreach ($rs->StatusEvent as $entry) {
-				$token = $entry->Watermark;
+                // do nothing
+                $token = $entry->Watermark;
 			}
 		}
 

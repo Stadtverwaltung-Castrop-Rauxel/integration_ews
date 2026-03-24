@@ -766,7 +766,7 @@ class EWSClient extends \SoapClient
         // store timezone
         $this->_client_timezone = $value;
         // We need to re-build the SOAP headers.
-        $this - _constructServiceHeader();
+        $this ->_constructServiceHeader();
 
     }
 

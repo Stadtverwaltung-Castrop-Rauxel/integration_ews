@@ -25,6 +25,12 @@
 
 namespace OCA\EWS\Components\EWS\Request;
 
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType;
+use OCA\EWS\Components\EWS\Type\FolderResponseShapeType;
+use OCA\EWS\Components\EWS\Type\FractionalPageViewType;
+use OCA\EWS\Components\EWS\Type\IndexedPageViewType;
+use OCA\EWS\Components\EWS\Type\RestrictionType;
+
 /**
  * Defines a request to find folders in a mailbox.
  *
@@ -37,9 +43,9 @@ class FindFolderType extends BaseRequestType
      *
      * @since Exchange 2007
      *
-     * @var OCA\EWS\Components\EWS\Type\FolderResponseShapeType
+     * @var \OCA\EWS\Components\EWS\Type\FolderResponseShapeType
      */
-    public $FolderShape;
+    public FolderResponseShapeType $FolderShape;
 
     /**
      * Describes where the paged view starts and the maximum number of folders
@@ -49,9 +55,9 @@ class FindFolderType extends BaseRequestType
      *
      * @since Exchange 2007
      *
-     * @var OCA\EWS\Components\EWS\Type\FractionalPageViewType
+     * @var \OCA\EWS\Components\EWS\Type\FractionalPageViewType
      */
-    public $FractionalPageFolderView;
+    public FractionalPageViewType $FractionalPageFolderView;
 
     /**
      * Describes how paged item information is returned in a FindFolder
@@ -61,18 +67,18 @@ class FindFolderType extends BaseRequestType
      *
      * @since Exchange 2007
      *
-     * @var OCA\EWS\Components\EWS\Type\IndexedPageViewType
+     * @var \OCA\EWS\Components\EWS\Type\IndexedPageViewType
      */
-    public $IndexedPageFolderView;
+    public IndexedPageViewType $IndexedPageFolderView;
 
     /**
      * Identifies folders for the FindFolder operation to search.
      *
      * @since Exchange 2007
      *
-     * @var OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType
+     * @var \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType
      */
-    public $ParentFolderIds;
+    public NonEmptyArrayOfBaseFolderIdsType $ParentFolderIds;
 
     /**
      * Defines a restriction or query that is used to filter folders in a
@@ -82,9 +88,9 @@ class FindFolderType extends BaseRequestType
      *
      * @since Exchange 2007
      *
-     * @var OCA\EWS\Components\EWS\Type\RestrictionType
+     * @var \OCA\EWS\Components\EWS\Type\RestrictionType
      */
-    public $Restriction;
+    public RestrictionType $Restriction;
 
     /**
      * Defines how a search is performed.
@@ -95,7 +101,7 @@ class FindFolderType extends BaseRequestType
      *
      * @var string
      *
-     * @see OCA\EWS\Components\EWS\Enumeration\FolderQueryTraversalType
+     * @returns \OCA\EWS\Components\EWS\Enumeration\FolderQueryTraversalType
      */
-    public $Traversal;
+    public string $Traversal;
 }

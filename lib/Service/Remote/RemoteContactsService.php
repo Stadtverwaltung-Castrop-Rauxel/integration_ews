@@ -1912,7 +1912,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $type - remote email type
+	 * @param string $type - remote email type
 	 *
 	 * @return string|null contact object email type
 	 */
@@ -1940,7 +1940,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $type - contact object email type
+	 * @param string $type - contact object email type
 	 *
 	 * @return string|null remote email type
 	 */
@@ -1968,7 +1968,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $type - remote telephone type
+	 * @param string $type - remote telephone type
 	 *
 	 * @return string|null contact object telephone type
 	 */
@@ -2012,7 +2012,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $primary - contact object telephone type
+	 * @param string $primary - contact object telephone type
 	 *
 	 * @return string|null remote telephone type
 	 */
@@ -2061,7 +2061,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $type - remote address type
+	 * @param string $type - remote address type
 	 *
 	 * @return string|null contact object address type
 	 */
@@ -2089,7 +2089,7 @@ class RemoteContactsService {
      *
      * @since Release 1.0.0
      *
-	 * @param sting $type - contact object address type
+	 * @param string $type - contact object address type
 	 *
 	 * @return string|null remote address type
 	 */

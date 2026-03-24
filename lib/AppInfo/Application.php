@@ -41,6 +41,8 @@ use OCA\EWS\Events\AddressBookDeletedListener;
 use OCA\EWS\Events\CalendarDeletedListener;
 use OCA\EWS\Events\UserDeletedListener;
 use OCA\EWS\Notification\Notifier;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Class Application
@@ -53,12 +55,16 @@ class Application extends App implements IBootstrap {
 
 	private IAppConfig $appConfig;
 
-	public function __construct(array $urlParams = []) {
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public function __construct(array $urlParams = []) {
 		parent::__construct(self::APP_ID, $urlParams);
 
 		$appmanager = $this->getContainer()->get(IAppManager::class);
-		$contacts = $appmanager->isInstalled('contacts');
-		$calendar = $appmanager->isInstalled('calendar');
+		$contactsInstalled = $appmanager->isInstalled('contacts');
+		$calendarInstalled = $appmanager->isInstalled('calendar');
 
 		// register notifications
 		$manager = $this->getContainer()->get(INotificationManager::class);
@@ -67,11 +73,11 @@ class Application extends App implements IBootstrap {
 		$dispatcher = $this->getContainer()->get(IEventDispatcher::class);
 		$dispatcher->addServiceListener(UserDeletedEvent::class, UserDeletedListener::class);
 
-		if ($contacts == true) {
+		if ($contactsInstalled) {
 			$dispatcher->addServiceListener(AddressBookDeletedEvent::class, AddressBookDeletedListener::class);
 		}
 
-		if ($calendar == true) {
+		if ($calendarInstalled) {
 			$dispatcher->addServiceListener(CalendarDeletedEvent::class, CalendarDeletedListener::class);
 		}
 	}

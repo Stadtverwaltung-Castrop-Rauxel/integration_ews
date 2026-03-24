@@ -288,7 +288,7 @@ class RemoteTasksService {
      *
 	 * @param string $iid - Collection Item ID
 	 *
-	 * @return ContactObject
+	 * @return ?TaskObject
 	 */
 	public function fetchCollectionItem(string $iid): ?TaskObject {
 
@@ -1771,7 +1771,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $status - remote status value
+	 * @param string $status - remote status value
 	 *
 	 * @return string task object status value
 	 */
@@ -1831,7 +1831,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $days - remote days of the week values(s)
+	 * @param string $days - remote days of the week values(s)
 	 * @param bool $group - flag to check if days are grouped
 	 *
 	 * @return array task object days of the week values(s)
@@ -1932,7 +1932,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $days - remote days of the month values(s)
+	 * @param string $days - remote days of the month values(s)
 	 *
 	 * @return array task object days of the month values(s)
 	 */
@@ -1968,7 +1968,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $weeks - remote week of the month values(s)
+	 * @param string $weeks - remote week of the month values(s)
 	 *
 	 * @return array task object week of the month values(s)
 	 */
@@ -2033,7 +2033,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $months - remote month of the year values(s)
+	 * @param string $months - remote month of the year values(s)
 	 *
 	 * @return array task object month of the year values(s)
 	 */
@@ -2114,7 +2114,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - remote sensitivity value
+	 * @param string $level - remote sensitivity value
 	 *
 	 * @return int task object sensitivity value
 	 */
@@ -2172,7 +2172,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $level - remote importance value
+	 * @param string $level - remote importance value
 	 *
 	 * @return int task object priority value
 	 */
@@ -2227,7 +2227,7 @@ class RemoteTasksService {
 	 *
      * @since Release 1.0.0
      *
-	 * @param sting $response - remote attendee response value
+	 * @param string $response - remote attendee response value
 	 *
 	 * @return string task object attendee response value
 	 */

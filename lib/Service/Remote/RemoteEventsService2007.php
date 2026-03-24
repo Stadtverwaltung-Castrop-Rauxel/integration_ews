@@ -892,7 +892,7 @@ class RemoteEventsService2007 extends RemoteEventsService {
      *
      * @since Release 1.0.15
      *
-     * @param DataTime $Start
+     * @param DateTime $Start
 	 * @param DataTime $End
      *
      * @return string
