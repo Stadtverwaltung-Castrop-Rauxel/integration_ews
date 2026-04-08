@@ -118,7 +118,10 @@ class PersonalConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function ConnectMS365(?string $code): TemplateResponse|DataResponse {
-
+		
+		parse_str(parse_url($_SERVER['REQUEST_URI'])["query"], $query);
+		$code = $query["code"];
+		
 		// evaluate if user id is present
 		if ($this->userId === null || empty($code)) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);

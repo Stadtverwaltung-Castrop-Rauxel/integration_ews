@@ -30,7 +30,7 @@ use DateTimeZone;
 use Exception;
 use Throwable;
 use Psr\Log\LoggerInterface;
-use OCA\DAV\CalDav\CalDavBackend;
+use OCA\DAV\CalDAV\CalDavBackend;
 use OCP\Files\IRootFolder;
 
 use OCA\EWS\AppInfo\Application;
