@@ -36,10 +36,15 @@ use OCA\EWS\Components\EWS\Type;
  *
  * @todo Create a common EntryType class.
  * @todo Create a common TextEntryType class.
+ *
+ * @psalm-external-mutation-free
  */
 class EmailAddressDictionaryEntryType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Key = null, string $Address = null, string $Name = null)
     {
         $this->Key = $Key;

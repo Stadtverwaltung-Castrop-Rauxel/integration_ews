@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Exchange formats.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class ConvertIdType extends BaseRequestType
 {

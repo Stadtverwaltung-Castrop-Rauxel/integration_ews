@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of item ids.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfItemIdsType extends ArrayType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $ItemIds = null)
     {
         if ($ItemIds) {$this->ItemId = $ItemIds;}

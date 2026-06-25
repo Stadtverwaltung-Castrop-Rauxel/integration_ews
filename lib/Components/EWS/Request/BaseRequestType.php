@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Request;
  * Base class for requests.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BaseRequestType extends Request
 {

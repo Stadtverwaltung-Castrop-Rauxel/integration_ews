@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines the request to get a user’s photo.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserPhotoType extends BaseRequestType
 {

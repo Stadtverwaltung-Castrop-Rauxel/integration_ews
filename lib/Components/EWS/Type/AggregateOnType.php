@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * for a grouped FindItem result set.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AggregateOnType extends Type
 {

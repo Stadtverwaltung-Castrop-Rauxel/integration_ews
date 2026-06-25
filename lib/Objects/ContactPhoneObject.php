@@ -25,12 +25,18 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactPhoneObject {
 
     public ?string $Type;
     public ?string $SubType;
 	public ?string $Number;
 	
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(?string $type = null, ?string $subtype = null, ?string $number = null) {
         $this->Type = $type;
         $this->SubType = $subtype;

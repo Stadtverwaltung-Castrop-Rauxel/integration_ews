@@ -2,117 +2,117 @@
 //declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Service\Local;
 
+use DateInterval;
 use Datetime;
 use DateTimeZone;
-use DateInterval;
-use Psr\Log\LoggerInterface;
-use OC\Files\Node\LazyUserFolder;
 use OCA\DAV\CalDAV\CalDavBackend;
-
-use OCA\EWS\AppInfo\Application;
 use OCA\EWS\Db\TasksUtil;
+use OCA\EWS\Objects\TaskAttachmentObject;
 use OCA\EWS\Objects\TaskCollectionObject;
 use OCA\EWS\Objects\TaskObject;
-use OCA\EWS\Objects\TaskAttachmentObject;
+use OCA\EWS\Utils\Sanitizer;
 use OCA\EWS\Utils\UUID;
-
-use Sabre\VObject\Reader;
+use OCP\Files\Folder;
+use Psr\Log\LoggerInterface;
 use Sabre\VObject\Component\VTodo;
+use Sabre\VObject\Reader;
 
-class LocalTasksService {
-	/**
-	 * @var LoggerInterface
-	 */
-	private $logger;
+class LocalTasksService
+{
     /**
-	 * @var Object
-	 */
-	private $Configuration;
+     * @var Object
+     */
+    private $Configuration;
     /**
-	 * @var DateTimeZone
-	 */
-	private ?DateTimeZone $SystemTimeZone = null;
+     * @var ?DateTimeZone
+     */
+    private ?DateTimeZone $SystemTimeZone = null;
     /**
-	 * @var DateTimeZone
-	 */
-	private ?DateTimeZone $UserTimeZone = null;
+     * @var ?DateTimeZone
+     */
+    private ?DateTimeZone $UserTimeZone = null;
     /**
-	 * @var String
-	 */
-	private string $UserAttachmentPath = '';
+     * @var String
+     */
+    private string $UserAttachmentPath = '';
     /**
-	 * @var CalDavBackend
-	 */
-	private ?CalDavBackend $DataStore = null;
+     * @var ?CalDavBackend
+     */
+    private ?CalDavBackend $DataStore = null;
     /**
-	 * @var LazyUserFolder
-	 */
-	private ?LazyUserFolder $FileStore = null;
-    /**
-	 * @var TasksUtil
-	 */
-    private $TasksUtil;
+     * @var ?Folder
+     */
+    private ?Folder $FileStore = null;
 
-	public function __construct (string $appName, LoggerInterface $logger, TasksUtil $TasksUtil) {
-		$this->logger = $logger;
-        $this->TasksUtil = $TasksUtil;
-	}
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(string $appName,
+                                private LoggerInterface $logger,
+                                private TasksUtil $TasksUtil)
+    {
+    }
 
-    public function configure($configuration, CalDavBackend $DataStore, LazyUserFolder $FileStore = null) : void {
+    /**
+     * @psalm-external-mutation-free
+     */
+    public function configure($configuration, CalDavBackend $DataStore, Folder $FileStore = null): void
+    {
 
-		// assign configuration
-		$this->Configuration = $configuration;
-		// assign local data store
-		$this->DataStore = $DataStore;
+        // assign configuration
+        $this->Configuration = $configuration;
+        // assign local data store
+        $this->DataStore = $DataStore;
         // assign local file store
-		$this->FileStore = $FileStore;
-		// assign timezones
-		$this->SystemTimeZone = $configuration->SystemTimeZone;
-		$this->UserTimeZone = $configuration->UserTimeZone;
-		// assign default folder
-		$this->UserAttachmentPath = $configuration->TasksAttachmentPath;
+        $this->FileStore = $FileStore;
+        // assign timezones
+        $this->SystemTimeZone = $configuration->SystemTimeZone;
+        $this->UserTimeZone = $configuration->UserTimeZone;
+        // assign default folder
+        $this->UserAttachmentPath = $configuration->TasksAttachmentPath;
 
-	}
+    }
 
-	/**
+    /**
      * retrieve information for specific collection from local storage
      *
+     * @param string $uid - User ID
+     *
+     * @return array of collections
      * @since Release 1.0.0
      *
-	 * @param string $uid - User ID
-	 *
-	 * @return array of collections
-	 */
-	public function listCollections(string $uid, bool $filterDeleted = false): array {
+     */
+    public function listCollections(string $uid, bool $filterDeleted = false): array
+    {
 
         // retrieve all local collections
         $collections = $this->DataStore->getCalendarsForUser('principals/users/' . $uid);
-		// construct collections list
-		$data = array();
-		foreach ($collections as $entry) {
+        // construct collections list
+        $data = array();
+        foreach ($collections as $entry) {
             // evaluate if entry is a tasks list
             if (!isset($entry['{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set']) ||
                 !in_array('VTODO', $entry['{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set']->getValue())) {
@@ -126,22 +126,25 @@ class LocalTasksService {
             }
 
             $data[] = array('id' => $entry['id'], 'name' => $entry['{DAV:}displayname'], 'uri' => $entry['uri']);
-		}
+        }
         // return collections list
-		return $data;
+        return $data;
 
     }
 
     /**
      * retrieve properties for specific collection from local storage
      *
+     * @param string $cid - Collection Id
+     *
+     * @return TaskCollectionObject of collection properties
+     *
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection Id
-	 *
-	 * @return TaskCollectionObject of collection properties
-	 */
-	public function fetchCollection(string $cid): ?TaskCollectionObject {
+     * @psalm-mutation-free
+     */
+    public function fetchCollection(string $cid): ?TaskCollectionObject
+    {
 
         // retrieve collection properties
         $ec = $this->DataStore->getCalendarById($cid);
@@ -152,25 +155,27 @@ class LocalTasksService {
                 $ec['{DAV:}displayname'],
                 $ec['{http://sabredav.org/ns}sync-token']
             );
-        }
-        else {
+        } else {
             return null;
         }
 
     }
 
-	/**
+    /**
      * create collection in local storage
+     *
+     * @param string $uid - User ID
+     * @param string $cid - Collection URI
+     * @param string $name - Collection Name
+     *
+     * @return TaskCollectionObject
      *
      * @since Release 1.0.0
      *
-     * @param string $uid - User ID
-	 * @param string $cid - Collection URI
-     * @param string $name - Collection Name
-	 *
-	 * @return TaskCollectionObject
-	 */
-	public function createCollection(string $uid, string $cid, string $name): ?TaskCollectionObject {
+     * @psalm-mutation-free
+     */
+    public function createCollection(string $uid, string $cid, string $name): ?TaskCollectionObject
+    {
 
         // check for user id and collection - must contain to create
         if (!empty($uid) && !empty($cid)) {
@@ -193,14 +198,17 @@ class LocalTasksService {
     /**
      * delete collection from local storage
      *
+     * @param string $cid - Collection ID
+     * @param string $mode - True for permanently / False - for Recoverable
+     *
+     * @return bool true - successfully delete / false - failed to delete
+     *
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param string $mode - True for permanently / False - for Recoverable
-	 *
-	 * @return bool true - successfully delete / false - failed to delete
-	 */
-	public function deleteCollection(string $cid, bool $mode = false): bool {
+     * @psalm-mutation-free
+     */
+    public function deleteCollection(string $cid, bool $mode = false): bool
+    {
 
         // check for id - must contain id to delete
         if (!empty($cid)) {
@@ -219,36 +227,40 @@ class LocalTasksService {
     /**
      * retrieve changes for specific collection from local storage
      *
+     * @param string $cid - Collection Id
+     * @param string $state - Collection Id
+     *
+     * @return array of collection changes
+     *
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection Id
-     * @param string $state - Collection Id
-	 *
-	 * @return array of collection changes
-	 */
-	public function fetchCollectionChanges(string $cid, string $state): array {
+     * @psalm-mutation-free
+     */
+    public function fetchCollectionChanges(string $cid, string $state): array
+    {
 
         // retrieve collection chamges
         $lcc = $this->DataStore->getChangesForCalendar($cid, $state, null, null);
         // return collection chamges
-		return $lcc;
+        return $lcc;
 
     }
 
     /**
      * find collection item by uuid in local storage
      *
+     * @param string $cid - Collection ID
+     * @param string $uuid - Item UUID
+     *
+     * @return TaskObject TaskObject - successfully retrieved / null - failed to retrieve
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param string $uuid - Item UUID
-	 *
-	 * @return TaskObject TaskObject - successfully retrieved / null - failed to retrieve
-	 */
-	public function findCollectionItemByUUID(string $cid, string $uuid): ?TaskObject {
+     */
+    public function findCollectionItemByUUID(string $cid, string $uuid): ?TaskObject
+    {
 
         // search data store for object
-		$lo = $this->TasksUtil->findByUUID($cid, $uuid, 'VTODO');
+        $lo = $this->TasksUtil->findByUUID($cid, $uuid, 'VTODO');
         // validate result
         if (is_array($lo) && count($lo) > 0) {
             $lo = $lo[0];
@@ -261,7 +273,7 @@ class LocalTasksService {
                 $to->UUID = $lo['uid'];
                 $to->CID = $lo['calendarid'];
                 $to->ModifiedOn = new DateTime(date("Y-m-d H:i:s", $lo['lastmodified']));
-                $to->State = trim($lo['etag'],'"');
+                $to->State = trim($lo['etag'], '"');
                 // attachments
                 if (count($to->Attachments) > 0) {
                     // retrieve attachments from local data store
@@ -269,8 +281,7 @@ class LocalTasksService {
                 }
                 // return task object
                 return $to;
-            }
-            else {
+            } else {
                 return null;
             }
         } else {
@@ -283,14 +294,15 @@ class LocalTasksService {
     /**
      * retrieve collection item from local storage
      *
+     * @param string $cid - Collection ID
+     * @param string $iid - Item ID
+     *
+     * @return TaskObject TaskObject - successfully retrieved / null - failed to retrieve
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param string $iid - Item ID
-	 *
-	 * @return TaskObject TaskObject - successfully retrieved / null - failed to retrieve
-	 */
-	public function fetchCollectionItem(string $cid, string $iid): ?TaskObject {
+     */
+    public function fetchCollectionItem(string $cid, string $iid): ?TaskObject
+    {
 
         // retrieve collection item
         $lo = $this->DataStore->getCalendarObject($cid, $iid);
@@ -304,7 +316,7 @@ class LocalTasksService {
                 $to->ID = $lo['uri'];
                 $to->CID = $lo['calendarid'];
                 $to->ModifiedOn = new DateTime(date("Y-m-d H:i:s", $lo['lastmodified']));
-                $to->State = trim($lo['etag'],'"');
+                $to->State = trim($lo['etag'], '"');
 
                 // attachments
                 if (count($to->Attachments) > 0) {
@@ -313,8 +325,7 @@ class LocalTasksService {
                 }
                 // return task object
                 return $to;
-            }
-            else {
+            } else {
                 return null;
             }
         } else {
@@ -327,14 +338,15 @@ class LocalTasksService {
     /**
      * create collection item in local storage
      *
+     * @param string $cid - Collection ID
+     * @param TaskObject $so - Item Data
+     *
+     * @return TaskObject
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param TaskObject $so - Item Data
-	 *
-	 * @return TaskObject
-	 */
-	public function createCollectionItem(string $cid, TaskObject $so): ?TaskObject {
+     */
+    public function createCollectionItem(string $cid, TaskObject $so): ?TaskObject
+    {
 
         // clone source object
         $to = clone $so;
@@ -342,7 +354,7 @@ class LocalTasksService {
         if (count($to->Attachments) > 0) {
             // create or update attachements in local data store
             $to->Attachments = $this->createCollectionItemAttachment(
-                $to->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utils\Sanitizer::folder($to->Label, true, true),
+                $to->StartsOn->format('Y-m-d H.i.s') . " " . Sanitizer::folder($to->Label, true, true),
                 $to->Attachments
             );
         }
@@ -365,7 +377,7 @@ class LocalTasksService {
         if (isset($rs)) {
             $to->ID = $vtid;
             $to->CID = $cid;
-            $to->State = trim($rs,'"');
+            $to->State = trim($rs, '"');
             return $to;
         } else {
             return null;
@@ -376,15 +388,16 @@ class LocalTasksService {
     /**
      * update collection item in local storage
      *
-     * @since Release 1.0.0
-     *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $iid - Item ID
      * @param TaskObject $so - Source Data
-	 *
-	 * @return TaskObject
-	 */
-	public function updateCollectionItem(string $cid, string $iid, TaskObject $so): ?TaskObject {
+     *
+     * @return TaskObject
+     * @since Release 1.0.0
+     *
+     */
+    public function updateCollectionItem(string $cid, string $iid, TaskObject $so): ?TaskObject
+    {
 
         // check for id - must contain id to update
         if (!empty($iid)) {
@@ -394,7 +407,7 @@ class LocalTasksService {
             if (count($to->Attachments) > 0) {
                 // create or update attachements in local data store
                 $to->Attachments = $this->createCollectionItemAttachment(
-                    $to->StartsOn->format('Y-m-d H.i.s') . " " . \OCA\EWS\Utils\Sanitizer::folder($to->Label, true, true),
+                    $to->StartsOn->format('Y-m-d H.i.s') . " " . Sanitizer::folder($to->Label, true, true),
                     $to->Attachments
                 );
             }
@@ -411,7 +424,7 @@ class LocalTasksService {
         if (isset($rs)) {
             $to->ID = $iid;
             $to->CID = $cid;
-			$to->State = trim($rs,'"');
+            $to->State = trim($rs, '"');
             return $to;
         } else {
             return null;
@@ -422,14 +435,17 @@ class LocalTasksService {
     /**
      * delete collection item from local storage
      *
+     * @param string $cid - Collection ID
+     * @param string $iid - Item ID
+     *
+     * @return bool true - successfully delete / False - failed to delete
+     *
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param string $iid - Item ID
-	 *
-	 * @return bool true - successfully delete / False - failed to delete
-	 */
-	public function deleteCollectionItem(string $cid, string $iid): bool {
+     * @psalm-mutation-free
+     */
+    public function deleteCollectionItem(string $cid, string $iid): bool
+    {
 
         // check for id - must contain id to delete
         if (!empty($iid)) {
@@ -448,15 +464,16 @@ class LocalTasksService {
     /**
      * retrieve collection item attachment from local storage
      *
-     * @since Release 1.0.0
-     *
      * @param string $uid - User ID
      * @param string $batch - Collection of Id's
      * @param string $flag - I - File Information / F - File Information + Content
-	 *
-	 * @return TaskAttachmentObject
-	 */
-	public function fetchCollectionItemAttachment(array $batch, string $flag = 'I'): array {
+     *
+     * @return TaskAttachmentObject
+     * @since Release 1.0.0
+     *
+     */
+    public function fetchCollectionItemAttachment(array $batch, string $flag = 'I'): array
+    {
 
         // check to for entries in batch collection
         if (count($batch) == 0) {
@@ -469,7 +486,7 @@ class LocalTasksService {
             try {
                 //
                 $fo = $this->FileStore->getById($entry);
-                if($fo[0] instanceof \OCP\Files\File) {
+                if ($fo[0] instanceof \OCP\Files\File) {
                     $ao = new TaskAttachmentObject('D');
                     $ao->Id = $fo[0]->getFileInfo()->getId();
                     $ao->Name = $fo[0]->getFileInfo()->getName();
@@ -482,7 +499,7 @@ class LocalTasksService {
                     // insert attachment object in response collection
                     $rc[] = $ao;
                 }
-            } catch(\OCP\Files\NotFoundException $e) {
+            } catch (\OCP\Files\NotFoundException $e) {
                 throw new StorageException('File does not exist');
             }
         }
@@ -494,15 +511,16 @@ class LocalTasksService {
     /**
      * create collection item attachment in local storage
      *
-     * @since Release 1.0.0
-     *
      * @param string $uid - User ID
      * @param string $fn - Folder Name to save attachments
      * @param array $batch - Collection of TaskAttachmentObject(s) objects
-	 *
-	 * @return string
-	 */
-	public function createCollectionItemAttachment(string $fn, array $batch): array {
+     *
+     * @return string
+     * @since Release 1.0.0
+     *
+     */
+    public function createCollectionItemAttachment(string $fn, array $batch): array
+    {
 
         // check to for entries in batch collection
         if (count($batch) == 0) {
@@ -544,7 +562,7 @@ class LocalTasksService {
 
                 $rc[] = $ao;
 
-            } catch(\OCP\Files\NotPermittedException $e) {
+            } catch (\OCP\Files\NotPermittedException $e) {
                 // you have to create this exception by yourself ;)
                 throw new StorageException('Cant write to file');
             } catch (Exception $e) {
@@ -559,13 +577,16 @@ class LocalTasksService {
     /**
      * delete collection item attachment from local storage
      *
+     * @param string $aid - Attachment ID
+     *
+     * @return bool true - successfully delete / False - failed to delete
+     *
      * @since Release 1.0.0
      *
-     * @param string $aid - Attachment ID
-	 *
-	 * @return bool true - successfully delete / False - failed to delete
-	 */
-	public function deleteCollectionItemAttachment(array $batch): array {
+     * @psalm-pure
+     */
+    public function deleteCollectionItemAttachment(array $batch): array
+    {
 
         // check to for entries in batch collection
         if (count($batch) == 0) {
@@ -580,18 +601,19 @@ class LocalTasksService {
     /**
      * convert vtodo object to task object
      *
+     * @param VTodo $vo - source object
+     *
+     * @return TaskObject converted object
      * @since Release 1.0.0
      *
-	 * @param VTodo $vo - source object
-	 *
-	 * @return TaskObject converted object
-	 */
-	public function toTaskObject(VTodo $vo): TaskObject {
+     */
+    public function toTaskObject(VTodo $vo): TaskObject
+    {
 
         // construct task object
-		$to = new TaskObject();
+        $to = new TaskObject();
         // Origin
-		$to->Origin = 'L';
+        $to->Origin = 'L';
         // UUID
         if (isset($vo->UID)) {
             $to->UUID = UUID::normalize(trim($vo->UID->getValue()));
@@ -608,14 +630,11 @@ class LocalTasksService {
         if (isset($vo->DTSTART)) {
             if (isset($vo->DTSTART->parameters['TZID'])) {
                 $tz = new DateTimeZone($vo->DTSTART->parameters['TZID']->getValue());
-            }
-            elseif (str_contains($vo->DTSTART, 'Z')) {
+            } elseif (str_contains($vo->DTSTART, 'Z')) {
                 $tz = new DateTimeZone('UTC');
-            }
-            elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+            } elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                 $tz = $this->UserTimeZone;
-            }
-            else {
+            } else {
                 $tz = $this->SystemTimeZone;
             }
             $to->StartsOn = new DateTime($vo->DTSTART->getValue(), $tz);
@@ -625,14 +644,11 @@ class LocalTasksService {
         if (isset($vo->DUE)) {
             if (isset($vo->DUE->parameters['TZID'])) {
                 $tz = new DateTimeZone($vo->DUE->parameters['TZID']->getValue());
-            }
-            elseif (str_contains($vo->DUE, 'Z')) {
+            } elseif (str_contains($vo->DUE, 'Z')) {
                 $tz = new DateTimeZone('UTC');
-            }
-            elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+            } elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                 $tz = $this->UserTimeZone;
-            }
-            else {
+            } else {
                 $tz = $this->SystemTimeZone;
             }
             $to->DueOn = new DateTime($vo->DUE->getValue(), $tz);
@@ -666,7 +682,7 @@ class LocalTasksService {
         }
         // Tag(s)
         if (isset($vo->CATEGORIES)) {
-            foreach($vo->CATEGORIES->getParts() as $entry) {
+            foreach ($vo->CATEGORIES->getParts() as $entry) {
                 $to->addTag(
                     trim($entry)
                 );
@@ -674,7 +690,7 @@ class LocalTasksService {
         }
         // Notifications
         if (isset($vo->VALARM)) {
-            foreach($vo->VALARM->TRIGGER as $entry) {
+            foreach ($vo->VALARM->TRIGGER as $entry) {
                 if ($vo->VALARM->ACTION->count() > 0) {
                     // Notifications Type
                     $t = $this->fromAlarmAction($vo->VALARM->ACTION[0]->getValue());
@@ -684,8 +700,7 @@ class LocalTasksService {
                             if (isset($vo->VALARM->TRIGGER[0]->parameters['RELATED'])) {
                                 $p = 'R';
                                 $w = $this->fromDurationPeriod($vo->VALARM->TRIGGER[0]->getValue());
-                            }
-                            elseif (isset($vo->VALARM->TRIGGER[0]->parameters['VALUE'])) {
+                            } elseif (isset($vo->VALARM->TRIGGER[0]->parameters['VALUE'])) {
                                 $p = 'A';
                                 $w = new DateTime($vo->VALARM->TRIGGER[0]->getValue());
                             }
@@ -704,7 +719,7 @@ class LocalTasksService {
         }
         // Attachment(s)
         if (isset($vo->ATTACH)) {
-            foreach($vo->ATTACH as $entry) {
+            foreach ($vo->ATTACH as $entry) {
                 if (isset($entry->parameters['X-NC-FILE-ID'])) {
                     $fs = 'D';
                     $fi = $entry->parameters['X-NC-FILE-ID']->getValue();
@@ -742,32 +757,28 @@ class LocalTasksService {
             if (isset($parts['BYDAY'])) {
                 if (is_array($parts['BYDAY'])) {
                     $to->Occurrence->OnDayOfWeek = $this->fromByDay($parts['BYDAY']);
-                }
-                else {
+                } else {
                     $to->Occurrence->OnDayOfWeek = $this->fromByDay(array($parts['BYDAY']));
                 }
             }
             if (isset($parts['BYMONTH'])) {
                 if (is_array($parts['BYMONTH'])) {
                     $to->Occurrence->OnMonthOfYear = $parts['BYMONTH'];
-                }
-                else {
+                } else {
                     $to->Occurrence->OnMonthOfYear = array($parts['BYMONTH']);
                 }
             }
             if (isset($parts['BYMONTHDAY'])) {
                 if (is_array($parts['BYMONTHDAY'])) {
                     $to->Occurrence->OnDayOfMonth = $parts['BYMONTHDAY'];
-                }
-                else {
+                } else {
                     $to->Occurrence->OnDayOfMonth = array($parts['BYMONTHDAY']);
                 }
             }
             if (isset($parts['BYYEARDAY'])) {
                 if (is_array($parts['BYYEARDAY'])) {
                     $to->Occurrence->OnDayOfYear = $parts['BYYEARDAY'];
-                }
-                else {
+                } else {
                     $to->Occurrence->OnDayOfYear = array($parts['BYYEARDAY']);
                 }
             }
@@ -782,14 +793,11 @@ class LocalTasksService {
                 foreach ($vo->EXDATE as $entry) {
                     if (isset($entry->parameters['TZID'])) {
                         $tz = new DateTimeZone($entry->parameters['TZID']->getValue());
-                    }
-                    elseif (str_contains($entry->getValue(), 'Z')) {
+                    } elseif (str_contains($entry->getValue(), 'Z')) {
                         $tz = new DateTimeZone('UTC');
-                    }
-                    elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+                    } elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                         $tz = $this->UserTimeZone;
-                    }
-                    else {
+                    } else {
                         $tz = $this->SystemTimeZone;
                     }
                     $to->Occurrence->Excludes[] = new DateTime($entry->getValue(), $tz);
@@ -797,21 +805,22 @@ class LocalTasksService {
             }
         }
 
-		// return task object
-		return $to;
+        // return task object
+        return $to;
 
     }
 
     /**
      * Convert task object to vtask object
      *
+     * @param TaskObject $vo - source object
+     *
+     * @return VTodo converted object
      * @since Release 1.0.0
      *
-	 * @param TaskObject $vo - source object
-	 *
-	 * @return VTodo converted object
-	 */
-    public function fromTaskObject(TaskObject $to): VTodo{
+     */
+    public function fromTaskObject(TaskObject $to): VTodo
+    {
 
         // construct vtask object
         $vo = new \Sabre\VObject\Component\VCalendar();
@@ -830,7 +839,7 @@ class LocalTasksService {
         }
         // Label
         if ($to->Label) {
-            $vo->add('SUMMARY',$to->Label);
+            $vo->add('SUMMARY', $to->Label);
         }
         // Notes
         if (isset($to->Notes)) {
@@ -858,7 +867,7 @@ class LocalTasksService {
         }
         // Attachment(s)
         if (count($to->Attachments) > 0) {
-            foreach($to->Attachments as $entry) {
+            foreach ($to->Attachments as $entry) {
                 // Data Store
                 if ($entry->Store == 'D' && !empty($entry->Id)) {
                     $p = array();
@@ -867,15 +876,13 @@ class LocalTasksService {
                     $p['FMTTYPE'] = $entry->Type;
                     $vo->add('ATTACH', "/f/" . $entry->Id, $p);
                     unset($p);
-                }
-                // Referance
+                } // Referance
                 elseif ($entry->Store == 'R' && !empty($entry->Data)) {
                     $p = array();
                     $p['FMTTYPE'] = $entry->Type;
                     $vo->add('ATTACH', $entry->Data, $p);
                     unset($p);
-                }
-                // Enclosed
+                } // Enclosed
                 elseif (!empty($entry->Data)) {
                     $p = array();
                     $p['FMTTYPE'] = $entry->Type;
@@ -887,24 +894,23 @@ class LocalTasksService {
                             'X-FILENAME="' . $entry->Name . '":' . $entry->Data,
                             $p
                         );
-                    }
-                    else {
+                    } else {
                         $vo->add(
                             'ATTACH',
-                            'X-FILENAME="' . $entry->Name . '":' .  base64_encode($entry->Data),
+                            'X-FILENAME="' . $entry->Name . '":' . base64_encode($entry->Data),
                             $p
                         );
                     }
-					unset($p);
-				}
+                    unset($p);
+                }
 
             }
         }
         // Notifications
         if (count($to->Notifications) > 0) {
-            foreach($to->Notifications as $entry) {
+            foreach ($to->Notifications as $entry) {
                 $vo->add('VALARM');
-                $i= $vo->VALARM->count() - 1;
+                $i = $vo->VALARM->count() - 1;
                 // Notifications Type
                 $vo->VALARM[$i]->add('ACTION', $this->toAlarmAction($entry->Type));
                 // Notifications Pattern
@@ -942,9 +948,8 @@ class LocalTasksService {
                 if ($to->Origin == 'R') {
                     // adjust for how until day is calculated
                     $p['UNTIL'] = (clone $to->Occurrence->Concludes)
-                                  ->add(new DateInterval('PT24H'))->format('Ymd\THis\Z');
-                }
-                else {
+                        ->add(new DateInterval('PT24H'))->format('Ymd\THis\Z');
+                } else {
                     $p['UNTIL'] = $to->Occurrence->Concludes->format('Ymd\THis\Z');
                 }
             }
@@ -976,11 +981,9 @@ class LocalTasksService {
                 foreach ($to->Occurrence->Excludes as $entry) {
                     if ($entry instanceof \DateTime) {
                         $tz = $entry->getTimeZone()->getName();
-                    }
-                    elseif ($this->UserTimeZone instanceof \DateTimeZone) {
+                    } elseif ($this->UserTimeZone instanceof \DateTimeZone) {
                         $tz = $this->UserTimeZone->getName();
-                    }
-                    else {
+                    } else {
                         $tz = $this->SystemTimeZone->getName();
                     }
                     // apply time zone
@@ -1004,78 +1007,87 @@ class LocalTasksService {
 
     /**
      * convert local frequency to task object occurrence precision
-	 *
+     *
+     * @param string $frequency - local frequency value
+     *
+     * @return int task object occurrence precision value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $frequency - local frequency value
-	 *
-	 * @return int task object occurrence precision value
-	 */
-    private function fromFrequency(?string $frequency): string {
+     * @psalm-pure
+     */
+    private function fromFrequency(?string $frequency): string
+    {
 
         // frequency conversion reference
-		$_tm = array(
-			'DAILY' => 'D',
-			'WEEKLY' => 'W',
-			'MONTHLY' => 'M',
+        $_tm = array(
+            'DAILY' => 'D',
+            'WEEKLY' => 'W',
+            'MONTHLY' => 'M',
             'YEARLY' => 'Y',
-			'HOURLY' => 'H',
-			'MINUTELY' => 'I',
+            'HOURLY' => 'H',
+            'MINUTELY' => 'I',
             'SECONDLY' => 'S',
-		);
+        );
         // evaluate if frequency value exists
-		if (isset($_tm[$frequency])) {
-			// return converted occurrence precision value
-			return $_tm[$frequency];
-		} else {
+        if (isset($_tm[$frequency])) {
+            // return converted occurrence precision value
+            return $_tm[$frequency];
+        } else {
             // return default occurrence precision value
-			return 'D';
-		}
+            return 'D';
+        }
 
-	}
+    }
 
     /**
      * convert task object occurrence precision to local frequency
-	 *
+     *
+     * @param int $precision - task object occurrence precision value
+     *
+     * @return string local frequency value
+     *
      * @since Release 1.0.0
      *
-	 * @param int $precision - task object occurrence precision value
-	 *
-	 * @return string local frequency value
-	 */
-	private function toFrequency(?string $precision): string {
+     * @psalm-pure
+     */
+    private function toFrequency(?string $precision): string
+    {
 
         // occurrence precision conversion reference
-		$_tm = array(
-			'D' => 'DAILY',
-			'W' => 'WEEKLY',
-			'M' => 'MONTHLY',
+        $_tm = array(
+            'D' => 'DAILY',
+            'W' => 'WEEKLY',
+            'M' => 'MONTHLY',
             'Y' => 'YEARLY',
-			'H' => 'HOURLY',
-			'I' => 'MINUTELY',
+            'H' => 'HOURLY',
+            'I' => 'MINUTELY',
             'S' => 'SECONDLY',
-		);
+        );
         // evaluate if occurrence precision value exists
-		if (isset($_tm[$precision])) {
-			// return converted frequency value
-			return $_tm[$precision];
-		} else {
+        if (isset($_tm[$precision])) {
+            // return converted frequency value
+            return $_tm[$precision];
+        } else {
             // return default frequency value
-			return 'DAILY';
-		}
+            return 'DAILY';
+        }
 
-	}
+    }
 
     /**
      * convert local by day to task object days of the week
-	 *
+     *
+     * @param array $days - local by day values(s)
+     *
+     * @return array task object days of the week values(s)
+     *
      * @since Release 1.0.0
      *
-	 * @param array $days - local by day values(s)
-	 *
-	 * @return array task object days of the week values(s)
-	 */
-    private function fromByDay(array $days): array {
+     * @psalm-pure
+     */
+    private function fromByDay(array $days): array
+    {
 
         // days conversion reference
         $_tm = array(
@@ -1099,14 +1111,17 @@ class LocalTasksService {
 
     /**
      * convert task object days of the week to local by day
-	 *
+     *
+     * @param array $days - task object days of the week values(s)
+     *
+     * @return string local by day values(s)
+     *
      * @since Release 1.0.0
      *
-	 * @param array $days - task object days of the week values(s)
-	 *
-	 * @return string local by day values(s)
-	 */
-    private function toByDay(array $days): string {
+     * @psalm-pure
+     */
+    private function toByDay(array $days): string
+    {
 
         // days conversion reference
         $_tm = array(
@@ -1133,218 +1148,245 @@ class LocalTasksService {
 
     /**
      * convert local status to task object status
-	 *
+     *
+     * @param string $status - local status value
+     *
+     * @return string task object status value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $status - local status value
-	 *
-	 * @return string task object status value
-	 */
-    private function fromStatus(?string $status): string {
+     * @psalm-pure
+     */
+    private function fromStatus(?string $status): string
+    {
 
         // status conversion reference
-		$_tm = array(
-			'NEEDS-ACTION' => 'N',
-			'IN-PROCESS' => 'P',
-			'COMPLETED' => 'C',
+        $_tm = array(
+            'NEEDS-ACTION' => 'N',
+            'IN-PROCESS' => 'P',
+            'COMPLETED' => 'C',
             'CANCELLED' => 'D'
-		);
+        );
         // evaluate if status value exists
-		if (isset($_tm[$status])) {
-			// return converted status value
-			return $_tm[$status];
-		} else {
+        if (isset($_tm[$status])) {
+            // return converted status value
+            return $_tm[$status];
+        } else {
             // return default status value
-			return 'N';
-		}
+            return 'N';
+        }
 
-	}
+    }
 
     /**
      * convert task object status to local status
      *
+     * @param string $status - task object status value
+     *
+     * @return string local status value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $status - task object status value
-	 *
-	 * @return string local status value
-	 */
-	private function toStatus(?string $status): string {
+     * @psalm-pure
+     */
+    private function toStatus(?string $status): string
+    {
 
         // status conversion reference
-		$_tm = array(
-			'N' => 'NEEDS-ACTION',
-			'P' => 'IN-PROCESS',
+        $_tm = array(
+            'N' => 'NEEDS-ACTION',
+            'P' => 'IN-PROCESS',
             'W' => 'IN-PROCESS',
-			'C' => 'COMPLETED',
-			'D' => 'CANCELLED'
-		);
+            'C' => 'COMPLETED',
+            'D' => 'CANCELLED'
+        );
         // evaluate if status value exists
-		if (isset($_tm[$status])) {
-			// return converted status value
-			return $_tm[$status];
-		} else {
+        if (isset($_tm[$status])) {
+            // return converted status value
+            return $_tm[$status];
+        } else {
             // return default status value
-			return 'NEEDS-ACTION';
-		}
+            return 'NEEDS-ACTION';
+        }
 
-	}
+    }
 
     /**
      * convert local class to task object sensitivity
-	 *
+     *
+     * @param string $level - local class value
+     *
+     * @return int|null task object sensitivity value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $level - local class value
-	 *
-	 * @return int|null task object sensitivity value
-	 */
-    private function fromClass(?string $level): int {
+     * @psalm-pure
+     */
+    private function fromClass(?string $level): int
+    {
 
         // class conversion reference
-		$_tm = array(
-			'PUBLIC' => 0,
-			'PRIVATE' => 2,
-			'CONFIDENTIAL' => 3
-		);
+        $_tm = array(
+            'PUBLIC' => 0,
+            'PRIVATE' => 2,
+            'CONFIDENTIAL' => 3
+        );
         // evaluate if class value exists
-		if (isset($_tm[$level])) {
-			// return converted sensitivity value
-			return $_tm[$level];
-		} else {
+        if (isset($_tm[$level])) {
+            // return converted sensitivity value
+            return $_tm[$level];
+        } else {
             // return default sensitivity value
-			return 0;
-		}
+            return 0;
+        }
 
-	}
+    }
 
     /**
      * convert task object sensitivity to local class
-	 *
+     *
+     * @param int $level - task object sensitivity value
+     *
+     * @return string|null local class value
+     *
      * @since Release 1.0.0
      *
-	 * @param int $level - task object sensitivity value
-	 *
-	 * @return string|null local class value
-	 */
-	private function toClass(?int $level): string {
+     * @psalm-pure
+     */
+    private function toClass(?int $level): string
+    {
 
         // sensitivity conversion reference
-		$_tm = array(
-			0 => 'PUBLIC',
-			1 => 'PRIVATE',
-			2 => 'PRIVATE',
-			3 => 'CONFIDENTIAL'
-		);
+        $_tm = array(
+            0 => 'PUBLIC',
+            1 => 'PRIVATE',
+            2 => 'PRIVATE',
+            3 => 'CONFIDENTIAL'
+        );
         // evaluate if sensitivity value exists
-		if (isset($_tm[$level])) {
-			// return converted class value
-			return $_tm[$level];
-		} else {
+        if (isset($_tm[$level])) {
+            // return converted class value
+            return $_tm[$level];
+        } else {
             // return default class value
-			return 'PUBLIC';
-		}
-	}
+            return 'PUBLIC';
+        }
+    }
 
     /**
      * convert local alarm action to task object alarm action type
-	 *
+     *
+     * @param string $action - local alarm action value
+     *
+     * @return int task object alarm action type value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $action - local alarm action value
-	 *
-	 * @return int task object alarm action type value
-	 */
-    private function fromAlarmAction(?string $action): string {
+     * @psalm-pure
+     */
+    private function fromAlarmAction(?string $action): string
+    {
 
         // action conversion reference
-		$_tm = array(
-			'DISPLAY' => 'D',
-			'EMAIL' => 'E',
-			'AUDIO' => 'A'
-		);
+        $_tm = array(
+            'DISPLAY' => 'D',
+            'EMAIL' => 'E',
+            'AUDIO' => 'A'
+        );
         // evaluate if action value exists
-		if (isset($_tm[$action])) {
-			// return converted action value
-			return $_tm[$action];
-		} else {
+        if (isset($_tm[$action])) {
+            // return converted action value
+            return $_tm[$action];
+        } else {
             // return default action value
-			return 'D';
-		}
+            return 'D';
+        }
 
-	}
+    }
 
     /**
      * convert task object alarm type to local alram action
      *
+     * @param string $type - task object action type value
+     *
+     * @return string local alarm action value
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - task object action type value
-	 *
-	 * @return string local alarm action value
-	 */
-	private function toAlarmAction(?string $type): string {
+     * @psalm-pure
+     */
+    private function toAlarmAction(?string $type): string
+    {
 
         // action conversion reference
-		$_tm = array(
-			'D' => 'DISPLAY',
-			'E' => 'EMAIL',
-			'A' => 'AUDIO'
-		);
+        $_tm = array(
+            'D' => 'DISPLAY',
+            'E' => 'EMAIL',
+            'A' => 'AUDIO'
+        );
         // evaluate if action value exists
-		if (isset($_tm[$type])) {
-			// return converted action value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted action value
+            return $_tm[$type];
+        } else {
             // return default action value
-			return 'NEEDS-ACTION';
-		}
+            return 'NEEDS-ACTION';
+        }
 
-	}
+    }
 
     /**
      * convert local duration period to task object date interval
-	 *
+     *
+     * @param string $period - local duration period value
+     *
+     * @return DateInterval task object date interval object
      * @since Release 1.0.0
      *
-	 * @param string $period - local duration period value
-	 *
-	 * @return DateInterval task object date interval object
-	 */
-    private function fromDurationPeriod(string $period): DateInterval {
+     */
+    private function fromDurationPeriod(string $period): DateInterval
+    {
 
         // evaluate if period is negative
-		if (str_contains($period, '-P')) {
+        if (str_contains($period, '-P')) {
             $period = trim($period, '-');
             $period = new DateInterval($period);
             $period->invert = 1;
             // return date interval object
             return $period;
-        }
-        else {
+        } else {
             // return date interval object
             return new DateInterval($period);
         }
 
-	}
+    }
 
     /**
      * convert task object date interval to local duration period
-	 *
+     *
+     * @param DateInterval $period - task object date interval object
+     *
+     * @return string local duration period value
+     *
      * @since Release 1.0.0
      *
-	 * @param DateInterval $period - task object date interval object
-	 *
-	 * @return string local duration period value
-	 */
-	private function toDurationPeriod(DateInterval $period): string {
+     * @psalm-mutation-free
+     */
+    private function toDurationPeriod(DateInterval $period): string
+    {
 
-		if ($period->y > 0) { return $period->format("%rP%yY%mM%dDT%hH%iM"); }
-        elseif ($period->m > 0) { return $period->format("%rP%mM%dDT%hH%iM"); }
-        elseif ($period->d > 0) { return $period->format("%rP%dDT%hH%iM"); }
-        elseif ($period->h > 0) { return $period->format("%rPT%hH%iM"); }
-        else { return $period->format("%rPT%iM"); }
+        if ($period->y > 0) {
+            return $period->format("%rP%yY%mM%dDT%hH%iM");
+        } elseif ($period->m > 0) {
+            return $period->format("%rP%mM%dDT%hH%iM");
+        } elseif ($period->d > 0) {
+            return $period->format("%rP%dDT%hH%iM");
+        } elseif ($period->h > 0) {
+            return $period->format("%rPT%hH%iM");
+        } else {
+            return $period->format("%rPT%iM");
+        }
 
-	}
+    }
 
 }

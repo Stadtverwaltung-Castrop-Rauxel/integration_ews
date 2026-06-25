@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents working period information for the mailbox user.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfWorkingPeriod extends ArrayType
 {

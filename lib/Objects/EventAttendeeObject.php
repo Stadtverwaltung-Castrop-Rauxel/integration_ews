@@ -25,12 +25,18 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class EventAttendeeObject {
     public ?string $Address = null;
     public ?string $Name = null;
     public ?string $Type = null;
     public ?string $Attendance = null;
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $Address = null,
         string $Name = null,

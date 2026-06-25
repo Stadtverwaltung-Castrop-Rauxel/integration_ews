@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * since the last notification.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class NotificationType extends Type
 {

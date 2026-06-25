@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the status and result of a RemoveDelegate Operation request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class RemoveDelegateResponseMessageType extends BaseDelegateResponseMessageType
 {

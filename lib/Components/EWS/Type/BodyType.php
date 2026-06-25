@@ -35,6 +35,9 @@ namespace OCA\EWS\Components\EWS\Type;
 class BodyType extends StringType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Type, string $Contents)
     {
         $this->BodyType = $Type;

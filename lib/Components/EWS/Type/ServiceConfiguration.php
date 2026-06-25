@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * become necessary in the future.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ServiceConfiguration extends Type
 {

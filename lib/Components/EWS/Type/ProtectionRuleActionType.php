@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * passes.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleActionType extends Type
 {

@@ -34,6 +34,8 @@ use OCA\EWS\Components\EWS\Type;
  * @package OCA\EWS\Components\EWS\Type
  *
  * @todo Create a FindResponsePagingAttributes trait.
+ *
+ * @psalm-external-mutation-free
  */
 class FindFolderParentType extends Type
 {

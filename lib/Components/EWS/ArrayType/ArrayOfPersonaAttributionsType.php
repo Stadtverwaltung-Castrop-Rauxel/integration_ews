@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * or Active Directory recipients aggregated into the associated persona.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfPersonaAttributionsType extends ArrayType
 {

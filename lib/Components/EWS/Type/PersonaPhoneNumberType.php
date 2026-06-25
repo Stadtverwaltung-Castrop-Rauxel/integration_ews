@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * of attributions.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PersonaPhoneNumberType extends Type
 {

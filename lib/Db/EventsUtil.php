@@ -34,6 +34,9 @@ class EventsUtil {
 	private IDBConnection $DataStore;
 	private string $DataStoreTable = 'calendarobjects';
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(IDBConnection $db) {
 		$this->DataStore = $db;
 	}

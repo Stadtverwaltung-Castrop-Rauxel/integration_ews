@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the account to impersonate within a request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ExchangeImpersonationType extends Type
 {

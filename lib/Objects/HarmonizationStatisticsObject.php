@@ -34,26 +34,44 @@ class HarmonizationStatisticsObject {
 	public int $RemoteUpdated = 0;
 	public int $RemoteDeleted = 0;
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function total(): int {
 		return $this->LocalCreated + $this->LocalUpdated + $this->LocalDeleted + $this->RemoteCreated + $this->RemoteUpdated + $this->RemoteDeleted;
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function totalCreated(): int {
 		return $this->LocalCreated + $this->RemoteCreated;
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function totalUpdated(): int {
 		return $this->LocalUpdated + $this->RemoteUpdated;
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function totalDeleted(): int {
 		return $this->LocalDeleted + $this->RemoteDeleted;
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function totalLocal(): int {
 		return $this->LocalCreated + $this->LocalUpdated + $this->LocalDeleted;
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function totalRemote(): int {
 		return $this->RemoteCreated + $this->RemoteUpdated + $this->RemoteDeleted;
 	}

@@ -25,11 +25,17 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactRelationshipObject {
 
     public ?string $Type;
 	public ?string $Value;
 	
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(?string $type = null, ?string $value = null) {
         $this->Type = $type;
         $this->Value = $value;

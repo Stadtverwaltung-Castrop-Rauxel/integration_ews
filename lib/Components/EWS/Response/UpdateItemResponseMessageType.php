@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents the status and result of a single UpdateItem request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UpdateItemResponseMessageType extends ItemInfoResponseMessageType
 {

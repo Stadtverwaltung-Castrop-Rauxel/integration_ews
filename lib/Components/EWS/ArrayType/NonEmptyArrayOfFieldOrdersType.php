@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines how items are sorted in a FindItem or FindConversation request.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfFieldOrdersType extends ArrayType
 {
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $o = null)
     {
         if (isset($o)) {$this->FieldOrder = $o;}

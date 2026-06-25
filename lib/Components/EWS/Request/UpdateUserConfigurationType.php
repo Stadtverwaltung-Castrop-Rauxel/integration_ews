@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents a request to update a user configuration object.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class UpdateUserConfigurationType extends BaseRequestType
 {

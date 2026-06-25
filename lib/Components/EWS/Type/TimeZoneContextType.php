@@ -33,6 +33,8 @@ use OCA\EWS\Components\EWS\Type;
  * created, updated, and retrieved by using Exchange Web Services (EWS).
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class TimeZoneContextType extends Type
 {

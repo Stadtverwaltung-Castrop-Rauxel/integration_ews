@@ -82,6 +82,9 @@ class ContactObject {
         }
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __get($name) {
         if (isset($this->$name)) {
             return $this->$name;
@@ -90,38 +93,65 @@ class ContactObject {
         }
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __isset($name) {
         return isset($this->$name);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function activateJournal() {
         $this->Journalling = true;
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addEmail(string $type, ?string $address) {
         $this->Email[] = new ContactEmailObject($type, $address);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addPhone(string $type, ?string $subtype, ?string $number) {
         $this->Phone[] = new ContactPhoneObject($type, $subtype, $number);
     }
 
-    public function addAddress($type, ?string $street = null, ?string $locality = null, ?string $region = null, ?string $code = null, ?string $country = null) {
+    /**
+     * @psalm-external-mutation-free
+     */
+    public function addAddress(string $type, ?string $street = null, ?string $locality = null, ?string $region = null, ?string $code = null, ?string $country = null) {
         $this->Address[] = new ContactAddressObject($type, $street, $locality, $region, $code, $country);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addIMPP(string $type, ?string $address) {
         $this->IMPP[] = new ContactIMPPObject($type, $address);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addTag(string $tag) {
         $this->Tags[] = $tag;
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addRelation(string $type, string $value) {
         $this->Phone[] = new ContactRelationshipObject($type, $value);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addAttachment(string $id, ?string $name = null, ?string $type = null, ?string $encoding = null, ?string $flag = null, ?string $size = null,  ?string $data = null) {
         $this->Attachments[] = new ContactAttachmentObject($id, $name, $type, $encoding, $flag, $size, $data);
     }

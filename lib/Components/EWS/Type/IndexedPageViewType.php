@@ -32,10 +32,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * FindItem operation or FindConversation operation request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class IndexedPageViewType extends BasePagingType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $base = 'Beginning', int $offset = 0, int $limit = 512)
     {
         $this->BasePoint = $base;

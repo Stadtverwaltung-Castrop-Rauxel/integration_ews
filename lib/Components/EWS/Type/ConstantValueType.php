@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies a constant value in a restriction.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ConstantValueType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Value = null)
     {
         $this->Value = $Value;

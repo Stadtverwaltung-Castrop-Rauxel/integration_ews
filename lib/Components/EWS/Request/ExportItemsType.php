@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents a request to export items from a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class ExportItemsType extends BaseRequestType
 {

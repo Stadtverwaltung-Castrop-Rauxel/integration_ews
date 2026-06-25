@@ -37,6 +37,9 @@ use OCA\EWS\Components\EWS\ArrayType;
 class NonEmptyArrayOfAttendeesType extends ArrayType
 {
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $a = null)
     {
         if (isset($a)) {

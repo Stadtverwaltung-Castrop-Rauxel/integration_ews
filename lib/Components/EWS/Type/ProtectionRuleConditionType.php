@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * to be executed.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleConditionType extends Type
 {

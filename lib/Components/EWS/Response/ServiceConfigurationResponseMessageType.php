@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents service configuration settings.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class ServiceConfigurationResponseMessageType extends ResponseMessageType
 {

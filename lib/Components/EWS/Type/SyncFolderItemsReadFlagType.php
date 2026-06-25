@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies whether or not an item has been read.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SyncFolderItemsReadFlagType extends Type
 {

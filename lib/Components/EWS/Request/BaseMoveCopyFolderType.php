@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Base class for folder move and copy requests.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class BaseMoveCopyFolderType extends BaseRequestType
 {

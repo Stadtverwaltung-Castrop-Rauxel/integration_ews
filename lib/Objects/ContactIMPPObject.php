@@ -25,11 +25,17 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactIMPPObject {
 
     public ?string $Type;
 	public ?string $Address;
 	
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(?string $type = null, ?string $address = null) {
         $this->Type = $type;
         $this->Address = $address;

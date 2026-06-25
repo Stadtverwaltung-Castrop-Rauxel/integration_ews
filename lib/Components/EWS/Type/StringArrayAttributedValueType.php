@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines an instance of an array of string data.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class StringArrayAttributedValueType extends Type
 {

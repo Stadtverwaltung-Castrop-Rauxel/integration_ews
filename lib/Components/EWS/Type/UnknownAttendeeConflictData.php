@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * distribution list, or contact.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UnknownAttendeeConflictData extends AttendeeConflictData
 {

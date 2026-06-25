@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to retrieve the eDiscovery search configuration.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetDiscoverySearchConfigurationType extends BaseRequestType
 {

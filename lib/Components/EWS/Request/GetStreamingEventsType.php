@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * notifications from the server.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetStreamingEventsType extends BaseRequestType
 {

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to retrieve non-indexable item details.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetNonIndexableItemDetailsType extends BaseRequestType
 {

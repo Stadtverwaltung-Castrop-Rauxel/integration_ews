@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a directory entry.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DirectoryEntryType extends Type
 {

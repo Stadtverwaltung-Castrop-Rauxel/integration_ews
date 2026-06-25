@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Specifies an argument to be passed to an action.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleArgumentType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a single statistic for an item that could not be indexed.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class NonIndexableItemStatisticType extends Type
 {

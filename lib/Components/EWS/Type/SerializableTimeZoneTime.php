@@ -36,6 +36,8 @@ use OCA\EWS\Components\EWS\Type;
  * saving time from standard time occurs.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SerializableTimeZoneTime extends Type
 {

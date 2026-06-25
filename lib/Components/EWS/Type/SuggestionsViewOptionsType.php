@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines  the options for obtaining meeting suggestion information.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SuggestionsViewOptionsType extends Type
 {

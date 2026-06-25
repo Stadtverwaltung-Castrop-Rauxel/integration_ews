@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * format.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AlternatePublicFolderItemIdType extends AlternatePublicFolderIdType
 {

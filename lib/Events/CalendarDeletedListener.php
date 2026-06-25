@@ -25,6 +25,7 @@
 
 namespace OCA\EWS\Events;
 
+use OCA\EWS\Db\Correlation;
 use Psr\Log\LoggerInterface;
 
 use OCP\EventDispatcher\Event;
@@ -43,6 +44,9 @@ class CalendarDeletedListener implements IEventListener {
 	 */
 	private $CorrelationsService;
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(LoggerInterface $logger, CorrelationsService $CorrelationsService) {
 		$this->logger = $logger;
 		$this->CorrelationsService = $CorrelationsService;
@@ -60,7 +64,7 @@ class CalendarDeletedListener implements IEventListener {
 				// retrieve collection correlation
 				$cc = $this->CorrelationsService->findByLocalId($uid, 'EC', $cid);
 				// evaluate correlation, if correlation exists for the local collection
-				if ($cc instanceof \OCA\EWS\Db\Correlation) {
+				if ($cc instanceof Correlation) {
 					// delete all affiliated correlation and collection correlation
 					$this->CorrelationsService->deleteByAffiliationId($cc->getuid(), (string) $cc->getid());
 					$this->CorrelationsService->delete($cc);

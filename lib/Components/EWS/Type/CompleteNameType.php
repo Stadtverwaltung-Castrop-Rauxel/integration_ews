@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the complete name of a contact.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CompleteNameType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of messages to search.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfSearchItemKindsType extends ArrayType
 {

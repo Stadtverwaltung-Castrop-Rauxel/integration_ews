@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines an array of instant messaging (IM) groups.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfImGroupType extends ArrayType
 {

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * messaging group.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class AddImContactToGroup extends BaseRequestType
 {

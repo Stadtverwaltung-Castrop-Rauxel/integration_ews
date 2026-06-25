@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * the full message tracking report for the specified ID.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetMessageTrackingReportRequestType extends BaseRequestType
 {

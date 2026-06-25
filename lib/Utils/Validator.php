@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\EWS\Utils;
 
+/**
+ * @psalm-pure
+ */
 class Validator {
 
     private const _fqdn = '/(?=^.{1,254}$)(^(?:(?!\d|-)[a-z0-9\-]{1,63}(?<!-)\.)+(?:[a-z]{2,})$)/i';
@@ -35,14 +38,16 @@ class Validator {
     private const _uuid_short = '/^[0-9a-fA-F]{32}$/i';
 
     /**
-     * validate fully quntified domain name
+     * validate fully qualified domain name
      *
      * @since Release 1.0.0
      *
-	 * @param string $fqdn - FQDN to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $fqdn - FQDN to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function fqdn(string $fqdn): bool {
 
         return (!empty($fqdn) && preg_match(self::_fqdn, $fqdn) > 0);
@@ -54,10 +59,12 @@ class Validator {
      *
      * @since Release 1.0.0
      *
-	 * @param string $ip - IPv4 address to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $ip - IPv4 address to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function ip4(string $ip): bool {
 
         return (!empty($ip) && preg_match(self::_ip4, $ip) > 0);
@@ -69,10 +76,12 @@ class Validator {
      *
      * @since Release 1.0.0
      *
-	 * @param string $ip - IPv6 address to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $ip - IPv6 address to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function ip6(string $ip): bool {
 
         return (!empty($ip) && preg_match(self::_ip6, $ip) > 0);
@@ -84,10 +93,12 @@ class Validator {
      *
      * @since Release 1.0.0
      *
-	 * @param string $host - FQDN/IPv4/IPv6 address to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $host - FQDN/IPv4/IPv6 address to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function host(string $host): bool {
 
         if (self::fqdn($host)) {
@@ -111,10 +122,12 @@ class Validator {
      *
      * @since Release 1.0.0
      *
-	 * @param string $address - email address to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $address - email address to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function email(string $address): bool {
 
         return (!empty($address) && filter_var($address, FILTER_VALIDATE_EMAIL));
@@ -126,10 +139,12 @@ class Validator {
      *
      * @since Release 1.0.0
      *
-	 * @param string $username - username to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $username - username to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function username(string $username): bool {
 
         if (self::email($username)) {
@@ -149,10 +164,12 @@ class Validator {
      *
      * @since Release 1.0.15
      *
-	 * @param string $username - windows active directory formented username (domain\username)
-	 *
-	 * @return bool
-	 */
+     * @param string $username - windows active directory formented username (domain\username)
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function username_ad(string $username): bool {
 
         return (!empty($username) && preg_match(self::_username_ad, $username) > 0);
@@ -164,10 +181,12 @@ class Validator {
      *
      * @since Release 1.0.23
      *
-	 * @param string $uuid         uuid to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $uuid         uuid to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function uuid(string $uuid): bool {
 
         if (self::uuid_long($uuid)) {
@@ -187,10 +206,12 @@ class Validator {
      *
      * @since Release 1.0.15
      *
-	 * @param string $uuid         uuid to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $uuid         uuid to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function uuid_long(string $uuid): bool {
 
         return (!empty($uuid) && preg_match(self::_uuid_long, $uuid) > 0);
@@ -202,10 +223,12 @@ class Validator {
      *
      * @since Release 1.0.15
      *
-	 * @param string $uuid         uuid to validate
-	 *
-	 * @return bool
-	 */
+     * @param string $uuid         uuid to validate
+     *
+     * @return bool
+     *
+     * @psalm-pure
+     */
     static function uuid_short(string $uuid): bool {
 
         return (!empty($uuid) && preg_match(self::_uuid_short, $uuid) > 0);

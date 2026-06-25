@@ -34,6 +34,9 @@ class ContactsUtil {
 	private IDBConnection $DataStore;
 	private string $DataStoreTable = 'cards';
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(IDBConnection $db) {
 		$this->DataStore = $db;
 	}

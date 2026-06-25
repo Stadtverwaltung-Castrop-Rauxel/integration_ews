@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * conversation.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetConversationItemsType extends BaseRequestType
 {

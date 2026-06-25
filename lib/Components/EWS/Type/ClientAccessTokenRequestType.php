@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a single token request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ClientAccessTokenRequestType extends Type
 {

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents an operation to create a new Inbox rule.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CreateRuleOperationType extends RuleOperationType
 {

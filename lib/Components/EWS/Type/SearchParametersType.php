@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the parameters that define a search folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SearchParametersType extends Type
 {

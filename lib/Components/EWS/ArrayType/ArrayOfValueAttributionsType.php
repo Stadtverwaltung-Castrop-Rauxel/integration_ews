@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of attributions for an associated Value element.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfValueAttributionsType extends ArrayType
 {

@@ -25,6 +25,9 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactOccupationObject {
 
     public ?string $Organization;
@@ -34,6 +37,9 @@ class ContactOccupationObject {
     public ?string $Location = null;
     public ?string $Logo = null;
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(?string $organization = null, ?string $title = null, ?string $role = null) {
         $this->Organization = $organization;
         $this->Title = $title;

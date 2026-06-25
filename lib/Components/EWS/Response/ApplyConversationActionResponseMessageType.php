@@ -32,6 +32,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * @package OCA\EWS\Components\EWS\Response
  *
  * @todo Is this class needed?
+ *
+ * @psalm-external-mutation-free
  */
 class ApplyConversationActionResponseMessageType extends ResponseMessageType
 {

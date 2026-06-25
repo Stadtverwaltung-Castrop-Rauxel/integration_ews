@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * returned in a delegate management response.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DelegateUserType extends Type
 {

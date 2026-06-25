@@ -33,6 +33,8 @@ use OCA\EWS\Components\EWS\Type;
  * that is running Microsoft Exchange Server 2007.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SyncFolderHierarchyChangesType extends Type
 {

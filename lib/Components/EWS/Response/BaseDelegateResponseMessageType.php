@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Base class for delegate response messages.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BaseDelegateResponseMessageType extends ResponseMessageType
 {

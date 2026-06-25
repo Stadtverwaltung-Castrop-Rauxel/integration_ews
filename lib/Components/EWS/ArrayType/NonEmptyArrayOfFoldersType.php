@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of folders that are used in folder operations.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfFoldersType extends ArrayType
 {

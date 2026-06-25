@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to a CreateFolder request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class CreateFolderResponseType extends BaseResponseMessageType
 {

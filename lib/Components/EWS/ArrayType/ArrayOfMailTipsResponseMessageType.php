@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents a list of mail tips response messages.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfMailTipsResponseMessageType extends ArrayType
 {

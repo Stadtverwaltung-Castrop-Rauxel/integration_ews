@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a unique calendar item occurrence.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CalendarEvent extends Type
 {

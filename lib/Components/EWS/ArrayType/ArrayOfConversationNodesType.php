@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines a collection of conversation nodes.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfConversationNodesType extends ArrayType
 {

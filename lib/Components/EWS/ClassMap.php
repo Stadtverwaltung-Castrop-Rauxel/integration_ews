@@ -31,6 +31,8 @@ namespace OCA\EWS\Components\EWS;
  * Mapping of complex types to class implementations.
  *
  * @package OCA\EWS\Components\EWS\ClassMap
+ *
+ * @psalm-pure
  */
 class ClassMap
 {

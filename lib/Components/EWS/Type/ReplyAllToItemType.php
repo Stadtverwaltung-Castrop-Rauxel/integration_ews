@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * the Exchange store.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ReplyAllToItemType extends SmartResponseType
 {

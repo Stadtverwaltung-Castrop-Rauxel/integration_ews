@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FindMailboxStatisticsByKeywordsResponseMessageType extends ResponseMessageType
 {

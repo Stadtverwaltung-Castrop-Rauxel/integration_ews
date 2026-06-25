@@ -34,10 +34,15 @@ use OCA\EWS\Components\EWS\Type;
  * the time zone.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PeriodType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Id = null, string $Name = null, string $Bias = null)
     {
         $this->Id = $Id;

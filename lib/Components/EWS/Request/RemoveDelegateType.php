@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to remove delegates from a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class RemoveDelegateType extends BaseDelegateType
 {

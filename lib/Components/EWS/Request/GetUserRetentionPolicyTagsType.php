@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines the request to get the retention tags associated with the user.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserRetentionPolicyTagsType extends BaseRequestType
 {

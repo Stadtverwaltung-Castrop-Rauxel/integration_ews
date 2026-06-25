@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the work week days and hours of the mailbox user.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class WorkingPeriod extends Type
 {

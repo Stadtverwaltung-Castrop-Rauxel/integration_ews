@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents an attribute associated with a persona element.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class StringAttributedValueType extends Type
 {

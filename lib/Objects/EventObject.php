@@ -79,6 +79,9 @@ class EventObject {
         }
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __get($name) {
         if (isset($this->$name)) {
             return $this->$name;
@@ -87,26 +90,44 @@ class EventObject {
         }
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __isset($name) {
         return isset($this->$name);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function activateJournal() {
         $this->Journaling = true;
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addAttachment(string $store, string $id = null, ?string $name = null, ?string $type = null, ?string $encoding = null, ?string $size = null, ?string $data = null) {
         $this->Attachments[] = new EventAttachmentObject($store, $id, $name, $type, $encoding, $size, $data);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addTag(string $tag) {
         $this->Tags[] = $tag;
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addAttendee(string $address, ?string $name, ?string $type, string $attendance) {
         $this->Attendee[] = new EventAttendeeObject($address, $name, $type, $attendance);
     }
 
+    /**
+     * @psalm-external-mutation-free
+     */
     public function addNotification(string $type, string $pattern, mixed $when) {
         $this->Notifications[] = new EventNotificationObject($type, $pattern, $when);
     }

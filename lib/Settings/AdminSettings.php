@@ -34,37 +34,36 @@ use OCA\EWS\Service\ConfigurationService;
 
 class AdminSettings implements ISettings {
 
-	/**
-	 * @var IInitialState
-	 */
-	private $initialStateService;
-	/**
-	 * @var ConfigurationService
-	 */
-	private $ConfigurationService;
-
-	public function __construct(IInitialState $initialStateService, ConfigurationService $ConfigurationService) {
-		$this->initialStateService = $initialStateService;
-		$this->ConfigurationService = $ConfigurationService;
-	}
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(private IInitialState $initialStateService,
+                                private ConfigurationService $ConfigurationService) {
+    }
 
 	/**
 	 * @return TemplateResponse
 	 */
 	public function getForm(): TemplateResponse {
-		
+
 		// retrieve user configuration
 		$configuration = $this->ConfigurationService->retrieveSystem();
-		
+
 		$this->initialStateService->provideInitialState('admin-configuration', $configuration);
 
 		return new TemplateResponse(Application::APP_ID, 'adminSettings');
 	}
 
+	/**
+	 * @psalm-pure
+	 */
 	public function getSection(): string {
 		return 'integration-ews';
 	}
 
+	/**
+	 * @psalm-pure
+	 */
 	public function getPriority(): int {
 		return 10;
 	}

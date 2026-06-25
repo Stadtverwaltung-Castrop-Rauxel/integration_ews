@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a postal address associated with a persona.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PersonaPostalAddressType extends Type
 {

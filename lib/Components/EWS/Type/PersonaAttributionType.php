@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines an instance in an array of attributes for a Persona.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PersonaAttributionType extends Type
 {

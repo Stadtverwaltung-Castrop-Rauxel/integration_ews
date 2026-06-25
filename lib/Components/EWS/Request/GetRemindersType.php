@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to get reminders.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetRemindersType extends BaseRequestType
 {

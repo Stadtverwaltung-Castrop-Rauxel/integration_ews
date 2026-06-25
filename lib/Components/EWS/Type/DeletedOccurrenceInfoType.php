@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a deleted occurrence of a recurring calendar item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DeletedOccurrenceInfoType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Start = null)
     {
         $this->Start = $Start;

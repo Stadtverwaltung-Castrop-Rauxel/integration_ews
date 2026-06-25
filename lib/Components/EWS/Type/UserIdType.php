@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies a delegate user or a user who has folder access permissions.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserIdType extends Type
 {

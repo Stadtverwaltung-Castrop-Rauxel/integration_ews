@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to get the Inbox rules on a mailbox in the server store.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetInboxRulesRequestType extends BaseRequestType
 {

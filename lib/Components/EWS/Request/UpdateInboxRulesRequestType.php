@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to update the Inbox rules in a mailbox in the server store.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class UpdateInboxRulesRequestType extends BaseRequestType
 {

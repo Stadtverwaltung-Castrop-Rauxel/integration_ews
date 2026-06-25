@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Response;
  * meeting time information.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserAvailabilityResponseType extends Response
 {

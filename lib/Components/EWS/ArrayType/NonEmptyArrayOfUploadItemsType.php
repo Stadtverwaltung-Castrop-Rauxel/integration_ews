@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of items to upload into a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfUploadItemsType extends ArrayType
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines an array of statistics for items that could not be indexed.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfNonIndexableItemStatisticsType extends ArrayType
 {

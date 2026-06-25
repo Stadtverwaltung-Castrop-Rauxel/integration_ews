@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * their source attributions.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfEmailAddressAttributedValuesType extends ArrayType
 {

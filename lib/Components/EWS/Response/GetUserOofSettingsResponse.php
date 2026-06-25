@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Response;
  * user.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserOofSettingsResponse extends Response
 {

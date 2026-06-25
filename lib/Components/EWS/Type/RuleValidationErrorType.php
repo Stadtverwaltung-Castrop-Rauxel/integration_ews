@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * predicate property value, or action property value.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RuleValidationErrorType extends Type
 {

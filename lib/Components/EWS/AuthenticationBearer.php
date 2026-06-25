@@ -25,11 +25,17 @@
 
 namespace OCA\EWS\Components\EWS;
 
+/**
+ * @psalm-immutable
+ */
 class AuthenticationBearer
 {
     public string $Token;
     public int $Expiry;
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct (string $token = '', int $expiry = 0) {
         $this->Token = $token;
         $this->Expiry = $expiry;

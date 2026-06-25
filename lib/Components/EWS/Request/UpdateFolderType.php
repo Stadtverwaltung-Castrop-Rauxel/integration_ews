@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * folder.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class UpdateFolderType extends BaseRequestType
 {

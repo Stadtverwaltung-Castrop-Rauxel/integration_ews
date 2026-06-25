@@ -32,6 +32,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * suggested meeting time.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class GroupAttendeeConflictData extends AttendeeConflictData
 {

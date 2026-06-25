@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * For internal use only. Not used by clients.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class OpenAsAdminOrSystemServiceType extends Type
 {

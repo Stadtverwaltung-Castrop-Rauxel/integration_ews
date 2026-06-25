@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Internal use only.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfExtendedAttributesType extends ArrayType
 {

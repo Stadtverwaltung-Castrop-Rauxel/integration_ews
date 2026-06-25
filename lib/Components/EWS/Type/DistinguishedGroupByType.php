@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents standard groupings for FindItem queries.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DistinguishedGroupByType extends BaseGroupByType
 {

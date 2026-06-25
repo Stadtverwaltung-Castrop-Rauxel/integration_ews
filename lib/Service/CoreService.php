@@ -30,8 +30,12 @@ use Exception;
 use OCA\DAV\CalDAV\CalDavBackend;
 use OCA\DAV\CardDAV\CardDavBackend;
 use OCA\EWS\AppInfo\Application;
+use OCA\EWS\Components\EWS\AuthenticationBasic;
+use OCA\EWS\Components\EWS\AuthenticationBearer;
 use OCA\EWS\Components\EWS\Autodiscover;
 use OCA\EWS\Components\EWS\EWSClient;
+use OCA\EWS\Db\Correlation;
+use OCA\EWS\Integration\Microsoft365;
 use OCA\EWS\Service\Local\LocalContactsService;
 use OCA\EWS\Service\Local\LocalEventsService;
 use OCA\EWS\Service\Local\LocalTasksService;
@@ -39,6 +43,8 @@ use OCA\EWS\Service\Remote\RemoteCommonService;
 use OCA\EWS\Service\Remote\RemoteContactsService;
 use OCA\EWS\Service\Remote\RemoteEventsService;
 use OCA\EWS\Service\Remote\RemoteTasksService;
+use OCA\EWS\Tasks\HarmonizationLauncher;
+use OCA\EWS\Utils\Validator;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -46,128 +52,34 @@ use Throwable;
 
 class CoreService
 {
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var IJobList
-     */
-    private IJobList $TaskService;
-    /**
-     * @var INotificationManager
-     */
-    private $notificationManager;
-    /**
-     * @var ConfigurationService
-     */
-    private $ConfigurationService;
-    /**
-     * @var CorrelationsService
-     */
-    private $CorrelationsService;
-    /**
-     * @var HarmonizationThreadService
-     */
-    private $HarmonizationThreadService;
-    /**
-     * @var LocalContactsService
-     */
-    private $LocalContactsService;
-    /**
-     * @var LocalEventsService
-     */
-    private $LocalEventsService;
-    /**
-     * @var LocalTasksService
-     */
-    private $LocalTasksService;
-    /**
-     * @var RemoteContactsService
-     */
-    private $RemoteContactsService;
-    /**
-     * @var RemoteEventsService
-     */
-    private $RemoteEventsService;
-    /**
-     * @var RemoteTasksService
-     */
-    private $RemoteTasksService;
-    /**
-     * @var RemoteCommonService
-     */
-    private $RemoteCommonService;
-    /**
-     * @var ContactsService
-     */
-    private $ContactsService;
-    /**
-     * @var EventsService
-     */
-    private $EventsService;
-    /**
-     * @var TasksService
-     */
-    private $TasksService;
-    /**
-     * @var CardDavBackend
-     */
-    private $LocalContactsStore;
-    /**
-     * @var CalDavBackend
-     */
-    private $LocalEventsStore;
-    /**
-     * @var CalDavBackend
-     */
-    private $LocalTasksStore;
     /**
      * @var EWSClient
      */
-    private $RemoteStore;
+    private EWSClient $RemoteStore;
 
-    public function __construct(string                     $appName,
-                                LoggerInterface            $logger,
-                                IJobList                   $TaskService,
-                                INotificationManager       $notificationManager,
-                                ConfigurationService       $ConfigurationService,
-                                CorrelationsService        $CorrelationsService,
-                                HarmonizationThreadService $HarmonizationThreadService,
-                                LocalContactsService       $LocalContactsService,
-                                LocalEventsService         $LocalEventsService,
-                                LocalTasksService          $LocalTasksService,
-                                RemoteContactsService      $RemoteContactsService,
-                                RemoteEventsService        $RemoteEventsService,
-                                RemoteTasksService         $RemoteTasksService,
-                                RemoteCommonService        $RemoteCommonService,
-                                ContactsService            $ContactsService,
-                                EventsService              $EventsService,
-                                TasksService               $TasksService,
-                                CardDavBackend             $CardDavBackend,
-                                CalDavBackend              $CalDavBackend)
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(string                             $appName,
+                                private LoggerInterface            $logger,
+                                private IJobList                   $TaskService,
+                                private INotificationManager       $notificationManager,
+                                private ConfigurationService       $ConfigurationService,
+                                private CorrelationsService        $CorrelationsService,
+                                private HarmonizationThreadService $HarmonizationThreadService,
+                                private LocalContactsService       $LocalContactsService,
+                                private LocalEventsService         $LocalEventsService,
+                                private LocalTasksService          $LocalTasksService,
+                                private RemoteContactsService      $RemoteContactsService,
+                                private RemoteEventsService        $RemoteEventsService,
+                                private RemoteTasksService         $RemoteTasksService,
+                                private RemoteCommonService        $RemoteCommonService,
+                                private ContactsService            $ContactsService,
+                                private EventsService              $EventsService,
+                                private TasksService               $TasksService,
+                                private CardDavBackend             $cardDavBackend,
+                                private CalDavBackend              $CalDavBackend)
     {
-        $this->logger = $logger;
-        $this->TaskService = $TaskService;
-        $this->notificationManager = $notificationManager;
-        $this->ConfigurationService = $ConfigurationService;
-        $this->CorrelationsService = $CorrelationsService;
-        $this->HarmonizationThreadService = $HarmonizationThreadService;
-        $this->LocalContactsService = $LocalContactsService;
-        $this->LocalEventsService = $LocalEventsService;
-        $this->LocalTasksService = $LocalTasksService;
-        $this->RemoteContactsService = $RemoteContactsService;
-        $this->RemoteEventsService = $RemoteEventsService;
-        $this->RemoteTasksService = $RemoteTasksService;
-        $this->RemoteCommonService = $RemoteCommonService;
-        $this->ContactsService = $ContactsService;
-        $this->EventsService = $EventsService;
-        $this->TasksService = $TasksService;
-        $this->LocalContactsStore = $CardDavBackend;
-        $this->LocalEventsStore = $CalDavBackend;
-        $this->LocalTasksStore = $CalDavBackend;
-
     }
 
     /**
@@ -307,11 +219,11 @@ class CoreService
             }
         }
         // validate server
-        if (!\OCA\EWS\Utils\Validator::host($service_location)) {
+        if (!Validator::host($service_location)) {
             return false;
         }
         // validate auth id
-        if (!\OCA\EWS\Utils\Validator::username($service_bauth_id)) {
+        if (!Validator::username($service_bauth_id)) {
             return false;
         }
         // validate auth secret
@@ -323,7 +235,7 @@ class CoreService
             // construct remote data store client
             $RemoteStore = new EWSClient(
                 $service_location,
-                new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
+                new AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
                 EWSClient::SERVICE_VERSION_2007_SP1
             );
             // retrieve and evaluate transport verification option
@@ -381,7 +293,7 @@ class CoreService
             $this->ConfigurationService->depositUserValue($uid, 'account_bauth_secret', (string)$service_bauth_secret);
             $this->ConfigurationService->depositUserValue($uid, 'account_connected', 1);
             // register harmonization task
-            $this->TaskService->add(\OCA\EWS\Tasks\HarmonizationLauncher::class, ['uid' => $uid]);
+            $this->TaskService->add(HarmonizationLauncher::class, ['uid' => $uid]);
         }
         // evaluate, if connect mail flag was set and if auto config was found
         if ($connect && in_array("CONNECT_MAIL", $flags) && isset($service_configuration)) {
@@ -413,7 +325,7 @@ class CoreService
         $code = rtrim($code, '#');
 
         try {
-            $data = \OCA\EWS\Integration\Microsoft365::createAccess($code);
+            $data = Microsoft365::createAccess($code);
         } catch (Exception $e) {
             $this->logger->error('Could not link Microsoft account: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -433,7 +345,7 @@ class CoreService
             $this->ConfigurationService->depositUserValue($uid, 'account_oauth_refresh', (string)$data['refresh']);
             $this->ConfigurationService->depositUserValue($uid, 'account_connected', '1');
             // register harmonization task
-            $this->TaskService->add(\OCA\EWS\Tasks\HarmonizationLauncher::class, ['uid' => $uid]);
+            $this->TaskService->add(HarmonizationLauncher::class, ['uid' => $uid]);
 
             return true;
         } else {
@@ -456,7 +368,7 @@ class CoreService
     {
 
         try {
-            $data = \OCA\EWS\Integration\Microsoft365::refreshAccess($code);
+            $data = Microsoft365::refreshAccess($code);
         } catch (Exception $e) {
             $this->logger->error('Could not refresh Microsoft account access token: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -495,7 +407,7 @@ class CoreService
     {
 
         // deregister task
-        $this->TaskService->remove(\OCA\EWS\Tasks\HarmonizationLauncher::class, ['uid' => $uid]);
+        $this->TaskService->remove(HarmonizationLauncher::class, ['uid' => $uid]);
         // terminate harmonization thread
         $this->HarmonizationThreadService->terminate($uid);
         // delete correlations
@@ -601,19 +513,19 @@ class CoreService
         // retrieve local collections
         if ($this->ConfigurationService->isContactsAppAvailable($uid)) {
             // configure contacts service
-            $this->LocalContactsService->configure($Configuration, $this->LocalContactsStore);
+            $this->LocalContactsService->configure($Configuration, $this->cardDavBackend);
             // retrieve personal collections
             $response['ContactCollections'] = $this->LocalContactsService->listCollections($uid, true);
         }
         if ($this->ConfigurationService->isCalendarAppAvailable($uid)) {
             // configure contacts service
-            $this->LocalEventsService->configure($Configuration, $this->LocalEventsStore);
+            $this->LocalEventsService->configure($Configuration, $this->CalDavBackend);
             // retrieve personal collections
             $response['EventCollections'] = $this->LocalEventsService->listCollections($uid, true);
         }
         if ($this->ConfigurationService->isTasksAppAvailable($uid)) {
             // configure contacts service
-            $this->LocalTasksService->configure($Configuration, $this->LocalTasksStore);
+            $this->LocalTasksService->configure($Configuration, $this->CalDavBackend);
             // retrieve personal collections
             $response['TaskCollections'] = $this->LocalTasksService->listCollections($uid, true);
         }
@@ -743,7 +655,7 @@ class CoreService
                                 }
                                 break;
                             case 'C':
-                                $cc = new \OCA\EWS\Db\Correlation();
+                                $cc = new Correlation();
                                 $cc->settype('CC'); // Correlation Type
                                 $cc->setuid($uid); // User ID
                                 $cc->setloid($entry['loid']); // Local ID
@@ -780,7 +692,7 @@ class CoreService
                                 }
                                 break;
                             case 'C':
-                                $cc = new \OCA\EWS\Db\Correlation();
+                                $cc = new Correlation();
                                 $cc->settype('EC'); // Correlation Type
                                 $cc->setuid($uid); // User ID
                                 $cc->setloid($entry['loid']); // Local ID
@@ -817,7 +729,7 @@ class CoreService
                                 }
                                 break;
                             case 'C':
-                                $cc = new \OCA\EWS\Db\Correlation();
+                                $cc = new Correlation();
                                 $cc->settype('TC'); // Correlation Type
                                 $cc->setuid($uid); // User ID
                                 $cc->setloid($entry['loid']); // Local ID
@@ -875,7 +787,7 @@ class CoreService
                     // construct remote data store client
                     $this->RemoteStore = new EWSClient(
                         $service_location,
-                        new \OCA\EWS\Components\EWS\AuthenticationBearer($account_oauth_access, $account_oauth_expiry),
+                        new AuthenticationBearer($account_oauth_access, $account_oauth_expiry),
                         $service_version
                     );
                     // retrieve and evaluate transport verification option
@@ -902,7 +814,7 @@ class CoreService
                     // construct remote data store client
                     $this->RemoteStore = new EWSClient(
                         $service_location,
-                        new \OCA\EWS\Components\EWS\AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
+                        new AuthenticationBasic($service_bauth_id, $service_bauth_secret, $service_bauth_charset),
                         $service_version
                     );
                     // retrieve and evaluate transport verification option
@@ -929,8 +841,10 @@ class CoreService
      * @param EWSClient $Client nextcloud user id
      *
      * @return void
+     *
      * @since Release 1.0.0
      *
+     * @psalm-mutation-free
      */
     public function destroyClient(EWSClient $Client): void
     {

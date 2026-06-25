@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies the delegate in a delegate access scenario.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SingleRecipientType extends Type
 {

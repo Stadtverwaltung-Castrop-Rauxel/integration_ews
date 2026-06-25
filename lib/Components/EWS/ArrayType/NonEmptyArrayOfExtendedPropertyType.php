@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\ArrayType;
  * An array of additional properties.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfExtendedPropertyType extends ArrayType
 {
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $e = null)
     {
         if (isset($e)) {$this->ExtendedProperty = $e;}

@@ -1655,14 +1655,16 @@ class TimeZoneEWS {
     }
 
 	/**
-     * Converts IANA time zone name to EWS (Microsoft/Windows) time zone name
-     *
-     * @since Release 1.0.0
-     *
-     * @param string $name  iana time zone name
-     *
-     * @return string valid EWS time zone name on success, or null on failure
-     */
+	 * Converts IANA time zone name to EWS (Microsoft/Windows) time zone name
+	 *
+	 * @since Release 1.0.0
+	 *
+	 * @param string $name  iana time zone name
+	 *
+	 * @return string valid EWS time zone name on success, or null on failure
+	 *
+	 * @psalm-external-mutation-free
+	 */
 	public static function fromIANA(?string $name): ?string {
 
 		if (isset(self::$ianatoews[$name])) {
@@ -1674,14 +1676,16 @@ class TimeZoneEWS {
     }
 
 	/**
-     * Converts EWS (Microsoft/Windows) time zone name to IANA time zone name
-     *
-     * @since Release 1.0.0
-     *
-     * @param string $name  ews time zone name
-     *
-     * @return string valid IANA time zone name on success, or null on failure
-     */
+	 * Converts EWS (Microsoft/Windows) time zone name to IANA time zone name
+	 *
+	 * @since Release 1.0.0
+	 *
+	 * @param string $name  ews time zone name
+	 *
+	 * @return string valid IANA time zone name on success, or null on failure
+	 *
+	 * @psalm-external-mutation-free
+	 */
 	public static function toIANA(?string $name): ?string {
 
 		if (isset(self::$ewstoiana[$name])) {
@@ -1693,14 +1697,16 @@ class TimeZoneEWS {
     }
 
 	/**
-     * Converts DateTimeZone object to EWS (Microsoft/Windows) time zone name
-     *
-     * @since Release 1.0.0
-     *
-     * @param DateTimeZone $zone
-     *
-     * @return string valid EWS time zone name on success, or null on failure
-     */
+	 * Converts DateTimeZone object to EWS (Microsoft/Windows) time zone name
+	 *
+	 * @since Release 1.0.0
+	 *
+	 * @param DateTimeZone $zone
+	 *
+	 * @return string valid EWS time zone name on success, or null on failure
+	 *
+	 * @psalm-external-mutation-free
+	 */
 	public static function fromDateTimeZone(DateTimeZone $zone): ?string {
 
 		// convert IANA time zone name to EWS
@@ -1717,14 +1723,16 @@ class TimeZoneEWS {
     }
 
 	/**
-     * Converts EWS (Microsoft/Windows) time zone name to DateTimeZone object
-     *
-     * @since Release 1.0.0
-     *
-     * @param string $name  ews time zone name
-     *
-     * @return DateTimeZone valid DateTimeZone object on success, or null on failure
-     */
+	 * Converts EWS (Microsoft/Windows) time zone name to DateTimeZone object
+	 *
+	 * @since Release 1.0.0
+	 *
+	 * @param string $name  ews time zone name
+	 *
+	 * @return DateTimeZone valid DateTimeZone object on success, or null on failure
+	 *
+	 * @psalm-external-mutation-free
+	 */
 	public static function toDateTimeZone(string $name): ?DateTimeZone {
 
 		// define place holder

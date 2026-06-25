@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * service.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRulesServiceConfiguration extends ServiceConfiguration
 {

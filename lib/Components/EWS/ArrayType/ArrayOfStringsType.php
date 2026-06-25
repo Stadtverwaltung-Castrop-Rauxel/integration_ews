@@ -49,6 +49,8 @@ class ArrayOfStringsType extends ArrayType
      * @return string
      *
      * @todo Determine if this is needed.
+     *
+     * @psalm-mutation-free
      */
     public function __toString()
     {

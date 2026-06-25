@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * response.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ConversationShape extends Type
 {

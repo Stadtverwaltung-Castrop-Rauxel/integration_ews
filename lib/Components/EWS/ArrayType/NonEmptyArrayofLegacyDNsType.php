@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines an array of mailboxes identified by legacy distinguished name.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayofLegacyDNsType extends ArrayType
 {

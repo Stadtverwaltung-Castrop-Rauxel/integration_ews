@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a member of a distribution list.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MemberType extends Type
 {

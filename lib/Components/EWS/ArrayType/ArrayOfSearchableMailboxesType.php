@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Defines an array of mailboxes that can be searched.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfSearchableMailboxesType extends ArrayType
 {

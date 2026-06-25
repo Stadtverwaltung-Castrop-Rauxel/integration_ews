@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to copy folders in a mailbox in the Exchange store.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class CopyFolderType extends BaseMoveCopyFolderType
 {

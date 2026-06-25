@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents an occurrence of a recurring calendar item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class OccurrenceInfoType extends Type
 {

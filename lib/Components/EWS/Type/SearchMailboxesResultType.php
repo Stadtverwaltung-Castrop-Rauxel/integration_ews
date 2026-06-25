@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the result of a SearchMailboxes request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SearchMailboxesResultType extends Type
 {

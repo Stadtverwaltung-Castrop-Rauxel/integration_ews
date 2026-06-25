@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a reminder for a task or a calendar item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ReminderType extends Type
 {

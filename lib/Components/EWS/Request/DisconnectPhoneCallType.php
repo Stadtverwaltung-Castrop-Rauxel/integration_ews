@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents a request to disconnect a call.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class DisconnectPhoneCallType extends BaseRequestType
 {

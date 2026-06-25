@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents a request to get a user configuration object.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserConfigurationType extends BaseRequestType
 {

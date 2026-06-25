@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * group.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class RemoveDistributionGroupFromImListType extends BaseRequestType
 {

@@ -484,6 +484,8 @@ class EWSClient extends \SoapClient
 
     /**
      * configures service transport version (HTTP/1, HTTP/1.1, HTTP/2)
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportVersion(int $value): void {
 
@@ -528,6 +530,8 @@ class EWSClient extends \SoapClient
      * configures client agent string (Mozilla/5.0 (X11; Linux x86_64))
      *
      * @param string $value full agent string
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportAgent(string $value): void {
 
@@ -542,6 +546,8 @@ class EWSClient extends \SoapClient
      * configures or overrides additional transport options
      *
      * @param array $options key/value array of options
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportOptions(array $options): void {
 
@@ -556,6 +562,8 @@ class EWSClient extends \SoapClient
      * configures secure transport verification (SSL Verification)
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportVerification(bool $value): void {
 
@@ -570,6 +578,8 @@ class EWSClient extends \SoapClient
      * enables or disables transport log
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportLogState(bool $value): void {
 
@@ -582,6 +592,8 @@ class EWSClient extends \SoapClient
      * configures transport log location
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function configureTransportLogLocation(string $value): void {
 
@@ -594,6 +606,8 @@ class EWSClient extends \SoapClient
      * Enables or disables retention of raw request headers sent
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportRequestHeader(bool $value): void {
         $this->_TransportRequestHeaderFlag = $value;
@@ -603,6 +617,8 @@ class EWSClient extends \SoapClient
      * Enables or disables retention of raw request body sent
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportRequestBody(bool $value): void {
         $this->_TransportRequestBodyFlag = $value;
@@ -612,6 +628,8 @@ class EWSClient extends \SoapClient
      * Enables or disables retention of raw response headers recieved
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportResponseHeader(bool $value): void {
         $this->_TransportRepsonseHeaderFlag = $value;
@@ -621,6 +639,8 @@ class EWSClient extends \SoapClient
      * Enables or disables retention of raw response body recieved
      *
      * @param bool $value ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportResponseBody(bool $value): void {
         $this->_TransportRepsonseBodyFlag = $value;

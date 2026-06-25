@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Defines a search for contact items based on alphabetical display names.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ContactsViewType extends BasePagingType
 {

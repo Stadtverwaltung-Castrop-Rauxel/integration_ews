@@ -82,9 +82,15 @@ class Application extends App implements IBootstrap {
 		}
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function register(IRegistrationContext $context): void {
 	}
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function boot(IBootContext $context): void {
 	}
 }

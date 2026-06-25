@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents an operation to update an existing rule.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SetRuleOperationType extends RuleOperationType
 {

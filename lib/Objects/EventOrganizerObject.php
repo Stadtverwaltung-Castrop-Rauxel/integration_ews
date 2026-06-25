@@ -25,10 +25,16 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class EventOrganizerObject {
     public ?string $Address = null;
     public ?string $Name = null;
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $Address = null,
         string $Name = null

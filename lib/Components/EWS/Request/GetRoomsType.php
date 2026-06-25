@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents a request to get a list of rooms within a particular room list.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetRoomsType extends BaseRequestType
 {

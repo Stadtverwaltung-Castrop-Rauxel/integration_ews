@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the identifier of an address list.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AddressListIdType extends Type
 {

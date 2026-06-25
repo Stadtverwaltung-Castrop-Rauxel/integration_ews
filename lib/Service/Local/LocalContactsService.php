@@ -2,110 +2,112 @@
 //declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Service\Local;
 
 use Datetime;
-use DateTimeZone;
-use Psr\Log\LoggerInterface;
 use OCA\DAV\CardDAV\CardDavBackend;
-
-use OCA\EWS\AppInfo\Application;
 use OCA\EWS\Db\ContactsUtil;
-use \OCA\EWS\Objects\ContactCollectionObject;
-use \OCA\EWS\Objects\ContactObject;
+use OCA\EWS\Objects\ContactCollectionObject;
+use OCA\EWS\Objects\ContactObject;
+use OCA\EWS\Utils\MIME;
 use OCA\EWS\Utils\UUID;
-
-use Sabre\VObject\Reader;
+use Psr\Log\LoggerInterface;
 use Sabre\VObject\Component\VCard;
+use Sabre\VObject\Reader;
 
-class LocalContactsService {
-	/**
-	 * @var LoggerInterface
-	 */
-	private $logger;
+class LocalContactsService
+{
     /**
-	 * @var Object
-	 */
-	private $Configuration;
+     * @var Object
+     */
+    private $Configuration;
     /**
-	 * @var CardDavBackend
-	 */
-	public ?CardDavBackend $DataStore = null;
+     * @var CardDavBackend
+     */
+    public ?CardDavBackend $DataStore = null;
+
     /**
-	 * @var ContactsUtil
-	 */
-    private $ContactsUtil;
+     * @psalm-mutation-free
+     */
+    public function __construct(string $appName,
+                                private LoggerInterface $logger,
+                                private ContactsUtil $ContactsUtil)
+    {
+    }
 
-	public function __construct (string $appName, LoggerInterface $logger, ContactsUtil $ContactsUtil) {
-		$this->logger = $logger;
-        $this->ContactsUtil = $ContactsUtil;
-	}
+    /**
+     * @psalm-external-mutation-free
+     */
+    public function configure($configuration, CardDavBackend $DataStore): void
+    {
 
-    public function configure($configuration, CardDavBackend $DataStore) : void {
+        // assign configuration
+        $this->Configuration = $configuration;
+        // assign local data store
+        $this->DataStore = $DataStore;
 
-		// assign configuration
-		$this->Configuration = $configuration;
-		// assign local data store
-		$this->DataStore = $DataStore;
+    }
 
-	}
-
-	/**
+    /**
      * retrieve list of all collections in local storage
      *
-	 * @param string $uid - User ID
-	 *
-	 * @return array of collections
-	 */
-	public function listCollections(string $uid, bool $filterDeleted = false): array {
+     * @param string $uid - User ID
+     *
+     * @return array of collections
+     */
+    public function listCollections(string $uid, bool $filterDeleted = false): array
+    {
 
         // retrieve all local collections
         $collections = $this->DataStore->getAddressBooksForUser('principals/users/' . $uid);
-		// construct collections list
-		$data = array();
-		foreach ($collections as $entry) {
+        // construct collections list
+        $data = array();
+        foreach ($collections as $entry) {
             // evaluate if deleted filter is on, and if task list is deleted
             if ($filterDeleted &&
                 isset($entry['{http://nextcloud.com/ns}deleted-at']) &&
                 is_numeric($entry['{http://nextcloud.com/ns}deleted-at'])) {
                 continue;
             }
-			$data[] = array('id' => $entry['id'], 'name' => $entry['{DAV:}displayname'], 'uri' => $entry['uri']);
-		}
+            $data[] = array('id' => $entry['id'], 'name' => $entry['{DAV:}displayname'], 'uri' => $entry['uri']);
+        }
         // return collections list
-		return $data;
+        return $data;
 
     }
 
-	 /**
+    /**
      * retrieve properties for specific collection from local storage
      *
-	 * @param string $cid - Collection Id
-	 *
-	 * @return object of collection properties
-	 */
-	public function fetchCollection(string $cid): ?ContactCollectionObject {
+     * @param string $cid - Collection Id
+     *
+     * @return object of collection properties
+     *
+     * @psalm-mutation-free
+     */
+    public function fetchCollection(string $cid): ?ContactCollectionObject
+    {
 
         // retrieve collection properties
         $cc = $this->DataStore->getAddressBookById($cid);
@@ -116,8 +118,7 @@ class LocalContactsService {
                 $cc['{DAV:}displayname'],
                 $cc['{http://sabredav.org/ns}sync-token']
             );
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -126,12 +127,15 @@ class LocalContactsService {
      * create collection in local storage
      *
      * @param string $uid - User ID
-	 * @param string $cid - Collection URI
+     * @param string $cid - Collection URI
      * @param string $name - Collection Name
-	 *
-	 * @return ContactCollectionObject
-	 */
-	public function createCollection(string $uid, string $cid, string $name): ?ContactCollectionObject {
+     *
+     * @return ContactCollectionObject
+     *
+     * @psalm-mutation-free
+     */
+    public function createCollection(string $uid, string $cid, string $name): ?ContactCollectionObject
+    {
 
         // check for user id and collection - must contain to create
         if (!empty($uid) && !empty($cid)) {
@@ -154,11 +158,14 @@ class LocalContactsService {
     /**
      * delete collection from local storage
      *
-	 * @param string $cid - Collection ID
-	 *
-	 * @return bool true - successfully delete / false - failed to delete
-	 */
-	public function deleteCollection(string $cid): bool {
+     * @param string $cid - Collection ID
+     *
+     * @return bool true - successfully delete / false - failed to delete
+     *
+     * @psalm-mutation-free
+     */
+    public function deleteCollection(string $cid): bool
+    {
 
         // check for id - must contain id to delete
         if (!empty($cid)) {
@@ -174,32 +181,36 @@ class LocalContactsService {
 
     }
 
-	/**
+    /**
      * retrieve changes for specific collection from local storage
      *
-	 * @param string $cid - Collection Id
+     * @param string $cid - Collection Id
      * @param string $state - Collection Id
-	 *
-	 * @return array of collection changes
-	 */
-	public function fetchCollectionChanges(string $cid, string $state): array {
+     *
+     * @return array of collection changes
+     *
+     * @psalm-mutation-free
+     */
+    public function fetchCollectionChanges(string $cid, string $state): array
+    {
 
         // retrieve collection chamges
         $lcc = $this->DataStore->getChangesForAddressBook($cid, $state, null, null);
         // return collection chamges
-		return $lcc;
+        return $lcc;
 
     }
 
     /**
      * find collection object by uuid in local storage
      *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $uuid - Item UUID
-	 *
-	 * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
-	 */
-	public function findCollectionItemByUUID(string $cid, string $uuid): ?ContactObject {
+     *
+     * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
+     */
+    public function findCollectionItemByUUID(string $cid, string $uuid): ?ContactObject
+    {
 
         // search data store for object
         $lo = $this->ContactsUtil->findByUUID($cid, $uuid);
@@ -212,7 +223,7 @@ class LocalContactsService {
             $co->UID = $lo['uid'];
             $co->CID = $lo['addressbookid'];
             $co->ModifiedOn = new DateTime(date("Y-m-d H:i:s", $lo['lastmodified']));
-            $co->State = trim($lo['etag'],'"');
+            $co->State = trim($lo['etag'], '"');
             // return contact object
             return $co;
         } else {
@@ -222,20 +233,21 @@ class LocalContactsService {
 
     }
 
-	/**
+    /**
      * retrieve collection item from local storage
      *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 *
-	 * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
-	 */
-	public function fetchCollectionItem(string $cid, string $iid): ?ContactObject {
+     *
+     * @return ContactObject ContactObject - successfully retrieved / null - failed to retrieve
+     */
+    public function fetchCollectionItem(string $cid, string $iid): ?ContactObject
+    {
 
         // retrieve collection item
-		//$lo = $this->DataStore->getCard($cid, $iid);
+        //$lo = $this->DataStore->getCard($cid, $iid);
         $lo = $this->ContactsUtil->findByURI($cid, $iid);
-		// evaluate result
+        // evaluate result
         if (is_array($lo) && count($lo) > 0) {
             $lo = $lo[0];
             // convert to contact object
@@ -243,7 +255,7 @@ class LocalContactsService {
             $co->ID = $lo['uri'];
             $co->CID = $lo['addressbookid'];
             $co->ModifiedOn = new DateTime(date("Y-m-d H:i:s", $lo['lastmodified']));
-            $co->State = trim($lo['etag'],'"');
+            $co->State = trim($lo['etag'], '"');
             // return contact object
             return $co;
         } else {
@@ -256,12 +268,13 @@ class LocalContactsService {
     /**
      * create collection item in local storage
      *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param ContactObject $data - Item Data
-	 *
-	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
-	 */
-	public function createCollectionItem(string $cid, ContactObject $data): ?object {
+     *
+     * @return object Status Object - item id, item uuid, item state token / Null - failed to create
+     */
+    public function createCollectionItem(string $cid, ContactObject $data): ?object
+    {
 
         // convert contact object to vcard object
         $lo = $this->fromContactObject($data);
@@ -271,7 +284,7 @@ class LocalContactsService {
         $result = $this->DataStore->createCard($cid, $loid, $lo->serialize());
         // return status object or null
         if ($result) {
-            return (object) array('ID' => $loid, 'UID' => $lo->UID->getValue(), 'State' => trim($result,'"'));
+            return (object)array('ID' => $loid, 'UID' => $lo->UID->getValue(), 'State' => trim($result, '"'));
         } else {
             return null;
         }
@@ -281,13 +294,14 @@ class LocalContactsService {
     /**
      * update collection item in local storage
      *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $iid - Item ID
      * @param ContactObject $co - Item Data
-	 *
-	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
-	 */
-	public function updateCollectionItem(string $cid, string $iid, ContactObject $co): ?object {
+     *
+     * @return object Status Object - item id, item uuid, item state token / Null - failed to create
+     */
+    public function updateCollectionItem(string $cid, string $iid, ContactObject $co): ?object
+    {
 
         // check for id - must contain id to update
         if (!empty($iid)) {
@@ -298,7 +312,7 @@ class LocalContactsService {
         }
         // return status object or null
         if ($result) {
-            return (object) array('ID' => $iid, 'UID' => $co->UID, 'State' => trim($result,'"'));
+            return (object)array('ID' => $iid, 'UID' => $co->UID, 'State' => trim($result, '"'));
         } else {
             return null;
         }
@@ -308,12 +322,15 @@ class LocalContactsService {
     /**
      * delete collection item from local storage
      *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $iid - Item ID
-	 *
-	 * @return bool true - successfully delete / false - failed to delete
-	 */
-	public function deleteCollectionItem(string $cid, string $iid): bool {
+     *
+     * @return bool true - successfully delete / false - failed to delete
+     *
+     * @psalm-mutation-free
+     */
+    public function deleteCollectionItem(string $cid, string $iid): bool
+    {
 
         // check for id - must contain id to delete
         if (!empty($iid)) {
@@ -332,14 +349,15 @@ class LocalContactsService {
     /**
      * convert vcard object to contact object
      *
-	 * @param VCard $vo - source object
-	 *
-	 * @return ContactObject converted object
-	 */
-	public function toContactObject(VCard $vo): ContactObject {
+     * @param VCard $vo - source object
+     *
+     * @return ContactObject converted object
+     */
+    public function toContactObject(VCard $vo): ContactObject
+    {
 
-		// construct contact object
-		$co = new ContactObject();
+        // construct contact object
+        $co = new ContactObject();
         // UUID
         if (isset($vo->UID)) {
             $co->UID = UUID::normalize(trim($vo->UID->getValue()));
@@ -348,7 +366,7 @@ class LocalContactsService {
         if (isset($vo->FN)) {
             $co->Label = $this->sanitizeString($vo->FN->getValue());
         }
-		// Name
+        // Name
         if (isset($vo->N)) {
             //
             [$last, $first, $other, $prefix, $suffix] = $vo->N->getParts();
@@ -365,8 +383,7 @@ class LocalContactsService {
         if (isset($vo->NICKNAME)) {
             if (empty($co->Name->Aliases)) {
                 $co->Name->Aliases .= $this->sanitizeString($vo->NICKNAME->getValue());
-            }
-            else {
+            } else {
                 $co->Name->Aliases .= ' ' . $this->sanitizeString($vo->NICKNAME->getValue());
             }
         }
@@ -382,7 +399,7 @@ class LocalContactsService {
                     $co->Photo->Data = $vo->UID;
                     $co->addAttachment(
                         $vo->UID,
-                        $vo->UID . '.' . \OCA\EWS\Utils\MIME::toExtension($p[0][1]),
+                        $vo->UID . '.' . MIME::toExtension($p[0][1]),
                         $p[0][1],
                         'B64',
                         'CP',
@@ -392,7 +409,7 @@ class LocalContactsService {
                 }
             } elseif (str_starts_with($p, 'uri:')) {
                 $co->Photo->Type = 'uri';
-                $co->Photo->Data = trim(substr($p,4));
+                $co->Photo->Data = trim(substr($p, 4));
             }
             unset($p);
         }
@@ -402,16 +419,16 @@ class LocalContactsService {
         }
         // Birth Day
         if (isset($vo->BDAY)) {
-            $co->BirthDay =  new DateTime($vo->BDAY->getValue());
+            $co->BirthDay = new DateTime($vo->BDAY->getValue());
         }
         // Anniversary Day
         if (isset($vo->ANNIVERSARY)) {
-            $co->AnniversaryDay =  new DateTime($vo->ANNIVERSARY->getValue());
+            $co->AnniversaryDay = new DateTime($vo->ANNIVERSARY->getValue());
         }
         // Address(es)
         if (isset($vo->ADR)) {
-            foreach($vo->ADR as $entry) {
-                $type  = $entry->parameters()['TYPE']->getValue();
+            foreach ($vo->ADR as $entry) {
+                $type = $entry->parameters()['TYPE']->getValue();
                 [$pob, $unit, $street, $locality, $region, $code, $country] = $entry->getParts();
                 $co->addAddress(
                     strtoupper($type),
@@ -426,11 +443,11 @@ class LocalContactsService {
         }
         // Phone(s)
         if (isset($vo->TEL)) {
-            foreach($vo->TEL as $entry) {
+            foreach ($vo->TEL as $entry) {
                 // evaluate if type contains sub type and return, split type in to primary/secondary or primary and empty secondary
                 [$primary, $secondary] = (str_contains($entry->parameters()['TYPE']->getValue(), ',')) ?
-                                         explode(',', trim($entry->parameters()['TYPE']->getValue())) :
-                                         [$entry->parameters()['TYPE']->getValue(), ''];
+                    explode(',', trim($entry->parameters()['TYPE']->getValue())) :
+                    [$entry->parameters()['TYPE']->getValue(), ''];
                 $co->addPhone(
                     $primary,
                     $secondary,
@@ -441,7 +458,7 @@ class LocalContactsService {
         }
         // Email(s)
         if (isset($vo->EMAIL)) {
-            foreach($vo->EMAIL as $entry) {
+            foreach ($vo->EMAIL as $entry) {
                 $co->addEmail(
                     strtoupper(trim($entry->parameters()['TYPE']->getValue())),
                     $this->sanitizeString($entry->getValue())
@@ -450,7 +467,7 @@ class LocalContactsService {
         }
         // IMPP(s)
         if (isset($vo->IMPP)) {
-            foreach($vo->IMPP as $entry) {
+            foreach ($vo->IMPP as $entry) {
                 $co->addIMPP(
                     strtoupper(trim($entry->parameters()['TYPE']->getValue())),
                     $this->sanitizeString($entry->getValue())
@@ -466,40 +483,40 @@ class LocalContactsService {
             $co->Geolocation = $this->sanitizeString($vo->GEO->getValue());
         }
         // Manager
-		if (isset($vo->{'X-MANAGERSNAME'})) {
-			$co->Manager = $this->sanitizeString($vo->{'X-MANAGERSNAME'}->getValue());
-		}
+        if (isset($vo->{'X-MANAGERSNAME'})) {
+            $co->Manager = $this->sanitizeString($vo->{'X-MANAGERSNAME'}->getValue());
+        }
         // Assistant
-		if (isset($vo->{'X-ASSISTANTNAME'})) {
-			$co->Assistant = $this->sanitizeString($vo->{'X-ASSISTANTNAME'}->getValue());
-		}
+        if (isset($vo->{'X-ASSISTANTNAME'})) {
+            $co->Assistant = $this->sanitizeString($vo->{'X-ASSISTANTNAME'}->getValue());
+        }
         // Occupation Organization
         if (isset($vo->ORG)) {
-			$co->Occupation->Organization = $this->sanitizeString($vo->ORG->getValue());
-		}
-		// Occupation Title
+            $co->Occupation->Organization = $this->sanitizeString($vo->ORG->getValue());
+        }
+        // Occupation Title
         if (isset($vo->TITLE)) {
-			$co->Occupation->Title = $this->sanitizeString($vo->TITLE->getValue());
-		}
-		// Occupation Role
-		if (isset($vo->ROLE)) {
-			$co->Occupation->Role = $this->sanitizeString($vo->ROLE->getValue());
-		}
-		// Occupation Logo
-		if (isset($vo->LOGO)) {
-			$co->Occupation->Logo = trim($vo->LOGO->getValue());
-		}
+            $co->Occupation->Title = $this->sanitizeString($vo->TITLE->getValue());
+        }
+        // Occupation Role
+        if (isset($vo->ROLE)) {
+            $co->Occupation->Role = $this->sanitizeString($vo->ROLE->getValue());
+        }
+        // Occupation Logo
+        if (isset($vo->LOGO)) {
+            $co->Occupation->Logo = trim($vo->LOGO->getValue());
+        }
 
         // Relation
         if (isset($vo->RELATED)) {
             $co->addRelation(
-				strtoupper(trim($vo->RELATED->parameters()['TYPE']->getValue())),
-				trim($vo->RELATED->getValue())
-			);
+                strtoupper(trim($vo->RELATED->parameters()['TYPE']->getValue())),
+                trim($vo->RELATED->getValue())
+            );
         }
         // Tag(s)
         if (isset($vo->CATEGORIES)) {
-            foreach($vo->CATEGORIES->getParts() as $entry) {
+            foreach ($vo->CATEGORIES->getParts() as $entry) {
                 // evaluate if tag is NOT empty
                 if (!empty($entry)) {
                     $co->addTag(
@@ -524,18 +541,19 @@ class LocalContactsService {
         }
 
         // return contact object
-		return $co;
+        return $co;
 
     }
 
     /**
      * Convert contact object to vcard object
      *
-	 * @param ContactObject $co - source object
-	 *
-	 * @return VCard converted object
-	 */
-    public function fromContactObject(ContactObject $co): VCard {
+     * @param ContactObject $co - source object
+     *
+     * @return VCard converted object
+     */
+    public function fromContactObject(ContactObject $co): VCard
+    {
 
         // construct vcard object
         $vo = new VCard();
@@ -559,7 +577,7 @@ class LocalContactsService {
                     $co->Name->Other,
                     $co->Name->Prefix,
                     $co->Name->Suffix
-            ));
+                ));
         }
         // Photo
         if (isset($co->Photo)) {
@@ -622,8 +640,8 @@ class LocalContactsService {
                         $entry->Code,
                         $entry->Country,
                     ),
-                    array (
-                        'TYPE'=>$entry->Type
+                    array(
+                        'TYPE' => $entry->Type
                     )
                 );
             }
@@ -634,8 +652,8 @@ class LocalContactsService {
                 $vo->add(
                     'TEL',
                     $entry->Number,
-                    array (
-                        'TYPE'=> (isset($entry->SubType)) ? $entry->Type . ',' . $entry->SubType : $entry->Type
+                    array(
+                        'TYPE' => (isset($entry->SubType)) ? $entry->Type . ',' . $entry->SubType : $entry->Type
                     )
                 );
             }
@@ -646,8 +664,8 @@ class LocalContactsService {
                 $vo->add(
                     'EMAIL',
                     $entry->Address,
-                    array (
-                        'TYPE'=>$entry->Type
+                    array(
+                        'TYPE' => $entry->Type
                     )
                 );
             }
@@ -658,8 +676,8 @@ class LocalContactsService {
                 $vo->add(
                     'IMPP',
                     $entry->Address,
-                    array (
-                        'TYPE'=>$entry->Type
+                    array(
+                        'TYPE' => $entry->Type
                     )
                 );
             }
@@ -679,19 +697,19 @@ class LocalContactsService {
             );
         }
         // Manager Name
-		if (!empty($co->Manager)) {
+        if (!empty($co->Manager)) {
             $vo->add(
                 'X-MANAGERSNAME',
                 $co->Manager
             );
-		}
+        }
         // Assistant Name
-		if (!empty($co->Assistant)) {
+        if (!empty($co->Assistant)) {
             $vo->add(
                 'X-ASSISTANTNAME',
                 $co->Assistant
             );
-		}
+        }
         // Occupation Organization
         if (isset($co->Occupation->Organization)) {
             $vo->add(
@@ -726,8 +744,8 @@ class LocalContactsService {
                 $vo->add(
                     'RELATED',
                     $entry->Value,
-                    array (
-                        'TYPE'=>$entry->Type
+                    array(
+                        'TYPE' => $entry->Type
                     )
                 );
             }
@@ -763,7 +781,11 @@ class LocalContactsService {
 
     }
 
-    public function sanitizeString($value): string|null {
+    /**
+     * @psalm-pure
+     */
+    public function sanitizeString($value): string|null
+    {
 
         // remove white space
         $value = trim($value);

@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies extended MAPI properties on folders and items.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ExtendedPropertyType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(object $ExtendedFieldURI = null, string $Value = null)
     {
         $this->ExtendedFieldURI = $ExtendedFieldURI;

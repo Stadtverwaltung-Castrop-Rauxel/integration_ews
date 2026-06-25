@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * messaging groups.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class RemoveContactFromImListType extends BaseRequestType
 {

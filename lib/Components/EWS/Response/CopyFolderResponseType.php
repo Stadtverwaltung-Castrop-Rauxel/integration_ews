@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to a CopyFolder request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class CopyFolderResponseType extends BaseResponseMessageType
 {

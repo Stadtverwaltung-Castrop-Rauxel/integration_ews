@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a single item to upload into a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UploadItemType extends Type
 {

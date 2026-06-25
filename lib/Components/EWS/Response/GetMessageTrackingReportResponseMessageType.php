@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents the response for the GetMessageTrackingReport operation.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetMessageTrackingReportResponseMessageType extends ResponseMessageType
 {

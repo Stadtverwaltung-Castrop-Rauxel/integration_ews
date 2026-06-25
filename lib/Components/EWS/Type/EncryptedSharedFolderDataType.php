@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * of its calendar or contact data with other clients.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class EncryptedSharedFolderDataType extends Type
 {

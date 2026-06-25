@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Base class for item copy and move operations.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class BaseMoveCopyItemType extends BaseRequestType
 {

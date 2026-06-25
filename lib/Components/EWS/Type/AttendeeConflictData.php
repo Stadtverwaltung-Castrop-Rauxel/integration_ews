@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents an attendee that has conflicting data.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class AttendeeConflictData extends Type
 {

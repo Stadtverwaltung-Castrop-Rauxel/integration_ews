@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * an item in the Exchange store.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfResponseObjectsType extends ArrayType
 {

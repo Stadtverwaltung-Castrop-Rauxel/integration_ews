@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Base class for delegate requests.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BaseDelegateType extends BaseRequestType
 {

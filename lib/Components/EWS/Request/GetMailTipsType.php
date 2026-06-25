@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents the recipients and types of mail tips to retrieve.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetMailTipsType extends BaseRequestType
 {

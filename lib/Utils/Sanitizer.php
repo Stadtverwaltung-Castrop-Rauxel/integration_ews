@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\EWS\Utils;
 
+/**
+ * @psalm-pure
+ */
 class Sanitizer {
 
     /**
@@ -32,12 +35,14 @@ class Sanitizer {
      *
      * @since Release 1.0.0
      *
-	 * @param string $name - String to be sanitized
-     * @param bool $lp - Stip leading special characters
-     * @param bool $tp - Stip trailing special characters
-	 *
-	 * @return string sanitized version of the string
-	 */
+     * @param string $name - String to be sanitized
+     * @param bool $lsc - Stip leading special characters
+     * @param bool $tsc - Stip trailing special characters
+     *
+     * @return string sanitized version of the string
+     *
+     * @psalm-pure
+     */
     static function folder(string $name, bool $lsc = false, bool $tsc = false): string {
 
         // strip forbidden characters
@@ -70,10 +75,12 @@ class Sanitizer {
      *
      * @since Release 1.0.0
      *
-	 * @param string $name - String to be sanitized
-	 *
-	 * @return string sanitized version of the string
-	 */
+     * @param string $name - String to be sanitized
+     *
+     * @return string sanitized version of the string
+     *
+     * @psalm-pure
+     */
     static function username(string $name): string {
 
         // strip forbidden characters

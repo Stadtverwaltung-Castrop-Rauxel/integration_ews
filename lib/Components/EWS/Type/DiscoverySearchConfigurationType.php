@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a configuration for eDiscovery search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DiscoverySearchConfigurationType extends Type
 {

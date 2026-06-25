@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Describes a public folder identifier to convert to another identifier format.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AlternatePublicFolderIdType extends AlternateIdBaseType
 {

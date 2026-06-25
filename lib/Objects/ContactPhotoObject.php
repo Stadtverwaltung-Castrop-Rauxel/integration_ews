@@ -25,11 +25,17 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactPhotoObject {
 
 	public ?string $Type;
     public ?string $Data;
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $type = null,
         string $data = null

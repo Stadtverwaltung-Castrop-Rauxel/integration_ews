@@ -31,15 +31,6 @@ class HarmonizationThreadService
 {
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ConfigurationService
-     */
-    private $ConfigurationService;
-
-    /**
      * Name of harmonization thread script.
      */
     private const THREAD_SCRIPT = 'HarmonizationThread.php';
@@ -49,10 +40,11 @@ class HarmonizationThreadService
      */
     static ?int $pidMax = null;
 
-    public function __construct(LoggerInterface $logger, ConfigurationService $ConfigurationService)
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(private LoggerInterface $logger, private ConfigurationService $ConfigurationService)
     {
-        $this->logger = $logger;
-        $this->ConfigurationService = $ConfigurationService;
     }
 
     /**
@@ -369,8 +361,10 @@ class HarmonizationThreadService
      * @param string $flag The flag name to search for, without the leading dash (e.g. 'u')
      *
      * @return ?string      The flag value, or null if not found
+     *
      * @since 1.0.38
      *
+     * @psalm-pure
      */
     private function extractArg(array $args, string $flag): ?string
     {
@@ -394,8 +388,10 @@ class HarmonizationThreadService
      * @param array $args Argument list, e.g. from explode("\0", $cmdline)
      *
      * @return ?string      The user value, or null if not found
+     *
      * @since 1.0.38
      *
+     * @psalm-mutation-free
      */
     private function extractUser(array $args): ?string
     {

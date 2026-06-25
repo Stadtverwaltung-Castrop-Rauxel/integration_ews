@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * or folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class EffectiveRightsType extends Type
 {

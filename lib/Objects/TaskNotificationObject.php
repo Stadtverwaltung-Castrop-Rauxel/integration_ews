@@ -25,11 +25,17 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class TaskNotificationObject {
     public ?string $Type = null;
     public ?string $Pattern = null;
     public $When = null;
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $Type = null,
         string $Pattern = null,

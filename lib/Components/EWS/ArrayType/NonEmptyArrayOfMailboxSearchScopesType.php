@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * discovery search.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfMailboxSearchScopesType extends ArrayType
 {

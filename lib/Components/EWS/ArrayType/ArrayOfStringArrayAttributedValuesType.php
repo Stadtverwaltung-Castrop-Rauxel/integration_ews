@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * attributions.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfStringArrayAttributedValuesType extends ArrayType
 {

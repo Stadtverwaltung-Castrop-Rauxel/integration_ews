@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * the sharing of its calendar or contact data with other clients.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfEncryptedSharedFolderDataType extends ArrayType
 {

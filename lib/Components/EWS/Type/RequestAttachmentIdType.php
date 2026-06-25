@@ -31,10 +31,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies a single attachment.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RequestAttachmentIdType extends BaseItemIdType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Id = null)
     {
         $this->Id = $Id;

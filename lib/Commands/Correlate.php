@@ -25,6 +25,15 @@
 
 namespace OCA\EWS\Commands;
 
+use OCA\DAV\CalDAV\CalDavBackend;
+use OCA\DAV\CardDAV\CardDavBackend;
+use OCA\EWS\Service\Local\LocalContactsService;
+use OCA\EWS\Service\Local\LocalEventsService;
+use OCA\EWS\Service\Local\LocalTasksService;
+use OCA\EWS\Service\Remote\RemoteContactsService;
+use OCA\EWS\Service\Remote\RemoteEventsService;
+use OCA\EWS\Service\Remote\RemoteTasksService;
+use OCA\EWS\Utils\UUID;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -139,13 +148,13 @@ class Correlate extends Command {
 					// create remote store client
 					$this->_RemoteStore = $this->_CoreService->createClient($uid);
 					// construct remote service
-					$this->_RemoteService = \OC::$server->get(\OCA\EWS\Service\Remote\RemoteContactsService::class);
+					$this->_RemoteService = \OC::$server->get(RemoteContactsService::class);
 					// configure remote service
 					$this->_RemoteService->configure($this->_Configuration, $this->_RemoteStore);
 					// create local store client
-					$this->_LocalStore = \OC::$server->get(\OCA\DAV\CardDAV\CardDavBackend::class);
+					$this->_LocalStore = \OC::$server->get(CardDavBackend::class);
 					// construct local service
-					$this->_LocalService = \OC::$server->get(\OCA\EWS\Service\Local\LocalContactsService::class);
+					$this->_LocalService = \OC::$server->get(LocalContactsService::class);
 					// configure local service
 					$this->_LocalService->configure($this->_Configuration, $this->_LocalStore);
 					// perform correlation
@@ -155,13 +164,13 @@ class Correlate extends Command {
 					// create remote store client
 					$this->_RemoteStore = $this->_CoreService->createClient($uid);
 					// construct remote service
-					$this->_RemoteService = \OC::$server->get(\OCA\EWS\Service\Remote\RemoteEventsService::class);
+					$this->_RemoteService = \OC::$server->get(RemoteEventsService::class);
 					// configure remote service
 					$this->_RemoteService->configure($this->_Configuration, $this->_RemoteStore);
 					// create local store client
-					$this->_LocalStore = \OC::$server->get(\OCA\DAV\CalDAV\CalDavBackend::class);
+					$this->_LocalStore = \OC::$server->get(CalDavBackend::class);
 					// construct local service
-					$this->_LocalService = \OC::$server->get(\OCA\EWS\Service\Local\LocalEventsService::class);
+					$this->_LocalService = \OC::$server->get(LocalEventsService::class);
 					// configure local service
 					$this->_LocalService->configure($this->_Configuration, $this->_LocalStore);
 					// perform correlation
@@ -171,13 +180,13 @@ class Correlate extends Command {
 					// create remote store client
 					$this->_RemoteStore = $this->_CoreService->createClient($uid);
 					// construct remote service
-					$this->_RemoteService = \OC::$server->get(\OCA\EWS\Service\Remote\RemoteTasksService::class);
+					$this->_RemoteService = \OC::$server->get(RemoteTasksService::class);
 					// configure remote service
 					$this->_RemoteService->configure($this->_Configuration, $this->_RemoteStore);
 					// create local store client
-					$this->_LocalStore = \OC::$server->get(\OCA\DAV\CalDAV\CalDavBackend::class);
+					$this->_LocalStore = \OC::$server->get(CalDavBackend::class);
 					// construct local service
-					$this->_LocalService = \OC::$server->get(\OCA\EWS\Service\Local\LocalTasksService::class);
+					$this->_LocalService = \OC::$server->get(LocalTasksService::class);
 					// configure local service
 					$this->_LocalService->configure($this->_Configuration, $this->_LocalStore);
 					// perform correlation
@@ -258,7 +267,7 @@ class Correlate extends Command {
 		// evaluate, if local collection was not found, remote collection was found and create flag was set
 		if ($create === true && empty($lid) && !empty($rid)) {
 			// create collection
-			$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utils\UUID::v4(), $remote, true);
+			$collection = $this->_LocalService->createCollection($uid, UUID::v4(), $remote, true);
 			// evaluate if collection id exists
 			if (isset($collection->Id)) {
 				$lid = $collection->Id;
@@ -322,7 +331,7 @@ class Correlate extends Command {
 			// evaluate if create flag is true and local id is empty
 			elseif ($create === true && empty($lid)) {
 				// create collection
-				$collection = $this->_LocalService->createCollection($uid, \OCA\EWS\Utils\UUID::v4(), $rname, true);
+				$collection = $this->_LocalService->createCollection($uid, UUID::v4(), $rname, true);
 				// evaluate if collection id exists
 				if (isset($collection->Id)) {
 					$lid = $collection->Id;
@@ -363,6 +372,9 @@ class Correlate extends Command {
 
 	}
 
+	/**
+	 * @psalm-pure
+	 */
 	private function probability(string $needle, array $stack): string {
 
 		$id = '';

@@ -23,7 +23,13 @@
 *
 */
 
+use OC\SystemConfig;
 use OCA\EWS\Enums\SubscriptionTypes;
+use OCA\EWS\Service\ConfigurationService;
+use OCA\EWS\Service\HarmonizationService;
+use OCA\EWS\Service\HarmonizationThreadService;
+use OCA\EWS\Utils\Sanitizer;
+use OCP\ILogger;
 
 require_once __DIR__ . '/../../../../lib/versioncheck.php';
 
@@ -36,8 +42,8 @@ try {
 	$executionPause = 60;
 	$uid = null;
 
-    $logger = \OC::$server->get(\OCP\ILogger::class);
-    $systemConfig = \OC::$server->get(\OC\SystemConfig::class);
+    $logger = \OC::$server->get(ILogger::class);
+    $systemConfig = \OC::$server->get(SystemConfig::class);
 
 	// evaluate if script was started from console
 	if (php_sapi_name() == 'cli') {
@@ -80,14 +86,14 @@ try {
 		// evaluate if user parameter exists
 		if (isset($parameters["u"])) {
 			// assign user id
-			$uid = \OCA\EWS\Utils\Sanitizer::username($parameters["u"]);
+			$uid = Sanitizer::username($parameters["u"]);
 		}
 	}
 	else {
 		// evaluate if user parameter exists
 		if (isset($_GET["u"])) {
 			// assign user id
-			$uid = \OCA\EWS\Utils\Sanitizer::username($_GET["u"]);
+			$uid = Sanitizer::username($_GET["u"]);
 		}
 	}
 
@@ -119,9 +125,9 @@ try {
     \OC::$server->get(\OCP\App\IAppManager::class)->loadApps();
 
 	// initilize required services
-	$ConfigurationService = \OC::$server->get(\OCA\EWS\Service\ConfigurationService::class);
-	$HarmonizationService = \OC::$server->get(\OCA\EWS\Service\HarmonizationService::class);
-	$HarmonizationThreadService = \OC::$server->get(\OCA\EWS\Service\HarmonizationThreadService::class);
+	$ConfigurationService = \OC::$server->get(ConfigurationService::class);
+	$HarmonizationService = \OC::$server->get(HarmonizationService::class);
+	$HarmonizationThreadService = \OC::$server->get(HarmonizationThreadService::class);
 
 	// evaluate if another harmonization thread is already running for this user
 	$tid = $HarmonizationThreadService->getId($uid);

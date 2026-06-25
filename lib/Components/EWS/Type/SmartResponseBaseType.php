@@ -33,7 +33,10 @@ use OCA\EWS\Components\EWS\Type;
  * @package OCA\EWS\Components\EWS\Type
  *
  * @todo Extend ResponseObjectType?
+ *
  * @link https://msdn.microsoft.com/en-us/library/office/exchangewebservices.smartresponsebasetype(v=exchg.150).aspx
+ *
+ * @psalm-external-mutation-free
  */
 class SmartResponseBaseType extends Type
 {

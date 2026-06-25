@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a subscription to a streaming event notification subscription.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class StreamingSubscriptionRequest extends Type
 {

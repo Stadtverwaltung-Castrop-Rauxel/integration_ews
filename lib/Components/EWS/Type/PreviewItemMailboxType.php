@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * Protocol (SMTP) address.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PreviewItemMailboxType extends Type
 {

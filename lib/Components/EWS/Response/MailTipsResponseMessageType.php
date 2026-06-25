@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents mail tips settings.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class MailTipsResponseMessageType extends ResponseMessageType
 {

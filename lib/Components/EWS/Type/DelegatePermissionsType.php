@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Contains the delegate permission-level settings for a user.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DelegatePermissionsType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the body content of an item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class BodyContentAttributedValueType extends Type
 {

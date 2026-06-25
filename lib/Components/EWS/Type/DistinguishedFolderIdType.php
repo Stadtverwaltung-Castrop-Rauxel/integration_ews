@@ -31,10 +31,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies folders that can be referenced by name.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class DistinguishedFolderIdType extends BaseFolderIdType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Id = null, string $ChangeKey = null)
     {
         $this->Id = $Id;

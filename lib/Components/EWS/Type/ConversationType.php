@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a single conversation.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ConversationType extends Type
 {

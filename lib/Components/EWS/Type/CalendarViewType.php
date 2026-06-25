@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * appear in a calendar.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CalendarViewType extends BasePagingType
 {

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents an Exchange store item to forward to recipients.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ForwardItemType extends SmartResponseType
 {

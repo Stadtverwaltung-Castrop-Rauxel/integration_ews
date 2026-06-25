@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies the root item of a deleted item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RootItemIdType extends BaseItemIdType
 {

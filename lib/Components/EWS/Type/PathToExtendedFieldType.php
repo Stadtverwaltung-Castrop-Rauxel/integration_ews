@@ -34,14 +34,19 @@ namespace OCA\EWS\Components\EWS\Type;
  * all occurrences require the PropertyType attribute.
  *
  * 1. (DistinguishedPropertySetId || PropertySetId) +
- *   (PropertyName || Property Id)
+ * (PropertyName || Property Id)
  * 2. PropertyTag
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PathToExtendedFieldType extends BasePathToElementType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         ?string $dsid = null,
         ?string $psid = null,

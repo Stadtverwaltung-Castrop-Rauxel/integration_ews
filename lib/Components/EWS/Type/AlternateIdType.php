@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * converted identifier in the response.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AlternateIdType extends AlternateIdBaseType
 {

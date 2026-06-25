@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Compound property for Managed Folder related information for Managed Folders.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ManagedFolderInformationType extends Type
 {

@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Represents an array of named managed folders to add to a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfFolderNamesType extends ArrayType
 {
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $f = null)
     {
         if (isset($f)) {$this->FolderName = $f;}

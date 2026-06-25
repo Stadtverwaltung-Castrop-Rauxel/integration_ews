@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\EWS\Settings;
 
+use OCA\EWS\Integration\Microsoft365;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Settings\ISettings;
@@ -34,24 +35,13 @@ use OCA\EWS\Service\ConfigurationService;
 
 class PersonalSettings implements ISettings {
 
-	/**
-	 * @var IInitialState
-	 */
-	private $initialStateService;
-	/**
-	 * @var ConfigurationService
-	 */
-	private $ConfigurationService;
-	/**
-	 * @var string|null
-	 */
-	private $userId;
-
-	public function __construct(IInitialState $initialStateService, ConfigurationService $ConfigurationService, string $userId) {
-		$this->initialStateService = $initialStateService;
-		$this->ConfigurationService = $ConfigurationService;
-		$this->userId = $userId;
-	}
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(private IInitialState $initialStateService,
+                                private ConfigurationService $ConfigurationService,
+                                private string $userId) {
+    }
 
 	/**
 	 * @return TemplateResponse
@@ -60,7 +50,7 @@ class PersonalSettings implements ISettings {
 
 		// retrieve user configuration
 		$configuration = $this->ConfigurationService->retrieveUser($this->userId);
-		$configuration['system_ms365_authorization_uri'] = \OCA\EWS\Integration\Microsoft365::constructAuthorizationUrl();
+		$configuration['system_ms365_authorization_uri'] = Microsoft365::constructAuthorizationUrl();
 		$configuration['system_approved_account_servers'] = $this->ConfigurationService->getApprovedAccountServers();
 
 		$this->initialStateService->provideInitialState('personal-configuration', $configuration);
@@ -68,10 +58,16 @@ class PersonalSettings implements ISettings {
 		return new TemplateResponse(Application::APP_ID, 'personalSettings');
 	}
 
+	/**
+	 * @psalm-pure
+	 */
 	public function getSection(): string {
 		return 'connected-accounts';
 	}
 
+	/**
+	 * @psalm-pure
+	 */
 	public function getPriority(): int {
 		return 10;
 	}

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Defines the access that a user has to a Calendar folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CalendarPermissionType extends BasePermissionType
 {

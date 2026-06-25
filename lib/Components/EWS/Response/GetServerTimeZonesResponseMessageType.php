@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetServerTimeZonesResponseMessageType extends ResponseMessageType
 {

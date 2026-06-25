@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Represents criteria for the types of messages to find.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class FindMessageTrackingReportRequestType extends BaseRequestType
 {

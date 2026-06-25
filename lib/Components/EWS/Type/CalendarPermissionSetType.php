@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Contains all the permissions that are configured for a calendar folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CalendarPermissionSetType extends Type
 {

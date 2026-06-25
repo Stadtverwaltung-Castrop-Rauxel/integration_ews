@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the status and result of a single DisconnectPhoneCall request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class DisconnectPhoneCallResponseMessageType extends ResponseMessageType
 {

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * number.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class AddNewTelUriContactToGroupType extends BaseRequestType
 {

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * to perform an eDiscovery search on.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetSearchableMailboxesType extends BaseRequestType
 {

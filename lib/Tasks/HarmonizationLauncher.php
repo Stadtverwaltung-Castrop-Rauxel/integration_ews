@@ -34,36 +34,16 @@ use Psr\Log\LoggerInterface;
 
 class HarmonizationLauncher extends TimedJob
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ConfigurationService
-     */
-    private $ConfigurationService;
-    /**
-     * @var HarmonizationService
-     */
-    private $HarmonizationService;
-    /**
-     * @var HarmonizationThreadService
-     */
-    private $HarmonizationThreadService;
 
     public function __construct(
-        ITimeFactory               $time,
-        LoggerInterface            $logger,
-        ConfigurationService       $ConfigurationService,
-        HarmonizationService       $HarmonizationService,
-        HarmonizationThreadService $HarmonizationThreadService
+        ITimeFactory                       $time,
+        private LoggerInterface            $logger,
+        private ConfigurationService       $ConfigurationService,
+        private HarmonizationService       $HarmonizationService,
+        private HarmonizationThreadService $HarmonizationThreadService
     )
     {
         parent::__construct($time);
-        $this->logger = $logger;
-        $this->ConfigurationService = $ConfigurationService;
-        $this->HarmonizationService = $HarmonizationService;
-        $this->HarmonizationThreadService = $HarmonizationThreadService;
 
         // Run every 5min
         $this->setInterval(300);

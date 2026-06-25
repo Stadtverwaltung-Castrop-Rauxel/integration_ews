@@ -2,188 +2,205 @@
 //declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Service\Remote;
 
 use Datetime;
-use DateTimeZone;
-use DateTimeInterface;
-use finfo;
-use Psr\Log\LoggerInterface;
-
-use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Service\Remote\RemoteCommonService;
+use OCA\EWS\Components\EWS\ArrayType\ArrayOfStringsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType;
 use OCA\EWS\Components\EWS\EWSClient;
+use OCA\EWS\Components\EWS\Type\BodyType;
 use OCA\EWS\Components\EWS\Type\ContactItemType;
+use OCA\EWS\Components\EWS\Type\ContactsFolderType;
+use OCA\EWS\Components\EWS\Type\DeleteItemFieldType;
+use OCA\EWS\Components\EWS\Type\EmailAddressDictionaryEntryType;
+use OCA\EWS\Components\EWS\Type\EmailAddressDictionaryType;
+use OCA\EWS\Components\EWS\Type\ExtendedPropertyType;
+use OCA\EWS\Components\EWS\Type\FileAttachmentType;
+use OCA\EWS\Components\EWS\Type\FolderIdType;
+use OCA\EWS\Components\EWS\Type\ItemIdType;
+use OCA\EWS\Components\EWS\Type\PathToExtendedFieldType;
+use OCA\EWS\Components\EWS\Type\PathToIndexedFieldType;
+use OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType;
+use OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryEntryType;
+use OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryType;
+use OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType;
+use OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType;
+use OCA\EWS\Components\EWS\Type\SetItemFieldType;
+use OCA\EWS\Objects\ContactAttachmentObject;
 use OCA\EWS\Objects\ContactCollectionObject;
 use OCA\EWS\Objects\ContactObject;
-use OCA\EWS\Objects\ContactAttachmentObject;
+use OCA\EWS\Utils\MIME;
 use OCA\EWS\Utils\UUID;
+use Psr\Log\LoggerInterface;
 
-class RemoteContactsService {
-	/**
-	 * @var LoggerInterface
-	 */
-	protected $logger;
-	/**
-	 * @var RemoteCommonService
-	 */
-	protected $RemoteCommonService;
-	/**
-	 * @var EWSClient
-	 */
-	protected ?EWSClient $DataStore = null;
+class RemoteContactsService
+{
     /**
-	 * @var Object
-	 */
-	protected $Configuration;
+     * @var ?EWSClient
+     */
+    protected ?EWSClient $DataStore = null;
     /**
-	 * @var Object
-	 */
-	protected ?object $DefaultCollectionProperties = null;
-	/**
-	 * @var Object
-	 */
-	protected ?object $DefaultItemProperties = null;
+     * @var Object
+     */
+    protected $Configuration;
+    /**
+     * @var ?object
+     */
+    protected ?object $DefaultCollectionProperties = null;
+    /**
+     * @var ?object
+     */
+    protected ?object $DefaultItemProperties = null;
 
-	public function __construct (string $appName,
-								LoggerInterface $logger,
-								RemoteCommonService $RemoteCommonService) {
-		$this->logger = $logger;
-		$this->RemoteCommonService = $RemoteCommonService;
-	}
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct(string                        $appName,
+                                protected LoggerInterface     $logger,
+                                protected RemoteCommonService $RemoteCommonService)
+    {
+    }
 
-    public function configure($configuration, EWSClient $DataStore) : void {
+    /**
+     * @psalm-external-mutation-free
+     */
+    public function configure($configuration, EWSClient $DataStore): void
+    {
 
-		// assign configuration
-		$this->Configuration = $configuration;
-		// assign remote data store
-		$this->DataStore = $DataStore;
-
-	}
-
-	/**
-	 * retrieve list of collections in remote storage
-     *
-     * @since Release 1.0.0
-	 *
-     * @param string $source		folder source (U - User Folders, P - Public Folders)
-	 * @param string $prefixName	string to append to folder name
-     *
-	 * @return array of collections and properties
-	 */
-	public function listCollections(string $source = 'U', string $prefixName = ''): array {
-
-		// execute command
-		$cr = $this->RemoteCommonService->fetchFoldersByType($this->DataStore, 'IPF.Contact', 'I', $this->constructDefaultCollectionProperties(), $source);
-        // process response
-		$cl = array();
-		if (isset($cr)) {
-			foreach ($cr->ContactsFolder as $folder) {
-				$cl[] = array('id'=>$folder->FolderId->Id, 'name'=>$prefixName . $folder->DisplayName,'count'=>$folder->TotalCount);
-			}
-		}
-        // return collections
-		return $cl;
-
-	}
-
-	/**
-     * retrieve properties for specific collection
-     *
-     * @since Release 1.0.0
-     *
-	 * @param string $cid - Collection ID
-	 *
-	 * @return ContactCollectionObject
-	 */
-	public function fetchCollection(string $cid): ?ContactCollectionObject {
-
-        // execute command
-		$cr = $this->RemoteCommonService->fetchFolder($this->DataStore, $cid, false, 'I', $this->constructDefaultCollectionProperties());
-        // process response
-		if (isset($cr) && (count($cr->ContactsFolder) > 0)) {
-		    $ec = new ContactCollectionObject(
-				$cr->ContactsFolder[0]->FolderId->Id,
-				$cr->ContactsFolder[0]->DisplayName,
-				$cr->ContactsFolder[0]->FolderId->ChangeKey,
-				$cr->ContactsFolder[0]->TotalCount
-			);
-			if (isset($cr->ContactsFolder[0]->ParentFolderId->Id)) {
-				$ec->AffiliationId = $cr->ContactsFolder[0]->ParentFolderId->Id;
-			}
-			return $ec;
-		} else {
-			return null;
-		}
+        // assign configuration
+        $this->Configuration = $configuration;
+        // assign remote data store
+        $this->DataStore = $DataStore;
 
     }
 
-	/**
-     * create collection in remote storage
+    /**
+     * retrieve list of collections in remote storage
      *
+     * @param string $source folder source (U - User Folders, P - Public Folders)
+     * @param string $prefixName string to append to folder name
+     *
+     * @return array of collections and properties
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection Item ID
-	 *
-	 * @return ContactCollectionObject
-	 */
-	public function createCollection(string $cid, string $name, bool $ctype = false): ?ContactCollectionObject {
+     */
+    public function listCollections(string $source = 'U', string $prefixName = ''): array
+    {
 
-		// construct command object
-		$cc = new \OCA\EWS\Components\EWS\Type\ContactsFolderType();
-		$cc->DisplayName = $name;
-		// execute command
-		$cr = $this->RemoteCommonService->createFolder($this->DataStore, $cid, $cc, $ctype);
+        // execute command
+        $cr = $this->RemoteCommonService->fetchFoldersByType($this->DataStore, 'IPF.Contact', 'I', $this->constructDefaultCollectionProperties(), $source);
         // process response
-		if (isset($cr) && (count($cr->ContactsFolder) > 0)) {
+        $cl = array();
+        if (isset($cr)) {
+            foreach ($cr->ContactsFolder as $folder) {
+                $cl[] = array('id' => $folder->FolderId->Id, 'name' => $prefixName . $folder->DisplayName, 'count' => $folder->TotalCount);
+            }
+        }
+        // return collections
+        return $cl;
+
+    }
+
+    /**
+     * retrieve properties for specific collection
+     *
+     * @param string $cid - Collection ID
+     *
+     * @return ContactCollectionObject
+     * @since Release 1.0.0
+     *
+     */
+    public function fetchCollection(string $cid): ?ContactCollectionObject
+    {
+
+        // execute command
+        $cr = $this->RemoteCommonService->fetchFolder($this->DataStore, $cid, false, 'I', $this->constructDefaultCollectionProperties());
+        // process response
+        if (isset($cr) && (count($cr->ContactsFolder) > 0)) {
+            $ec = new ContactCollectionObject(
+                $cr->ContactsFolder[0]->FolderId->Id,
+                $cr->ContactsFolder[0]->DisplayName,
+                $cr->ContactsFolder[0]->FolderId->ChangeKey,
+                $cr->ContactsFolder[0]->TotalCount
+            );
+            if (isset($cr->ContactsFolder[0]->ParentFolderId->Id)) {
+                $ec->AffiliationId = $cr->ContactsFolder[0]->ParentFolderId->Id;
+            }
+            return $ec;
+        } else {
+            return null;
+        }
+
+    }
+
+    /**
+     * create collection in remote storage
+     *
+     * @param string $cid - Collection Item ID
+     *
+     * @return ContactCollectionObject
+     * @since Release 1.0.0
+     *
+     */
+    public function createCollection(string $cid, string $name, bool $ctype = false): ?ContactCollectionObject
+    {
+
+        // construct command object
+        $cc = new ContactsFolderType();
+        $cc->DisplayName = $name;
+        // execute command
+        $cr = $this->RemoteCommonService->createFolder($this->DataStore, $cid, $cc, $ctype);
+        // process response
+        if (isset($cr) && (count($cr->ContactsFolder) > 0)) {
             return new ContactCollectionObject(
-				$cr->ContactsFolder[0]->FolderId->Id,
-				$name,
-				$cr->ContactsFolder[0]->FolderId->ChangeKey
-			);
-		} else {
-			return null;
-		}
+                $cr->ContactsFolder[0]->FolderId->Id,
+                $name,
+                $cr->ContactsFolder[0]->FolderId->ChangeKey
+            );
+        } else {
+            return null;
+        }
 
     }
 
     /**
      * delete collection in remote storage
      *
+     * @param string $cid - Collection ID
+     *
+     * @return bool Ture - successfully destroyed / False - failed to destory
      * @since Release 1.0.0
      *
-     * @param string $cid - Collection ID
-	 *
-	 * @return bool Ture - successfully destroyed / False - failed to destory
-	 */
-    public function deleteCollection(string $cid): bool {
+     */
+    public function deleteCollection(string $cid): bool
+    {
 
-		// construct command object
-        $cc = new \OCA\EWS\Components\EWS\Type\FolderIdType($cid);
-		// execute command
+        // construct command object
+        $cc = new FolderIdType($cid);
+        // execute command
         $cr = $this->RemoteCommonService->deleteFolder($this->DataStore, array($cc));
-		// process response
+        // process response
         if ($cr) {
             return true;
         } else {
@@ -193,55 +210,57 @@ class RemoteContactsService {
     }
 
     /**
-	 * retrieve alteration for specific collection
+     * retrieve alteration for specific collection
      *
+     * @param string $cid - Collection Id
+     * @param string $state - Collection State (Initial/Last)
+     *
+     * @return object
      * @since Release 1.0.0
-	 *
-	 * @param string $cid - Collection Id
-	 * @param string $state - Collection State (Initial/Last)
-	 *
-	 * @return object
-	 */
-	public function fetchCollectionChanges(string $cid, string $state, string $scheme = 'I'): ?object {
+     *
+     */
+    public function fetchCollectionChanges(string $cid, string $state, string $scheme = 'I'): ?object
+    {
 
         // construct additional properties required
-		$properties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
-		$properties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
-			'PublicStrings',
-			null,
-			null,
-			'DAV:uid',
-			null,
-			'String'
-		);
+        $properties = new NonEmptyArrayOfPathsToElementType();
+        $properties->ExtendedFieldURI[] = new PathToExtendedFieldType(
+            'PublicStrings',
+            null,
+            null,
+            'DAV:uid',
+            null,
+            'String'
+        );
         // execute command
         $cr = $this->RemoteCommonService->fetchFolderChanges($this->DataStore, $cid, $state, false, 512, $scheme, $properties);
-		// return response
-		return $cr;
+        // return response
+        return $cr;
 
     }
 
     /**
      * retrieve all collection items uuids from remote storage
      *
+     * @param string $cid - Collection ID
+     *
+     * @return array
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-	 *
-	 * @return array
-	 */
-    public function fetchCollectionItemsUUID(string $cid, bool $ctype = false): array {
+     */
+    public function fetchCollectionItemsUUID(string $cid, bool $ctype = false): array
+    {
 
-		// construct properties required
-		$properties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
-		$properties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
-			'PublicStrings',
-			null,
-			null,
-			'DAV:uid',
-			null,
-			'String'
-		);
+        // construct properties required
+        $properties = new NonEmptyArrayOfPathsToElementType();
+        $properties->ExtendedFieldURI[] = new PathToExtendedFieldType(
+            'PublicStrings',
+            null,
+            null,
+            'DAV:uid',
+            null,
+            'String'
+        );
         // define place holders
         $data = array();
         $offset = 0;
@@ -251,51 +270,51 @@ class RemoteContactsService {
             // validate response object
             if (isset($ro) && count($ro->Contact) > 0) {
                 foreach ($ro->Contact as $entry) {
-					// evaluate if uuid is present
-					if (!empty($entry->ExtendedProperty[0]->Value)) {
+                    // evaluate if uuid is present
+                    if (!empty($entry->ExtendedProperty[0]->Value)) {
                         // validate and normalize uuid
                         $uuid = UUID::normalize($entry->ExtendedProperty[0]->Value);
                         // evaluate if proper uuid was returned
                         if (!empty($uuid)) {
                             // add item id and uuid to id collection
-                            $data[] = array('ID'=>$entry->ItemId->Id, 'UUID'=>$entry->ExtendedProperty[0]->Value);
+                            $data[] = array('ID' => $entry->ItemId->Id, 'UUID' => $entry->ExtendedProperty[0]->Value);
                         }
-					}
+                    }
                 }
-				// increment offset by count of returned items
+                // increment offset by count of returned items
                 $offset += count($ro->Contact);
             }
-        }
-        while (isset($ro) && count($ro->Contact) > 0);
+        } while (isset($ro) && count($ro->Contact) > 0);
         // return id collection
-		return $data;
+        return $data;
     }
 
-	/**
+    /**
      * retrieve collection item in remote storage
      *
+     * @param string $iid - Collection Item ID
+     *
+     * @return ContactObject
      * @since Release 1.0.0
      *
-	 * @param string $iid - Collection Item ID
-	 *
-	 * @return ContactObject
-	 */
-	public function fetchCollectionItem(string $iid): ?ContactObject {
+     */
+    public function fetchCollectionItem(string $iid): ?ContactObject
+    {
 
         // construct identification object
-        $io = new \OCA\EWS\Components\EWS\Type\ItemIdType($iid);
+        $io = new ItemIdType($iid);
         // execute command
-		$ro = $this->RemoteCommonService->fetchItem($this->DataStore, array($io), 'D', $this->constructDefaultItemProperties());
+        $ro = $this->RemoteCommonService->fetchItem($this->DataStore, array($io), 'D', $this->constructDefaultItemProperties());
         // validate response
-		if (isset($ro->Contact)) {
+        if (isset($ro->Contact)) {
             // convert to contact object
             $co = $this->toContactObject($ro->Contact[0]);
             // retrieve attachment(s) from remote data store
-			if (count($co->Attachments) > 0) {
-				$co->Attachments = $this->fetchCollectionItemAttachment(array_column($co->Attachments, 'Id'));
-			}
+            if (count($co->Attachments) > 0) {
+                $co->Attachments = $this->fetchCollectionItemAttachment(array_column($co->Attachments, 'Id'));
+            }
             // return object
-		    return $co;
+            return $co;
         } else {
             // return null
             return null;
@@ -303,30 +322,31 @@ class RemoteContactsService {
 
     }
 
-	/**
+    /**
      * find collection item by uuid in remote storage
      *
+     * @param string $cid - Collection ID
+     * @param string $uuid -Collection Item UUID
+     *
+     * @return ContactObject
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param string $uuid -Collection Item UUID
-	 *
-	 * @return ContactObject
-	 */
-	public function fetchCollectionItemByUUID(string $cid, string $uuid): ?ContactObject {
+     */
+    public function fetchCollectionItemByUUID(string $cid, string $uuid): ?ContactObject
+    {
 
         // retrieve properties for a specific collection item
-		$ro = $this->RemoteCommonService->findItemByUUID($this->DataStore, $cid, $uuid, false, 'D', $this->constructDefaultItemProperties());
+        $ro = $this->RemoteCommonService->findItemByUUID($this->DataStore, $cid, $uuid, false, 'D', $this->constructDefaultItemProperties());
         // validate response
-		if (isset($ro->Contact)) {
+        if (isset($ro->Contact)) {
             // convert to contact object
             $co = $this->toContactObject($ro->Contact[0]);
             // retrieve attachment(s) from remote data store
-			if (count($co->Attachments) > 0) {
-				$co->Attachments = $this->fetchCollectionItemAttachment(array_column($co->Attachments, 'Id'));
-			}
+            if (count($co->Attachments) > 0) {
+                $co->Attachments = $this->fetchCollectionItemAttachment(array_column($co->Attachments, 'Id'));
+            }
             // return object
-		    return $co;
+            return $co;
         } else {
             // return null
             return null;
@@ -334,17 +354,18 @@ class RemoteContactsService {
 
     }
 
-	/**
+    /**
      * create collection item in remote storage
      *
+     * @param string $cid - Collection ID
+     * @param ContactObject $so - Source Data
+     *
+     * @return ContactObject
      * @since Release 1.0.0
      *
-	 * @param string $cid - Collection ID
-     * @param ContactObject $so - Source Data
-	 *
-	 * @return ContactObject
-	 */
-	public function createCollectionItem(string $cid, ContactObject $so): ?ContactObject {
+     */
+    public function createCollectionItem(string $cid, ContactObject $so): ?ContactObject
+    {
 
         // construct request object
         $ro = new ContactItemType();
@@ -412,8 +433,10 @@ class RemoteContactsService {
             );
             foreach ($so->Address as $entry) {
                 if (isset($types[$entry->Type]) && $types[$entry->Type] == true) {
-                    if (!isset($ro->PhysicalAddresses->Entry)) { $ro->PhysicalAddresses = new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(); }
-                    $ro->PhysicalAddresses->Entry[] = new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                    if (!isset($ro->PhysicalAddresses->Entry)) {
+                        $ro->PhysicalAddresses = new PhysicalAddressDictionaryType();
+                    }
+                    $ro->PhysicalAddresses->Entry[] = new PhysicalAddressDictionaryEntryType(
                         $this->toAddressType($entry->Type),
                         $entry->Street,
                         $entry->Locality,
@@ -454,9 +477,11 @@ class RemoteContactsService {
                 // if type is available and if number exists
                 if (isset($tc) && ($tc['Count'] <= $tc['Max']) && !empty($entry->Number)) {
                     // evaluate if numbers array exists, and create it if needed
-                    if (!isset($ro->PhoneNumbers->Entry)) { $ro->PhoneNumbers = new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryType(); }
+                    if (!isset($ro->PhoneNumbers->Entry)) {
+                        $ro->PhoneNumbers = new PhoneNumberDictionaryType();
+                    }
                     // add number to numbers array
-                    $ro->PhoneNumbers->Entry[] = new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryEntryType(
+                    $ro->PhoneNumbers->Entry[] = new PhoneNumberDictionaryEntryType(
                         ($tc['Count'] > 1) ? $type . $tc['Count'] : $type, // add count to type if available count is greater then one
                         $entry->Number
                     );
@@ -474,8 +499,10 @@ class RemoteContactsService {
             );
             foreach ($so->Email as $entry) {
                 if (isset($types[$entry->Type]) && $types[$entry->Type] == true && !empty($entry->Address)) {
-                    if (!isset($ro->EmailAddresses->Entry)) { $ro->EmailAddresses = new \OCA\EWS\Components\EWS\Type\EmailAddressDictionaryType(); }
-                    $ro->EmailAddresses->Entry[] = new \OCA\EWS\Components\EWS\Type\EmailAddressDictionaryEntryType(
+                    if (!isset($ro->EmailAddresses->Entry)) {
+                        $ro->EmailAddresses = new EmailAddressDictionaryType();
+                    }
+                    $ro->EmailAddresses->Entry[] = new EmailAddressDictionaryEntryType(
                         $this->toEmailType($entry->Type),
                         $entry->Address
                     );
@@ -520,14 +547,14 @@ class RemoteContactsService {
         }
         // Tag(s)
         if (count($so->Tags) > 0) {
-            $ro->Categories = new \OCA\EWS\Components\EWS\ArrayType\ArrayOfStringsType;
+            $ro->Categories = new ArrayOfStringsType;
             foreach ($so->Tags as $entry) {
                 $ro->Categories->String[] = $entry;
             }
         }
         // Notes
         if (!empty($so->Notes)) {
-            $ro->Body = new \OCA\EWS\Components\EWS\Type\BodyType(
+            $ro->Body = new BodyType(
                 'Text',
                 $so->Notes
             );
@@ -543,16 +570,16 @@ class RemoteContactsService {
 
         // process response
         if ($rs->Contact[0]) {
-			$co = clone $so;
-			$co->ID = $rs->Contact[0]->ItemId->Id;
+            $co = clone $so;
+            $co->ID = $rs->Contact[0]->ItemId->Id;
             $co->CID = $cid;
-			$co->State = $rs->Contact[0]->ItemId->ChangeKey;
-			// deposit attachment(s)
-			if (count($co->Attachments) > 0) {
-				// create attachments in remote data store
-				$co->Attachments = $this->createCollectionItemAttachment($co->ID, $co->Attachments);
-				$co->State = $co->Attachments[0]->AffiliateState;
-			}
+            $co->State = $rs->Contact[0]->ItemId->ChangeKey;
+            // deposit attachment(s)
+            if (count($co->Attachments) > 0) {
+                // create attachments in remote data store
+                $co->Attachments = $this->createCollectionItemAttachment($co->ID, $co->Attachments);
+                $co->State = $co->Attachments[0]->AffiliateState;
+            }
             return $co;
         } else {
             return null;
@@ -560,19 +587,20 @@ class RemoteContactsService {
 
     }
 
-     /**
+    /**
      * update collection item in remote storage
-     *
-     * @since Release 1.0.0
      *
      * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $iid - Collection Item State
      * @param ContactObject $so - Source Data
-	 *
-	 * @return ContactObject
-	 */
-	public function updateCollectionItem(string $cid, string $iid, string $istate, ContactObject $so): ?ContactObject {
+     *
+     * @return ContactObject
+     * @since Release 1.0.0
+     *
+     */
+    public function updateCollectionItem(string $cid, string $iid, string $istate, ContactObject $so): ?ContactObject
+    {
 
         // request modifications array
         $rm = array();
@@ -581,8 +609,7 @@ class RemoteContactsService {
         // Label
         if (!empty($so->Label)) {
             $rm[] = $this->updateFieldUnindexed('contacts:DisplayName', 'DisplayName', $so->Label);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:DisplayName');
         }
         // Names
@@ -590,36 +617,31 @@ class RemoteContactsService {
             // Last Name
             if (!empty($so->Name->Last)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:Surname', 'Surname', $so->Name->Last);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:Surname');
             }
             // First Name
             if (!empty($so->Name->First)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:GivenName', 'GivenName', $so->Name->First);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:GivenName');
             }
             // Other Name
             if (!empty($so->Name->Other)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:MiddleName', 'MiddleName', $so->Name->Other);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:MiddleName');
             }
             // Prefix
             if (!empty($so->Name->Prefix)) {
                 $rm[] = $this->updateFieldExtendedByTag('14917', 'String', $so->Name->Prefix);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldExtendedByTag('14917', 'String');
             }
             // Suffix
             if (!empty($so->Name->Suffix)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:Generation', 'Generation', $so->Name->Suffix);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:Generation');
             }
             /*
@@ -641,37 +663,32 @@ class RemoteContactsService {
             // Aliases
             if (!empty($so->Name->Aliases)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:Nickname', 'Nickname', $so->Name->Aliases);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:Nickname');
             }
         }
         // Birth Day
         if (!empty($so->BirthDay)) {
             $rm[] = $this->updateFieldUnindexed('contacts:Birthday', 'Birthday', $so->BirthDay->format('Y-m-d\TH:i:s'));
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:Birthday');
         }
         // Gender
         if (!empty($so->Gender)) {
             $rm[] = $this->updateFieldExtendedByTag('14925', 'String', $so->Gender);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldExtendedByTag('14925', 'String');
         }
         // Partner
         if (!empty($so->Partner)) {
             $rm[] = $this->updateFieldUnindexed('contacts:SpouseName', 'SpouseName', $so->Partner);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:SpouseName');
         }
         // Anniversary Day
         if (!empty($so->AnniversaryDay)) {
             $rm[] = $this->updateFieldUnindexed('contacts:WeddingAnniversary', 'WeddingAnniversary', $so->AnniversaryDay->format('Y-m-d\TH:i:s'));
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:WeddingAnniversary');
         }
         // Address(es)
@@ -693,8 +710,8 @@ class RemoteContactsService {
                             'contacts:PhysicalAddress:Street',
                             $type,
                             'PhysicalAddresses',
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(),
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                            new PhysicalAddressDictionaryType(),
+                            new PhysicalAddressDictionaryEntryType(
                                 $type,
                                 $entry->Street,
                                 null,
@@ -703,8 +720,7 @@ class RemoteContactsService {
                                 null
                             )
                         );
-                    }
-                    else {
+                    } else {
                         $rd[] = $this->deleteFieldIndexed(
                             'contacts:PhysicalAddress:Street',
                             $type
@@ -716,8 +732,8 @@ class RemoteContactsService {
                             'contacts:PhysicalAddress:City',
                             $type,
                             'PhysicalAddresses',
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(),
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                            new PhysicalAddressDictionaryType(),
+                            new PhysicalAddressDictionaryEntryType(
                                 $type,
                                 null,
                                 $entry->Locality,
@@ -726,8 +742,7 @@ class RemoteContactsService {
                                 null
                             )
                         );
-                    }
-                    else {
+                    } else {
                         $rd[] = $this->deleteFieldIndexed(
                             'contacts:PhysicalAddress:City',
                             $type
@@ -739,8 +754,8 @@ class RemoteContactsService {
                             'contacts:PhysicalAddress:State',
                             $type,
                             'PhysicalAddresses',
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(),
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                            new PhysicalAddressDictionaryType(),
+                            new PhysicalAddressDictionaryEntryType(
                                 $type,
                                 null,
                                 null,
@@ -749,8 +764,7 @@ class RemoteContactsService {
                                 null
                             )
                         );
-                    }
-                    else {
+                    } else {
                         $rd[] = $this->deleteFieldIndexed(
                             'contacts:PhysicalAddress:State',
                             $type
@@ -762,8 +776,8 @@ class RemoteContactsService {
                             'contacts:PhysicalAddress:PostalCode',
                             $type,
                             'PhysicalAddresses',
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(),
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                            new PhysicalAddressDictionaryType(),
+                            new PhysicalAddressDictionaryEntryType(
                                 $type,
                                 null,
                                 null,
@@ -772,8 +786,7 @@ class RemoteContactsService {
                                 null
                             )
                         );
-                    }
-                    else {
+                    } else {
                         $rd[] = $this->deleteFieldIndexed(
                             'contacts:PhysicalAddress:PostalCode',
                             $type
@@ -785,8 +798,8 @@ class RemoteContactsService {
                             'contacts:PhysicalAddress:CountryOrRegion',
                             $type,
                             'PhysicalAddresses',
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryType(),
-                            new \OCA\EWS\Components\EWS\Type\PhysicalAddressDictionaryEntryType(
+                            new PhysicalAddressDictionaryType(),
+                            new PhysicalAddressDictionaryEntryType(
                                 $type,
                                 null,
                                 null,
@@ -795,8 +808,7 @@ class RemoteContactsService {
                                 $entry->Country
                             )
                         );
-                    }
-                    else {
+                    } else {
                         $rd[] = $this->deleteFieldIndexed(
                             'contacts:PhysicalAddress:CountryOrRegion',
                             $type
@@ -864,8 +876,8 @@ class RemoteContactsService {
                         'contacts:PhoneNumber',
                         ($tc['Count'] > 1) ? $type . $tc['Count'] : $type,
                         'PhoneNumbers',
-                        new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryType(),
-                        new \OCA\EWS\Components\EWS\Type\PhoneNumberDictionaryEntryType(
+                        new PhoneNumberDictionaryType(),
+                        new PhoneNumberDictionaryEntryType(
                             ($tc['Count'] > 1) ? $type . $tc['Count'] : $type,
                             $entry->Number
                         )
@@ -902,8 +914,8 @@ class RemoteContactsService {
                         'contacts:EmailAddress',
                         $type,
                         'EmailAddresses',
-                        new \OCA\EWS\Components\EWS\Type\EmailAddressDictionaryType(),
-                        new \OCA\EWS\Components\EWS\Type\EmailAddressDictionaryEntryType(
+                        new EmailAddressDictionaryType(),
+                        new EmailAddressDictionaryEntryType(
                             $type,
                             $entry->Address
                         )
@@ -932,15 +944,13 @@ class RemoteContactsService {
         // Manager Name
         if (!empty($so->Manager)) {
             $rm[] = $this->updateFieldUnindexed('contacts:Manager', 'Manager', $so->Manager);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:Manager');
         }
         // Assistant Name
         if (!empty($so->Assistant)) {
             $rm[] = $this->updateFieldUnindexed('contacts:AssistantName', 'AssistantName', $so->Assistant);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldUnindexed('contacts:AssistantName');
         }
         // Occupation
@@ -948,77 +958,70 @@ class RemoteContactsService {
             // Occupation - Name
             if (!empty($so->Occupation->Organization)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:CompanyName', 'CompanyName', $so->Occupation->Organization);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:CompanyName');
             }
             // Occupation - Department
             if (!empty($so->Occupation->Department)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:Department', 'Department', $so->Occupation->Department);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:Department');
             }
             // Occupation - Title
             if (!empty($so->Occupation->Title)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:JobTitle', 'JobTitle', $so->Occupation->Title);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:JobTitle');
             }
             // Occupation - Role
             if (!empty($so->Occupation->Role)) {
                 $rm[] = $this->updateFieldUnindexed('contacts:Profession', 'Profession', $so->Occupation->Role);
-            }
-            else {
+            } else {
                 $rd[] = $this->deleteFieldUnindexed('contacts:Profession');
             }
         }
-		// Tag(s)
-		if (count($so->Tags) > 0) {
-			$f = new \OCA\EWS\Components\EWS\ArrayType\ArrayOfStringsType;
-			foreach ($so->Tags as $entry) {
-				$f->String[] = $entry;
-			}
-			$rm[] = $this->updateFieldUnindexed('item:Categories', 'Categories', $f);
-		}
-		else {
-			$rd[] = $this->deleteFieldUnindexed('item:Categories');
-		}
+        // Tag(s)
+        if (count($so->Tags) > 0) {
+            $f = new ArrayOfStringsType;
+            foreach ($so->Tags as $entry) {
+                $f->String[] = $entry;
+            }
+            $rm[] = $this->updateFieldUnindexed('item:Categories', 'Categories', $f);
+        } else {
+            $rd[] = $this->deleteFieldUnindexed('item:Categories');
+        }
         // Notes
         if (!empty($so->Notes)) {
             $rm[] = $this->updateFieldUnindexed(
                 'item:Body',
                 'Body',
-                new \OCA\EWS\Components\EWS\Type\BodyType(
+                new BodyType(
                     'Text',
                     $so->Notes
-            ));
-        }
-        else {
+                ));
+        } else {
             $rd[] = $this->deleteFieldUnindexed('item:Body');
         }
         // UID
         if (!empty($so->UID)) {
             $rm[] = $this->updateFieldExtendedByName('PublicStrings', 'DAV:uid', 'String', $so->UID);
-        }
-        else {
+        } else {
             $rd[] = $this->deleteFieldExtendedByName('PublicStrings', 'DAV:uid', 'String');
         }
         // execute command
         $rs = $this->RemoteCommonService->updateItem($this->DataStore, $cid, $iid, null, null, $rm, $rd);
         // process response
         if ($rs->Contact[0]) {
-			$co = clone $so;
-			$co->ID = $rs->Contact[0]->ItemId->Id;
+            $co = clone $so;
+            $co->ID = $rs->Contact[0]->ItemId->Id;
             $co->CID = $cid;
-			$co->State = $rs->Contact[0]->ItemId->ChangeKey;
-			// deposit attachment(s)
-			if (count($so->Attachments) > 0) {
-				// create attachments in remote data store
-				$co->Attachments = $this->createCollectionItemAttachment($co->ID, $co->Attachments);
-				$co->State = $co->Attachments[0]->AffiliateState;
-			}
+            $co->State = $rs->Contact[0]->ItemId->ChangeKey;
+            // deposit attachment(s)
+            if (count($so->Attachments) > 0) {
+                // create attachments in remote data store
+                $co->Attachments = $this->createCollectionItemAttachment($co->ID, $co->Attachments);
+                $co->State = $co->Attachments[0]->AffiliateState;
+            }
             return $co;
         } else {
             return null;
@@ -1029,17 +1032,18 @@ class RemoteContactsService {
     /**
      * update collection item with uuid in remote storage
      *
-     * @since Release 1.0.0
-     *
-	 * @param string $cid - Collection ID
+     * @param string $cid - Collection ID
      * @param string $iid - Collection Item ID
      * @param string $iid - Collection Item State
      * @param string $cid - Collection Item UUID
-	 *
-	 * @return object Status Object - item id, item uuid, item state token / Null - failed to create
-	 */
-	public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object {
-		// request modifications array
+     *
+     * @return object Status Object - item id, item uuid, item state token / Null - failed to create
+     * @since Release 1.0.0
+     *
+     */
+    public function updateCollectionItemUUID(string $cid, string $iid, string $istate, string $uuid): ?object
+    {
+        // request modifications array
         $rm = array();
         // construct update command object
         $rm[] = $this->updateFieldExtendedByName('PublicStrings', 'DAV:uid', 'String', $uuid);
@@ -1047,7 +1051,7 @@ class RemoteContactsService {
         $rs = $this->RemoteCommonService->updateItem($this->DataStore, $cid, $iid, null, null, $rm, null);
         // return response
         if ($rs->Contact[0]) {
-            return (object) array('ID' => $rs->Contact[0]->ItemId->Id, 'UID' => $uuid, 'State' => $rs->Contact[0]->ItemId->ChangeKey);
+            return (object)array('ID' => $rs->Contact[0]->ItemId->Id, 'UID' => $uuid, 'State' => $rs->Contact[0]->ItemId->ChangeKey);
         } else {
             return null;
         }
@@ -1056,15 +1060,16 @@ class RemoteContactsService {
     /**
      * delete collection item in remote storage
      *
+     * @param string $iid - Item ID
+     *
+     * @return bool Ture - successfully destroyed / False - failed to destory
      * @since Release 1.0.0
      *
-     * @param string $iid - Item ID
-	 *
-	 * @return bool Ture - successfully destroyed / False - failed to destory
-	 */
-    public function deleteCollectionItem(string $iid): bool {
+     */
+    public function deleteCollectionItem(string $iid): bool
+    {
         // create object
-        $o = new \OCA\EWS\Components\EWS\Type\ItemIdType($iid);
+        $o = new ItemIdType($iid);
 
         $rs = $this->RemoteCommonService->deleteItem($this->DataStore, array($o));
 
@@ -1078,186 +1083,189 @@ class RemoteContactsService {
     /**
      * retrieve collection item attachment from remote storage
      *
+     * @param string $aid - Attachment ID
+     *
+     * @return array
      * @since Release 1.0.0
      *
-     * @param string $aid - Attachment ID
-	 *
-	 * @return array
-	 */
-	public function fetchCollectionItemAttachment(array $batch): array {
+     */
+    public function fetchCollectionItemAttachment(array $batch): array
+    {
 
-		// check to for entries in batch collection
+        // check to for entries in batch collection
         if (count($batch) == 0) {
             return array();
         }
-		// retrieve attachments
-		$rs = $this->RemoteCommonService->fetchAttachment($this->DataStore, $batch);
-		// construct response collection place holder
-		$rc = array();
-		// check for response
-		if (isset($rs)) {
-			// process collection of objects
-			foreach($rs as $entry) {
-				if (!isset($entry->ContentType) || $entry->ContentType == 'application/octet-stream') {
-					$type = \OCA\EWS\Utils\MIME::fromFileName($entry->Name);
-				} else {
-					$type = $entry->ContentType;
-				}
+        // retrieve attachments
+        $rs = $this->RemoteCommonService->fetchAttachment($this->DataStore, $batch);
+        // construct response collection place holder
+        $rc = array();
+        // check for response
+        if (isset($rs)) {
+            // process collection of objects
+            foreach ($rs as $entry) {
+                if (!isset($entry->ContentType) || $entry->ContentType == 'application/octet-stream') {
+                    $type = MIME::fromFileName($entry->Name);
+                } else {
+                    $type = $entry->ContentType;
+                }
                 if ($entry->IsContactPhoto || str_contains($entry->Name, 'ContactPicture')) {
                     $flag = 'CP';
-                }
-                else {
+                } else {
                     $flag = null;
                 }
-				// insert attachment object in response collection
-				$rc[] = new ContactAttachmentObject(
-					$entry->AttachmentId->Id,
-					$entry->Name,
-					$type,
-					'B',
+                // insert attachment object in response collection
+                $rc[] = new ContactAttachmentObject(
+                    $entry->AttachmentId->Id,
+                    $entry->Name,
+                    $type,
+                    'B',
                     $flag,
-					$entry->Size,
-					$entry->Content
-				);
-			}
-		}
-		// return response collection
-		return $rc;
+                    $entry->Size,
+                    $entry->Content
+                );
+            }
+        }
+        // return response collection
+        return $rc;
 
     }
 
     /**
      * create collection item attachment in remote storage
      *
+     * @param string $aid - Affiliation ID
+     * @param array $sc - Collection of ContactAttachmentObject(S)
+     *
+     * @return array
      * @since Release 1.0.0
      *
-	 * @param string $aid - Affiliation ID
-     * @param array $sc - Collection of ContactAttachmentObject(S)
-	 *
-	 * @return array
-	 */
-	public function createCollectionItemAttachment(string $aid, array $batch): array {
+     */
+    public function createCollectionItemAttachment(string $aid, array $batch): array
+    {
 
-		// check to for entries in batch collection
+        // check to for entries in batch collection
         if (count($batch) == 0) {
             return array();
         }
-		// construct command collection place holder
-		$cc = array();
-		// process batch
-		foreach ($batch as $key => $entry) {
-			// construct command object
-			$co = new \OCA\EWS\Components\EWS\Type\FileAttachmentType();
-			$co->IsInline = false;
-			$co->ContentId = $entry->Name;
-			$co->ContentType = $entry->Type;
+        // construct command collection place holder
+        $cc = array();
+        // process batch
+        foreach ($batch as $key => $entry) {
+            // construct command object
+            $co = new FileAttachmentType();
+            $co->IsInline = false;
+            $co->ContentId = $entry->Name;
+            $co->ContentType = $entry->Type;
             $co->Name = $entry->Name;
-			$co->Size = $entry->Size;
+            $co->Size = $entry->Size;
 
             if ($entry->Flag == 'CP') {
                 $co->IsContactPhoto = true;
-            }
-            else {
+            } else {
                 $co->IsContactPhoto = false;
             }
 
-			switch ($entry->Encoding) {
-				case 'B':
-					$co->Content = $entry->Data;
-					break;
-				case 'B64':
-					$co->Content = base64_decode($entry->Data);
-					break;
-			}
-			// insert command object in to collection
-			$cc[] = $co;
-		}
-		// execute command(s)
-		$rs = $this->RemoteCommonService->createAttachment($this->DataStore, $aid, $cc);
-		// construct results collection place holder
-		$rc = array();
-		// check for response
-		if (isset($rs)) {
-			// process collection of objects
-			foreach($rs as $key => $entry) {
-				$ro = $batch[$key];
-				$ro->Id = $entry->AttachmentId->Id;
-				$ro->Data = null;
-				$ro->AffiliateId = $entry->AttachmentId->RootItemId;
-				$ro->AffiliateState = $entry->AttachmentId->RootItemChangeKey;
-				$rc[] = $ro;
-			}
+            switch ($entry->Encoding) {
+                case 'B':
+                    $co->Content = $entry->Data;
+                    break;
+                case 'B64':
+                    $co->Content = base64_decode($entry->Data);
+                    break;
+            }
+            // insert command object in to collection
+            $cc[] = $co;
+        }
+        // execute command(s)
+        $rs = $this->RemoteCommonService->createAttachment($this->DataStore, $aid, $cc);
+        // construct results collection place holder
+        $rc = array();
+        // check for response
+        if (isset($rs)) {
+            // process collection of objects
+            foreach ($rs as $key => $entry) {
+                $ro = $batch[$key];
+                $ro->Id = $entry->AttachmentId->Id;
+                $ro->Data = null;
+                $ro->AffiliateId = $entry->AttachmentId->RootItemId;
+                $ro->AffiliateState = $entry->AttachmentId->RootItemChangeKey;
+                $rc[] = $ro;
+            }
 
         }
-		// return response collection
-		return $rc;
+        // return response collection
+        return $rc;
     }
 
     /**
      * delete collection item attachment from remote storage
      *
+     * @param string $aid - Attachment ID
+     *
+     * @return array
      * @since Release 1.0.0
      *
-     * @param string $aid - Attachment ID
-	 *
-	 * @return array
-	 */
-	public function deleteCollectionItemAttachment(array $batch): array {
+     */
+    public function deleteCollectionItemAttachment(array $batch): array
+    {
 
-		// check to for entries in batch collection
+        // check to for entries in batch collection
         if (count($batch) == 0) {
             return array();
         }
-		// execute command
-		$data = $this->RemoteCommonService->deleteAttachment($this->DataStore, $batch);
+        // execute command
+        $data = $this->RemoteCommonService->deleteAttachment($this->DataStore, $batch);
 
-		return $data;
+        return $data;
 
     }
 
     /**
      * construct collection of default remote collection properties
      *
+     * @return object
      * @since Release 1.0.0
-	 *
-	 * @return object
-	 */
-	public function constructDefaultCollectionProperties(): object {
+     *
+     */
+    public function constructDefaultCollectionProperties(): object
+    {
 
-		// evaluate if default collection properties collection exisits
-		if (!isset($this->DefaultCollectionProperties)) {
-			// unindexed property names collection
-			$_properties = [
-				'folder:FolderId',
-				'folder:FolderClass',
-				'folder:ParentFolderId',
-				'folder:DisplayName',
-				'folder:TotalCount',
-			];
-			// construct property collection
-			$this->DefaultCollectionProperties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
-			foreach ($_properties as $entry) {
-				$this->DefaultCollectionProperties->FieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType($entry);
-			}
-		}
+        // evaluate if default collection properties collection exisits
+        if (!isset($this->DefaultCollectionProperties)) {
+            // unindexed property names collection
+            $_properties = [
+                'folder:FolderId',
+                'folder:FolderClass',
+                'folder:ParentFolderId',
+                'folder:DisplayName',
+                'folder:TotalCount',
+            ];
+            // construct property collection
+            $this->DefaultCollectionProperties = new NonEmptyArrayOfPathsToElementType();
+            foreach ($_properties as $entry) {
+                $this->DefaultCollectionProperties->FieldURI[] = new PathToUnindexedFieldType($entry);
+            }
+        }
 
-		return $this->DefaultCollectionProperties;
+        return $this->DefaultCollectionProperties;
 
-	}
+    }
 
     /**
      * construct collection of default remote object properties
      *
+     * @return object
      * @since Release 1.0.0
-	 *
-	 * @return object
-	 */
-    public function constructDefaultItemProperties(): object {
+     *
+     */
+    public function constructDefaultItemProperties(): object
+    {
 
         // evaluate if default item properties collection exisits
-		if (!isset($this->DefaultItemProperties)) {
-			// unindexed property names collection
-			$_properties = [
+        if (!isset($this->DefaultItemProperties)) {
+            // unindexed property names collection
+            $_properties = [
                 'item:ItemId',
                 'item:ParentFolderId',
                 'item:DateTimeCreated',
@@ -1285,53 +1293,54 @@ class RemoteContactsService {
                 'contacts:Profession',
                 'contacts:OfficeLocation',
                 'contacts:HasPicture',
-			];
-			// construct property collection
-			$this->DefaultItemProperties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
-			foreach ($_properties as $entry) {
-				$this->DefaultItemProperties->FieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType($entry);
-			}
+            ];
+            // construct property collection
+            $this->DefaultItemProperties = new NonEmptyArrayOfPathsToElementType();
+            foreach ($_properties as $entry) {
+                $this->DefaultItemProperties->FieldURI[] = new PathToUnindexedFieldType($entry);
+            }
 
             // construct extended property collection
-			$this->DefaultItemProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
-				'PublicStrings',
-				null,
-				null,
-				'DAV:id',
-				null,
-				'String'
-			);
-			$this->DefaultItemProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
-				'PublicStrings',
-				null,
-				null,
-				'DAV:uid',
-				null,
-				'String'
-			);
-		}
+            $this->DefaultItemProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
+                'PublicStrings',
+                null,
+                null,
+                'DAV:id',
+                null,
+                'String'
+            );
+            $this->DefaultItemProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
+                'PublicStrings',
+                null,
+                null,
+                'DAV:uid',
+                null,
+                'String'
+            );
+        }
 
-		return $this->DefaultItemProperties;
+        return $this->DefaultItemProperties;
 
-	}
+    }
 
     /**
      * construct collection item unindexed property update command
      *
-     * @since Release 1.0.0
-     *
      * @param string $uri - property uri
      * @param string $name - property name
      * @param string $value - property value
-	 *
-	 * @return object collection item property update command
-	 */
-    public function updateFieldUnindexed(string $uri, string $name, mixed $value): object {
+     *
+     * @return object collection item property update command
+     * @since Release 1.0.0
+     *
+     */
+    public function updateFieldUnindexed(string $uri, string $name, mixed $value): object
+    {
         // create field update object
-        $o = new \OCA\EWS\Components\EWS\Type\SetItemFieldType();
-        $o->FieldURI = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType($uri);
+        $o = new SetItemFieldType();
+        $o->FieldURI = new PathToUnindexedFieldType($uri);
         // create field contact object
-        $o->Contact = new \OCA\EWS\Components\EWS\Type\ContactItemType();
+        $o->Contact = new ContactItemType();
         $o->Contact->$name = $value;
         // return object
         return $o;
@@ -1340,16 +1349,17 @@ class RemoteContactsService {
     /**
      * construct collection item unindexed property delete command
      *
+     * @param string $uri - property uri
+     *
+     * @return object collection item property delete command
      * @since Release 1.0.0
      *
-     * @param string $uri - property uri
-	 *
-	 * @return object collection item property delete command
-	 */
-    public function deleteFieldUnindexed(string $uri): object {
+     */
+    public function deleteFieldUnindexed(string $uri): object
+    {
         // create field delete object
-        $o = new \OCA\EWS\Components\EWS\Type\DeleteItemFieldType();
-        $o->FieldURI = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType($uri);
+        $o = new DeleteItemFieldType();
+        $o->FieldURI = new PathToUnindexedFieldType($uri);
         // return object
         return $o;
     }
@@ -1357,22 +1367,23 @@ class RemoteContactsService {
     /**
      * construct collection item indexed property update command
      *
-     * @since Release 1.0.0
-     *
      * @param string $uri - property uri
      * @param string $index - property index
      * @param string $name - property name
      * @param string $dictionary - property dictionary object
      * @param string $entry - property entry object
-	 *
-	 * @return object collection item property update command
-	 */
-    public function updateFieldIndexed(string $uri, string $index, string $name, mixed $dictionary, mixed $entry): object {
+     *
+     * @return object collection item property update command
+     * @since Release 1.0.0
+     *
+     */
+    public function updateFieldIndexed(string $uri, string $index, string $name, mixed $dictionary, mixed $entry): object
+    {
         // create field update object
-        $o = new \OCA\EWS\Components\EWS\Type\SetItemFieldType();
-        $o->IndexedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToIndexedFieldType($uri, $index);
+        $o = new SetItemFieldType();
+        $o->IndexedFieldURI = new PathToIndexedFieldType($uri, $index);
         // create field contact object
-        $o->Contact = new \OCA\EWS\Components\EWS\Type\ContactItemType();
+        $o->Contact = new ContactItemType();
         $o->Contact->$name = $dictionary;
         $o->Contact->$name->Entry = $entry;
         // return object
@@ -1382,38 +1393,42 @@ class RemoteContactsService {
     /**
      * construct collection item indexed property delete command
      *
-     * @since Release 1.0.0
-     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property delete command
-	 */
-    public function deleteFieldIndexed(string $uri, string $index): object {
+     *
+     * @return object collection item property delete command
+     * @since Release 1.0.0
+     *
+     */
+    public function deleteFieldIndexed(string $uri, string $index): object
+    {
         // create field delete object
-        $o = new \OCA\EWS\Components\EWS\Type\DeleteItemFieldType();
-        $o->IndexedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToIndexedFieldType($uri, $index);
+        $o = new DeleteItemFieldType();
+        $o->IndexedFieldURI = new PathToIndexedFieldType($uri, $index);
         // return object
         return $o;
     }
 
-        /**
+    /**
      * construct collection item extended property create command
-     *
-     * @since Release 1.0.0
      *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property create command
-	 */
-    public function createFieldExtendedById(string $collection, string $id, string $type, mixed $value): object {
+     *
+     * @return object collection item property create command
+     *
+     * @since Release 1.0.0
+     *
+     * @psalm-pure
+     */
+    public function createFieldExtendedById(string $collection, string $id, string $type, mixed $value): object
+    {
         // create extended field object
-        $o = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 $collection,
                 null,
                 $id,
@@ -1430,19 +1445,20 @@ class RemoteContactsService {
     /**
      * construct collection item extended property update command
      *
-     * @since Release 1.0.0
-     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property update command
-	 */
-    public function updateFieldExtendedById(string $collection, string $id, string $type, mixed $value): object {
+     *
+     * @return object collection item property update command
+     * @since Release 1.0.0
+     *
+     */
+    public function updateFieldExtendedById(string $collection, string $id, string $type, mixed $value): object
+    {
         // create field update object
-        $o = new \OCA\EWS\Components\EWS\Type\SetItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new SetItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             $collection,
             null,
             $id,
@@ -1451,9 +1467,9 @@ class RemoteContactsService {
             $type
         );
         // create field contact object
-        $o->Contact = new \OCA\EWS\Components\EWS\Type\ContactItemType();
-        $o->Contact->ExtendedProperty = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o->Contact = new ContactItemType();
+        $o->Contact->ExtendedProperty = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 $collection,
                 null,
                 $id,
@@ -1470,18 +1486,19 @@ class RemoteContactsService {
     /**
      * construct collection item extended property delete
      *
-     * @since Release 1.0.0
-     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
-	 *
-	 * @return object collection item property delete command
-	 */
-    public function deleteFieldExtendedById(string $collection, string $id, string $type): object {
+     *
+     * @return object collection item property delete command
+     * @since Release 1.0.0
+     *
+     */
+    public function deleteFieldExtendedById(string $collection, string $id, string $type): object
+    {
         // create field delete object
-        $o = new \OCA\EWS\Components\EWS\Type\DeleteItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new DeleteItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             $collection,
             null,
             $id,
@@ -1496,19 +1513,22 @@ class RemoteContactsService {
     /**
      * construct collection item extended property create command
      *
-     * @since Release 1.0.0
-     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property create command
-	 */
-    public function createFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object {
+     *
+     * @return object collection item property create command
+     *
+     * @since Release 1.0.0
+     *
+     * @psalm-pure
+     */
+    public function createFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object
+    {
         // create extended field object
-        $o = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 $collection,
                 null,
                 null,
@@ -1525,19 +1545,20 @@ class RemoteContactsService {
     /**
      * construct collection item extended property update command
      *
-     * @since Release 1.0.0
-     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property update command
-	 */
-    public function updateFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object {
+     *
+     * @return object collection item property update command
+     * @since Release 1.0.0
+     *
+     */
+    public function updateFieldExtendedByName(string $collection, string $name, string $type, mixed $value): object
+    {
         // create field update object
-        $o = new \OCA\EWS\Components\EWS\Type\SetItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new SetItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             $collection,
             null,
             null,
@@ -1546,9 +1567,9 @@ class RemoteContactsService {
             $type
         );
         // create field contact object
-        $o->Contact = new \OCA\EWS\Components\EWS\Type\ContactItemType();
-        $o->Contact->ExtendedProperty = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o->Contact = new ContactItemType();
+        $o->Contact->ExtendedProperty = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 $collection,
                 null,
                 null,
@@ -1565,18 +1586,19 @@ class RemoteContactsService {
     /**
      * construct collection item extended property delete
      *
-     * @since Release 1.0.0
-     *
      * @param string $collection - property collection
      * @param string $name - property name
      * @param string $type - property type
-	 *
-	 * @return object collection item property delete command
-	 */
-    public function deleteFieldExtendedByName(string $collection, string $name, string $type): object {
+     *
+     * @return object collection item property delete command
+     * @since Release 1.0.0
+     *
+     */
+    public function deleteFieldExtendedByName(string $collection, string $name, string $type): object
+    {
         // create field delete object
-        $o = new \OCA\EWS\Components\EWS\Type\DeleteItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new DeleteItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             $collection,
             null,
             null,
@@ -1591,18 +1613,21 @@ class RemoteContactsService {
     /**
      * construct collection item extended property create command
      *
-     * @since Release 1.0.0
-     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property create command
-	 */
-    public function createFieldExtendedByTag(string $tag, string $type, mixed $value): object {
+     *
+     * @return object collection item property create command
+     *
+     * @since Release 1.0.0
+     *
+     * @psalm-pure
+     */
+    public function createFieldExtendedByTag(string $tag, string $type, mixed $value): object
+    {
         // create extended field object
-        $o = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 null,
                 null,
                 null,
@@ -1619,18 +1644,19 @@ class RemoteContactsService {
     /**
      * construct collection item extended property update command
      *
-     * @since Release 1.0.0
-     *
      * @param string $tag - property tag
      * @param string $type - property type
      * @param string $value - property value
-	 *
-	 * @return object collection item property update command
-	 */
-    public function updateFieldExtendedByTag(string $tag, string $type, mixed $value): object {
+     *
+     * @return object collection item property update command
+     * @since Release 1.0.0
+     *
+     */
+    public function updateFieldExtendedByTag(string $tag, string $type, mixed $value): object
+    {
         // create field update object
-        $o = new \OCA\EWS\Components\EWS\Type\SetItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new SetItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             null,
             null,
             null,
@@ -1639,9 +1665,9 @@ class RemoteContactsService {
             $type
         );
         // create field contact object
-        $o->Contact = new \OCA\EWS\Components\EWS\Type\ContactItemType();
-        $o->Contact->ExtendedProperty = new \OCA\EWS\Components\EWS\Type\ExtendedPropertyType(
-            new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o->Contact = new ContactItemType();
+        $o->Contact->ExtendedProperty = new ExtendedPropertyType(
+            new PathToExtendedFieldType(
                 null,
                 null,
                 null,
@@ -1658,17 +1684,18 @@ class RemoteContactsService {
     /**
      * construct collection item extended property delete command
      *
-     * @since Release 1.0.0
-     *
      * @param string $tag - property tag
      * @param string $type - property type
-	 *
-	 * @return object collection item property delete command
-	 */
-    public function deleteFieldExtendedByTag(string $tag, string $type): object {
+     *
+     * @return object collection item property delete command
+     * @since Release 1.0.0
+     *
+     */
+    public function deleteFieldExtendedByTag(string $tag, string $type): object
+    {
         // construct field delete object
-        $o = new \OCA\EWS\Components\EWS\Type\DeleteItemFieldType();
-        $o->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+        $o = new DeleteItemFieldType();
+        $o->ExtendedFieldURI = new PathToExtendedFieldType(
             null,
             null,
             null,
@@ -1683,18 +1710,19 @@ class RemoteContactsService {
     /**
      * convert remote ContactItemType object to contact object
      *
+     * @param ContactItemType $so - item as vcard object
+     *
+     * @return ContactObject item as contact object
      * @since Release 1.0.0
      *
-	 * @param ContactItemType $so - item as vcard object
-	 *
-	 * @return ContactObject item as contact object
-	 */
-	public function toContactObject(ContactItemType $so): ContactObject {
+     */
+    public function toContactObject(ContactItemType $so): ContactObject
+    {
 
-		// create object
-		$co = new ContactObject();
+        // create object
+        $co = new ContactObject();
         // Origin
-		$co->Origin = 'R';
+        $co->Origin = 'R';
         // ID + State
         if (isset($so->ItemId)) {
             $co->ID = $so->ItemId->Id;
@@ -1719,7 +1747,7 @@ class RemoteContactsService {
         if (!empty($so->DisplayName)) {
             $co->Label = $so->DisplayName;
         }
-		// Name
+        // Name
         if (isset($so->CompleteName)) {
             $co->Name->Last = $so->CompleteName->LastName;
             $co->Name->First = $so->CompleteName->FirstName;
@@ -1732,15 +1760,15 @@ class RemoteContactsService {
         }
         // Phonetic Last Name
         if (!empty($so->PhoneticLastName)) {
-            $co->Name->PhoneticLast =  new DateTime($so->PhoneticLastName);
+            $co->Name->PhoneticLast = new DateTime($so->PhoneticLastName);
         }
         // Phonetic First Name
         if (!empty($so->PhoneticFirstName)) {
-            $co->Name->PhoneticFirst =  new DateTime($so->PhoneticFirstName);
+            $co->Name->PhoneticFirst = new DateTime($so->PhoneticFirstName);
         }
         // Birth Day
         if (!empty($so->Birthday)) {
-            $co->BirthDay =  new DateTime($so->Birthday);
+            $co->BirthDay = new DateTime($so->Birthday);
         }
         // Partner
         if (!empty($so->SpouseName)) {
@@ -1748,11 +1776,11 @@ class RemoteContactsService {
         }
         // Anniversary Day
         if (!empty($so->WeddingAnniversary)) {
-            $co->AnniversaryDay =  new DateTime($so->WeddingAnniversary);
+            $co->AnniversaryDay = new DateTime($so->WeddingAnniversary);
         }
         // Address(es)
         if (isset($so->PhysicalAddresses)) {
-            foreach($so->PhysicalAddresses->Entry as $entry) {
+            foreach ($so->PhysicalAddresses->Entry as $entry) {
                 $co->addAddress(
                     $entry->Key,
                     $entry->Street,
@@ -1765,7 +1793,7 @@ class RemoteContactsService {
         }
         // Phone(s)
         if (isset($so->PhoneNumbers)) {
-            foreach($so->PhoneNumbers->Entry as $entry) {
+            foreach ($so->PhoneNumbers->Entry as $entry) {
                 [$primary, $secondary] = $this->fromPhoneType($entry->Key);
                 if (isset($primary)) {
                     $co->addPhone(
@@ -1778,7 +1806,7 @@ class RemoteContactsService {
         }
         // Email(s)
         if (isset($so->EmailAddresses)) {
-            foreach($so->EmailAddresses->Entry as $entry) {
+            foreach ($so->EmailAddresses->Entry as $entry) {
                 $type = $this->fromEmailType($entry->Key);
                 if (isset($type)) {
                     $co->addEmail(
@@ -1790,7 +1818,7 @@ class RemoteContactsService {
         }
         // IMPP(s)
         if (isset($so->ImAddresses)) {
-            foreach($so->ImAddresses->Entry as $entry) {
+            foreach ($so->ImAddresses->Entry as $entry) {
                 $co->addIMPP(
                     $entry->Key,
                     $entry->_
@@ -1799,11 +1827,11 @@ class RemoteContactsService {
         }
         // Manager Name
         if (!empty($so->Manager)) {
-            $co->Name->Manager =  $so->Manager;
+            $co->Name->Manager = $so->Manager;
         }
         // Assistant Name
         if (!empty($so->AssistantName)) {
-            $co->Name->Assistant =  $so->AssistantName;
+            $co->Name->Assistant = $so->AssistantName;
         }
         // Occupation Organization
         if (!empty($so->CompanyName)) {
@@ -1831,7 +1859,7 @@ class RemoteContactsService {
         //}
         // Tag(s)
         if (isset($so->Categories)) {
-            foreach($so->Categories->String as $entry) {
+            foreach ($so->Categories->String as $entry) {
                 $co->addTag($entry);
             }
         }
@@ -1850,10 +1878,10 @@ class RemoteContactsService {
 
         // Attachment(s)
         if (isset($so->Attachments) && is_array($so->Attachments)) {
-            foreach($so->Attachments->FileAttachment as $entry) {
+            foreach ($so->Attachments->FileAttachment as $entry) {
                 // evaluate mime type
                 if ($entry->ContentType == 'application/octet-stream') {
-                    $type = \OCA\EWS\Utils\MIME::fromFileName($entry->Name);
+                    $type = MIME::fromFileName($entry->Name);
                 } else {
                     $type = $entry->ContentType;
                 }
@@ -1862,19 +1890,18 @@ class RemoteContactsService {
                     $flag = 'CP';
                     $co->Photo->Type = 'data';
                     $co->Photo->Data = $entry->AttachmentId->Id;
-                }
-                else {
+                } else {
                     $flag = null;
                 }
                 $co->addAttachment(
-					$entry->AttachmentId->Id,
-					$entry->Name,
-					$type,
-					'B',
+                    $entry->AttachmentId->Id,
+                    $entry->Name,
+                    $type,
+                    'B',
                     $flag,
-					$entry->Size,
-					$entry->Content
-				);
+                    $entry->Size,
+                    $entry->Content
+                );
             }
         }
 
@@ -1903,86 +1930,95 @@ class RemoteContactsService {
             }
         }
 
-		return $co;
+        return $co;
 
     }
 
     /**
      * convert remote email type to contact object type
      *
+     * @param string $type - remote email type
+     *
+     * @return string|null contact object email type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - remote email type
-	 *
-	 * @return string|null contact object email type
-	 */
-    public function fromEmailType(string $type): ?string {
+     * @psalm-pure
+     */
+    public function fromEmailType(string $type): ?string
+    {
 
         // type conversion reference
         $_tm = array(
-			'EmailAddress1' => 'WORK',
-			'EmailAddress2' => 'HOME',
-			'EmailAddress3' => 'OTHER'
-		);
+            'EmailAddress1' => 'WORK',
+            'EmailAddress2' => 'HOME',
+            'EmailAddress3' => 'OTHER'
+        );
         // evaluate if type value exists
-		if (isset($_tm[$type])) {
-			// return converted type value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted type value
+            return $_tm[$type];
+        } else {
             // return default type value
-			return null;
-		}
+            return null;
+        }
 
     }
 
     /**
      * convert local email type to remote type
      *
+     * @param string $type - contact object email type
+     *
+     * @return string|null remote email type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - contact object email type
-	 *
-	 * @return string|null remote email type
-	 */
-    public function toEmailType(string $type): string {
+     * @psalm-pure
+     */
+    public function toEmailType(string $type): string
+    {
 
         // type conversion reference
         $_tm = array(
-			'WORK' => 'EmailAddress1',
-			'HOME' => 'EmailAddress2',
-			'OTHER' => 'EmailAddress3'
-		);
+            'WORK' => 'EmailAddress1',
+            'HOME' => 'EmailAddress2',
+            'OTHER' => 'EmailAddress3'
+        );
         // evaluate if type value exists
-		if (isset($_tm[$type])) {
-			// return converted type value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted type value
+            return $_tm[$type];
+        } else {
             // return default type value
-			return '';
-		}
+            return '';
+        }
 
     }
 
     /**
      * convert remote telephone type to contact object type
      *
+     * @param string $type - remote telephone type
+     *
+     * @return string|null contact object telephone type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - remote telephone type
-	 *
-	 * @return string|null contact object telephone type
-	 */
-    public function fromPhoneType(string $type): ?array {
+     * @psalm-pure
+     */
+    public function fromPhoneType(string $type): ?array
+    {
 
         $_tm = [
-            'BusinessPhone' => ['WORK','VOICE'],
-            'BusinessPhone2' => ['WORK','VOICE'],
-            'BusinessFax' => ['WORK','FAX'],
-            'HomePhone' => ['HOME','VOICE'],
-            'HomePhone2' => ['HOME','VOICE'],
-            'HomeFax' => ['HOME','FAX'],
-            'OtherTelephone' => ['OTHER','VOICE'],
-            'OtherFax' => ['OTHER','FAX'],
+            'BusinessPhone' => ['WORK', 'VOICE'],
+            'BusinessPhone2' => ['WORK', 'VOICE'],
+            'BusinessFax' => ['WORK', 'FAX'],
+            'HomePhone' => ['HOME', 'VOICE'],
+            'HomePhone2' => ['HOME', 'VOICE'],
+            'HomeFax' => ['HOME', 'FAX'],
+            'OtherTelephone' => ['OTHER', 'VOICE'],
+            'OtherFax' => ['OTHER', 'FAX'],
             'MobilePhone' => ['CELL', null],
             'CarPhone' => ['CAR', null],
             'Pager' => ['PAGER', null],
@@ -1997,55 +2033,49 @@ class RemoteContactsService {
         ];
 
         // evaluate if type value exists
-		if (isset($_tm[$type])) {
-			// return converted type value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted type value
+            return $_tm[$type];
+        } else {
             // return default type value
-			return [null, null];
-		}
+            return [null, null];
+        }
 
     }
 
     /**
      * convert local telephone type to remote type
      *
+     * @param string $primary - contact object telephone type
+     *
+     * @return string|null remote telephone type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $primary - contact object telephone type
-	 *
-	 * @return string|null remote telephone type
-	 */
-    public function toPhoneType(string $primary, $secondary): ?string {
+     * @psalm-pure
+     */
+    public function toPhoneType(string $primary, $secondary): ?string
+    {
 
         if ($primary == 'WORK' && $secondary == 'VOICE') {
             return 'BusinessPhone';
-        }
-        elseif ($primary == 'WORK' && $secondary == 'FAX') {
+        } elseif ($primary == 'WORK' && $secondary == 'FAX') {
             return 'BusinessFax';
-        }
-        elseif ($primary == 'HOME' && $secondary == 'VOICE') {
+        } elseif ($primary == 'HOME' && $secondary == 'VOICE') {
             return 'HomePhone';
-        }
-        elseif ($primary == 'HOME' && $secondary == 'FAX') {
+        } elseif ($primary == 'HOME' && $secondary == 'FAX') {
             return 'HomeFax';
-        }
-        elseif ($primary == 'OTHER' && $secondary == 'VOICE') {
+        } elseif ($primary == 'OTHER' && $secondary == 'VOICE') {
             return 'OtherTelephone';
-        }
-        elseif ($primary == 'OTHER' && $secondary == 'FAX') {
+        } elseif ($primary == 'OTHER' && $secondary == 'FAX') {
             return 'OtherFax';
-        }
-        elseif ($primary == 'CELL') {
+        } elseif ($primary == 'CELL') {
             return 'MobilePhone';
-        }
-        elseif ($primary == 'CAR') {
+        } elseif ($primary == 'CAR') {
             return 'CarPhone';
-        }
-        elseif ($primary == 'PAGER') {
+        } elseif ($primary == 'PAGER') {
             return 'Pager';
-        }
-        elseif ($primary == 'ISDN') {
+        } elseif ($primary == 'ISDN') {
             return 'Isdn';
         }
 
@@ -2059,56 +2089,62 @@ class RemoteContactsService {
     /**
      * convert remote address type to contact object type
      *
+     * @param string $type - remote address type
+     *
+     * @return string|null contact object address type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - remote address type
-	 *
-	 * @return string|null contact object address type
-	 */
-    public function fromAddressType(string $type): ?string {
+     * @psalm-pure
+     */
+    public function fromAddressType(string $type): ?string
+    {
 
         // type conversion reference
         $_tm = array(
-			'Business' => 'WORK',
-			'Home' => 'HOME',
-			'Other' => 'OTHER'
-		);
+            'Business' => 'WORK',
+            'Home' => 'HOME',
+            'Other' => 'OTHER'
+        );
         // evaluate if type value exists
-		if (isset($_tm[$type])) {
-			// return converted type value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted type value
+            return $_tm[$type];
+        } else {
             // return default type value
-			return null;
-		}
+            return null;
+        }
 
     }
 
     /**
      * convert local address type to remote type
      *
+     * @param string $type - contact object address type
+     *
+     * @return string|null remote address type
+     *
      * @since Release 1.0.0
      *
-	 * @param string $type - contact object address type
-	 *
-	 * @return string|null remote address type
-	 */
-    public function toAddressType(string $type): string {
+     * @psalm-pure
+     */
+    public function toAddressType(string $type): string
+    {
 
         // type conversion reference
         $_tm = array(
-			'WORK' => 'Business',
-			'HOME' => 'Home',
-			'OTHER' => 'Other'
-		);
+            'WORK' => 'Business',
+            'HOME' => 'Home',
+            'OTHER' => 'Other'
+        );
         // evaluate if type value exists
-		if (isset($_tm[$type])) {
-			// return converted type value
-			return $_tm[$type];
-		} else {
+        if (isset($_tm[$type])) {
+            // return converted type value
+            return $_tm[$type];
+        } else {
             // return default type value
-			return '';
-		}
+            return '';
+        }
 
     }
 

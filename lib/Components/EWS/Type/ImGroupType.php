@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines an instant messaging group.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ImGroupType extends Type
 {

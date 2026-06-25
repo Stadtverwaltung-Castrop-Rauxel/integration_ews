@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * returned about the mailbox user.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxData extends Type
 {

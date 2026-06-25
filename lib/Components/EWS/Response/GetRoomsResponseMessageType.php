@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents the response to a GetRooms operation request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetRoomsResponseMessageType extends ResponseMessageType
 {

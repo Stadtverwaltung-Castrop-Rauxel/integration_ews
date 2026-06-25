@@ -31,10 +31,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies frequently referenced properties by URI.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PathToUnindexedFieldType extends BasePathToElementType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $uri = null)
     {
         $this->FieldURI = $uri;

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the identifier of a phone call.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PhoneCallIdType extends Type
 {

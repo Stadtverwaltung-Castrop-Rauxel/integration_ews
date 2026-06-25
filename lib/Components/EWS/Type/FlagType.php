@@ -31,10 +31,15 @@ use OCA\EWS\Components\EWS\Type;
  * Describes the start date, due date, completed date and flag status for a task item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FlagType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $FlagStatus = null, string $StartDate = null, string $DueDate = null, string $CompleteDate = null)
     {
         $this->FlagStatus = $FlagStatus;

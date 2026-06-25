@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * order for the condition or exception to apply.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RulePredicateSizeRangeType extends Type
 {

@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * folder properties.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfFolderChangeDescriptionsType extends ArrayType
 {

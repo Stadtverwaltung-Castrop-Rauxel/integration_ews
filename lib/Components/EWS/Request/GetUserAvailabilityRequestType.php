@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines the arguments used to obtain user availability information.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserAvailabilityRequestType extends BaseRequestType
 {

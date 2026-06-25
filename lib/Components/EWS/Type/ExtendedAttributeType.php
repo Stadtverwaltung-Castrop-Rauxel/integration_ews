@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Internal use only.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ExtendedAttributeType extends Type
 {

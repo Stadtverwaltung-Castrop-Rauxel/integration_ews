@@ -23,6 +23,12 @@
 *
 */
 
+use OCA\EWS\Service\ConfigurationService;
+use OCA\EWS\Service\CoreService;
+use OCA\EWS\Service\HarmonizationService;
+use OCA\EWS\Utils\Sanitizer;
+use OCP\App\IAppManager;
+
 require_once __DIR__ . '/../../../../lib/versioncheck.php';
 
 try {
@@ -49,14 +55,14 @@ try {
 		// evaluate if user name exists
 		if (isset($parameters["u"])) {
 			// assign user name
-			$uid = \OCA\EWS\Utils\Sanitizer::username($parameters["u"]);
+			$uid = Sanitizer::username($parameters["u"]);
 		}
 	}
 	else {
 		// evaluate if user name exists
 		if (isset($_GET["u"])) {
 			// assign user name
-			$uid = \OCA\EWS\Utils\Sanitizer::username($_GET["u"]);
+			$uid = Sanitizer::username($_GET["u"]);
 		}
 	}
 
@@ -71,12 +77,12 @@ try {
 	echo 'Test started for ' . $uid . PHP_EOL;
 
 	// load all apps to get all api routes properly setup
-	OC_App::loadApps();
+    \OC::$server->get(IAppManager::class)->loadApps();
 
 	// initilize required services
-	$ConfigurationService = \OC::$server->get(\OCA\EWS\Service\ConfigurationService::class);
-	$CoreService = \OC::$server->get(\OCA\EWS\Service\CoreService::class);
-	$HarmonizationService = \OC::$server->get(\OCA\EWS\Service\HarmonizationService::class);
+	$ConfigurationService = \OC::$server->get(ConfigurationService::class);
+	$CoreService = \OC::$server->get(CoreService::class);
+	$HarmonizationService = \OC::$server->get(HarmonizationService::class);
 
 	// execute initial harmonization
 	$HarmonizationService->performHarmonization($uid, 'S');

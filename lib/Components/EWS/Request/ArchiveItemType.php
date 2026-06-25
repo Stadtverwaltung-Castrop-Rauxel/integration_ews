@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * archive item.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class ArchiveItemType extends BaseRequestType
 {

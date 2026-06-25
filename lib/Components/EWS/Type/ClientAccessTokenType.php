@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a client access token.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ClientAccessTokenType extends Type
 {

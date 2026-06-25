@@ -31,6 +31,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * @package OCA\EWS\Components\EWS\Response
  *
  * @todo Create a FindResponsePagingAttributes trait.
+ *
+ * @psalm-external-mutation-free
  */
 class ExpandDLResponseMessageType extends ResponseMessageType
 {

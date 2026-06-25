@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents a response to a GetStreamingEvents element request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetStreamingEventsResponseType extends BaseResponseMessageType
 {

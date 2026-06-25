@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * updates to apply to the items.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfItemChangesType extends ArrayType
 {

@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * an object that is represented in base64Binary format.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MimeContentType extends Type
 {

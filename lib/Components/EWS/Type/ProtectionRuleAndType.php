@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Specifies that all child elements must match to evaluate to true.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleAndType extends Type
 {

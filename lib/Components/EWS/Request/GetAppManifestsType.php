@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Base element for a request to return the manifest for apps.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetAppManifestsType extends BaseRequestType
 {

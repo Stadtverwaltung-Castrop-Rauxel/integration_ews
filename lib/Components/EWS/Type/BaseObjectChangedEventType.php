@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents an event in which an item or folder is created.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class BaseObjectChangedEventType extends BaseNotificationEventType
 {

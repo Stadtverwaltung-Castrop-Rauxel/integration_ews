@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to a FindFolder request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class FindFolderResponseType extends BaseResponseMessageType
 {

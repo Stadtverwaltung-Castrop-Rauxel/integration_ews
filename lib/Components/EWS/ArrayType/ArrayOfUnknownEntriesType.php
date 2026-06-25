@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * against the Active Directory directory service.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfUnknownEntriesType extends ArrayType
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies a list of internal SMTP domains of the organization.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SmtpDomainList extends Type
 {

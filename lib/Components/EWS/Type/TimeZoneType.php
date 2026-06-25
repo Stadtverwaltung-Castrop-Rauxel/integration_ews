@@ -33,11 +33,16 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a time zone.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class TimeZoneType extends Type
 {
 
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct($Name = null, $Offset = null, $Standard = null, $Daylight = null)
     {
         $this->TimeZoneName = $Name;

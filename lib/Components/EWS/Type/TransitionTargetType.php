@@ -37,6 +37,9 @@ namespace OCA\EWS\Components\EWS\Type;
 class TransitionTargetType extends StringType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Kind = null, string $Value = null)
     {
         $this->Kind = $Kind;

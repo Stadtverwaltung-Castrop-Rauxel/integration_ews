@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Base class for defining how results should be paged.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BasePagingType extends Type
 {

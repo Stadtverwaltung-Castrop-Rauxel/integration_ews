@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS;
  * Base class for Exchange Web Service Types.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class Type
 {
@@ -36,6 +38,8 @@ abstract class Type
      * Clones any object properties on a type object when it is cloned. Allows
      * for a deep clone required when using object to represent data types when
      * making a SOAP call.
+     *
+     * @psalm-external-mutation-free
      */
     public function __clone()
     {

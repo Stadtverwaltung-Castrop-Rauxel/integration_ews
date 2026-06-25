@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents values for various types of mail tips.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailTips extends Type
 {

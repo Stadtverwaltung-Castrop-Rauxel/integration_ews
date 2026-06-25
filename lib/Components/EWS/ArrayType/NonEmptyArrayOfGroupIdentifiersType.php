@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * security identifiers.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfGroupIdentifiersType extends ArrayType
 {

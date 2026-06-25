@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the response to a GetRetentionPolicyTags request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserRetentionPolicyTagsResponseMessageType extends ResponseMessageType
 {

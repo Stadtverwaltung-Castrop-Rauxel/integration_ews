@@ -27,6 +27,9 @@ namespace OCA\EWS\Objects;
 
 use DateTime;
 
+/**
+ * @psalm-immutable
+ */
 class EventOccurrenceObject {
     public ?string $Pattern = null;         // Pattern - A - Absolute / R - Relative
 	public ?string $Precision = null;       // Time Scale - D - Daily / W - Weekly / M - Monthly / Y - Yearly
@@ -41,5 +44,8 @@ class EventOccurrenceObject {
     public array $OnWeekOfYear = [];
     public array $OnMonthOfYear = [];
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct() {}
 }

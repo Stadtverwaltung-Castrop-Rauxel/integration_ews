@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * for message tracking reports.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class TrackingPropertyType extends Type
 {

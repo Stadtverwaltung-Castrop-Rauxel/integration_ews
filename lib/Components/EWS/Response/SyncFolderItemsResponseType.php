@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to a SyncFolderItems request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class SyncFolderItemsResponseType extends BaseResponseMessageType
 {

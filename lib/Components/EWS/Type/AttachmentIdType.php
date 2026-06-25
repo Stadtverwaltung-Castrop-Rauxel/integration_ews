@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies an item or file attachment.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AttachmentIdType extends RequestAttachmentIdType
 {

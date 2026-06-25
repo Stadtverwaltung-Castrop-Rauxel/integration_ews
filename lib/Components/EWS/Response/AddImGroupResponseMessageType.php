@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to an AddImGroup request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class AddImGroupResponseMessageType extends ResponseMessageType
 {

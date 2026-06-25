@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a single user configuration object.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserConfigurationType extends Type
 {

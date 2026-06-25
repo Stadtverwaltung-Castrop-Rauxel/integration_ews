@@ -33,6 +33,8 @@ use OCA\EWS\Components\EWS\Type;
  * directions for a FindItem or FindConversation search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SeekToConditionPageViewType extends Type
 {

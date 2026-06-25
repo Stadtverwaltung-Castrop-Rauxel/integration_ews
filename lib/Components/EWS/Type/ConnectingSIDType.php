@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * ExchangeImpersonation SOAP header.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ConnectingSIDType extends Type
 {

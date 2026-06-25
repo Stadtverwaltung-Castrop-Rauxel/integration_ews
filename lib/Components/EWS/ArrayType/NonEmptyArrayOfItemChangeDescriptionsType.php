@@ -34,10 +34,15 @@ use OCA\EWS\Components\EWS\ArrayType;
  * item properties.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfItemChangeDescriptionsType extends ArrayType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $Append = null, array $Set = null, array $Delete = null)
     {
         if ($Append) {$this->AppendToItemField = $Append;}

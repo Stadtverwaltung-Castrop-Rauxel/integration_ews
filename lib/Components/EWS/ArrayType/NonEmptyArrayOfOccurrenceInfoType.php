@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * modified so that they are different than the recurrence master item.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfOccurrenceInfoType extends ArrayType
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines metadata about a mail app.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AppMetadata extends Type
 {

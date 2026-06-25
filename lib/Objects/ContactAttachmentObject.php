@@ -25,6 +25,9 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactAttachmentObject {
 
     public string $Id;
@@ -35,6 +38,9 @@ class ContactAttachmentObject {
     public ?string $Size;
     public ?string $Data;
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $id = null,
         string $name = null,

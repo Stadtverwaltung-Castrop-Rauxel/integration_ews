@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a query and the scope of a discovery search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxQueryType extends Type
 {

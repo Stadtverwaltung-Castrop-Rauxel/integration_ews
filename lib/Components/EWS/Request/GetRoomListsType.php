@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * available rooms.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetRoomListsType extends BaseRequestType
 {

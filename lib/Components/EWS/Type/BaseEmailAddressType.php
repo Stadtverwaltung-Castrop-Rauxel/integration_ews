@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Base class for email address types.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BaseEmailAddressType extends Type
 {

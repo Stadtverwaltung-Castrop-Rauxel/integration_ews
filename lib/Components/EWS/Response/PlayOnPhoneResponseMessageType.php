@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the response to a request to play a voice mail over the telephone.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class PlayOnPhoneResponseMessageType extends ResponseMessageType
 {

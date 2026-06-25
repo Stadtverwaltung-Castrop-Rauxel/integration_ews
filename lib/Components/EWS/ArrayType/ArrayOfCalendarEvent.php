@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * requested user's availability.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfCalendarEvent extends ArrayType
 {

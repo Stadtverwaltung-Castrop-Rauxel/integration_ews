@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the contents of a single dictionary entry property.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserConfigurationDictionaryEntryType extends Type
 {

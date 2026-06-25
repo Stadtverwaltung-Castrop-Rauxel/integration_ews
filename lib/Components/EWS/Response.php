@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS;
  * Base class for Exchange Web Service responses.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 abstract class Response extends Type
 {

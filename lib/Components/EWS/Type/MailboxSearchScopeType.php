@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a mailbox and a search scope for a discovery search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxSearchScopeType extends Type
 {

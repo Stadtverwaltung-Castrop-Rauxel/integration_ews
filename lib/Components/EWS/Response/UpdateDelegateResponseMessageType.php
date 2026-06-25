@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents the status and result of an UpdateDelegate Operation request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class UpdateDelegateResponseMessageType extends BaseDelegateResponseMessageType
 {

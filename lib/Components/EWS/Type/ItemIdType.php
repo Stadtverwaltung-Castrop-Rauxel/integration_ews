@@ -32,10 +32,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * store.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ItemIdType extends BaseItemIdType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Id = null, string $ChangeKey = null)
     {
         $this->Id = $Id;

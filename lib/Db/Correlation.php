@@ -80,6 +80,9 @@ class Correlation extends Entity implements JsonSerializable {
 	protected ?int $haltered = null;
 	protected ?int $hperformed = null;
 		
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,

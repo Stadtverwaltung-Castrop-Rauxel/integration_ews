@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the result data for a AddNewTelUriContactToGroup request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class AddNewTelUriContactToGroupResponse extends ResponseMessageType
 {

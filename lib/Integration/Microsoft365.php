@@ -153,12 +153,14 @@ class Microsoft365 {
 	}
 
     /**
-	 * Generate MS365 Authorization URL
-	 * 
-	 * @since Release 1.0.0
-	 * 
-	 * @return string
-	 */
+     * Generate MS365 Authorization URL
+     *
+     * @since Release 1.0.0
+     *
+     * @return string
+     *
+     * @psalm-external-mutation-free
+     */
     public static function constructAuthorizationUrl(): string {
         
         // Load required modules

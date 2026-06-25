@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a user mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserMailboxType extends Type
 {

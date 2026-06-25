@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * specified recipients in the child Value (ProtectionRuleValueType) elements.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleRecipientIsType extends Type
 {

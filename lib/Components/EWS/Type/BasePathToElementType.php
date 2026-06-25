@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Base class for a path to an element.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BasePathToElementType extends Type
 {

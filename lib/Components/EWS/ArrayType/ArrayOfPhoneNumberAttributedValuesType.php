@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * attributions for the associated persona.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfPhoneNumberAttributedValuesType extends ArrayType
 {

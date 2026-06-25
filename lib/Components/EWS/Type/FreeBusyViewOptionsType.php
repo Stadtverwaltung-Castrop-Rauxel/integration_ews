@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the type of free/busy information returned in a response.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FreeBusyViewOptionsType extends Type
 {

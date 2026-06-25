@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Defines an arbitrary grouping for FindItem queries.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class GroupByType extends BaseGroupByType
 {

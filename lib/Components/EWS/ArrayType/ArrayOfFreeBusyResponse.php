@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * status.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfFreeBusyResponse extends ArrayType
 {

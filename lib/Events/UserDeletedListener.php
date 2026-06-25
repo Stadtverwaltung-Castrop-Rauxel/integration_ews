@@ -48,6 +48,9 @@ class UserDeletedListener implements IEventListener {
 	 */
 	private $HarmonizationThreadService;
 
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(LoggerInterface $logger, CorrelationsService $CorrelationsService, HarmonizationThreadService $HarmonizationThreadService) {
 		$this->logger = $logger;
 		$this->CorrelationsService = $CorrelationsService;

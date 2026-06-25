@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Operation request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class FindMessageTrackingReportResponseMessageType extends ResponseMessageType
 {

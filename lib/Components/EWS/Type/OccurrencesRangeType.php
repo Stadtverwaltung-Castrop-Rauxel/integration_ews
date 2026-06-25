@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a range of calendar item occurrences for a repeating calendar item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class OccurrencesRangeType extends Type
 {

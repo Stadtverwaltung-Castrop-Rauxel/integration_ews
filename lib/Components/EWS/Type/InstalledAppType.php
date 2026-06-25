@@ -35,6 +35,8 @@ use OCA\EWS\Components\EWS\Type;
  * @package OCA\EWS\Components\EWS\Type
  *
  * @todo Update once documentation exists.
+ *
+ * @psalm-external-mutation-free
  */
 class InstalledAppType extends Type
 {

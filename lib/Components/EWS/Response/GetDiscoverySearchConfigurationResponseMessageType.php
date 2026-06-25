@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the response to a GetDiscoverySearchConfiguration request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetDiscoverySearchConfigurationResponseMessageType extends ResponseMessageType
 {

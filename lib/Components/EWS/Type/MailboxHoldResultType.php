@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the result of the mailbox hold request request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxHoldResultType extends Type
 {

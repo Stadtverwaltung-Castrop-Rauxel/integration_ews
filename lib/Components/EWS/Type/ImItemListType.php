@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a list of instant messaging groups and instant messaging contacts.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ImItemListType extends Type
 {

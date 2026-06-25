@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Base class for permission types.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class BasePermissionType extends Type
 {

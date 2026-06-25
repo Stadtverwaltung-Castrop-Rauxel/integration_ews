@@ -246,6 +246,8 @@ class Autodiscover
      * @param string $password
      * @param string $username
      *   If left blank, the email provided will be used.
+     *
+     * @psalm-mutation-free
      */
     public function __construct($email, $password, $username = null)
     {
@@ -313,9 +315,12 @@ class Autodiscover
      *
      * @param boolean $skip
      *   Whether or not to skip SSL certificate verification.
+     *
      * @return self
      *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @SuppressWarnings (PHPMD.BooleanArgumentFlag)
+     *
+     * @psalm-external-mutation-free
      */
     public function skipSSLVerification($skip = true)
     {
@@ -337,6 +342,8 @@ class Autodiscover
      *
      * @param string $version_hex
      *   Hexadecimal version string.
+     *
+     * @psalm-mutation-free
      */
     public function parseServerVersion($version_hex)
     {
@@ -564,7 +571,10 @@ class Autodiscover
      *
      * @param integer $seconds
      *   Seconds to wait for a connection.
+     *
      * @return self
+     *
+     * @psalm-external-mutation-free
      */
     public function setConnectionTimeout($seconds)
     {
@@ -681,6 +691,8 @@ class Autodiscover
      * on the provided email address.
      *
      * @return boolean
+     *
+     * @psalm-external-mutation-free
      */
     protected function setTLD()
     {
@@ -698,6 +710,8 @@ class Autodiscover
      * request.
      *
      * @return self
+     *
+     * @psalm-external-mutation-free
      */
     public function reset()
     {
@@ -753,11 +767,15 @@ class Autodiscover
      *   cURL handle.
      * @param string $str
      *   Header string to read.
+     *
      * @return integer
      *   Bytes read.
      *
      * @todo Determine if we can remove $_ch here.
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @SuppressWarnings (PHPMD.UnusedFormalParameter)
+     *
+     * @psalm-external-mutation-free
      */
     public function readHeaders($_ch, $str)
     {
@@ -854,7 +872,10 @@ class Autodiscover
      *
      * @param integer $minorversion
      *   Minor server version.
+     *
      * @return string Server version.
+     *
+     * @psalm-pure
      */
     protected function parseVersion2007($minorversion)
     {
@@ -874,7 +895,10 @@ class Autodiscover
      *
      * @param integer $minorversion
      *   Minor server version.
+     *
      * @return string Server version.
+     *
+     * @psalm-pure
      */
     protected function parseVersion2010($minorversion)
     {
@@ -894,7 +918,10 @@ class Autodiscover
      *
      * @param integer $majorbuild
      *   Major build version.
+     *
      * @return string Server version.
+     *
+     * @psalm-pure
      */
     protected function parseVersion2013($majorbuild)
     {
@@ -907,6 +934,8 @@ class Autodiscover
      * Parses the version of an Exchange 2016 server.
      *
      * @return string Server version.
+     *
+     * @psalm-pure
      */
     protected function parseVersion2016()
     {

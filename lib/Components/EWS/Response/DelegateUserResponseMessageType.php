@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * contains the response message for a single delegate user.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class DelegateUserResponseMessageType extends ResponseMessageType
 {

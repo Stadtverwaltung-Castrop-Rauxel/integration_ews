@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a collection of instant messaging addresses for a contact.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ImAddressDictionaryType extends Type
 {

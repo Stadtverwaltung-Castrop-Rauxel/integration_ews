@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Specifies an array of all email addresses of an associated persona.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfEmailAddressesType extends ArrayType
 {

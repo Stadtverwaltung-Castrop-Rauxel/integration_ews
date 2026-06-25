@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines the request to install an app.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class InstallAppType extends BaseRequestType
 {

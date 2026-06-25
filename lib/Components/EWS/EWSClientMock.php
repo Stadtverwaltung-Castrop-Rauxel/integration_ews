@@ -229,6 +229,8 @@ class EWSClientMock extends \SoapClient
      * Enables or disables retention of raw request headers sent
      *
      * @param bool $value           ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportRequestHeader(bool $value): void {
         $this->_TransportRequestHeaderFlag = $value;
@@ -238,6 +240,8 @@ class EWSClientMock extends \SoapClient
      * Enables or disables retention of raw request body sent
      *
      * @param bool $value           ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportRequestBody(bool $value): void {
         $this->_TransportRequestBodyFlag = $value;
@@ -247,6 +251,8 @@ class EWSClientMock extends \SoapClient
      * Enables or disables retention of raw response headers recieved
      *
      * @param bool $value           ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportResponseHeader(bool $value): void {
         $this->_TransportRepsonseHeaderFlag = $value;
@@ -256,6 +262,8 @@ class EWSClientMock extends \SoapClient
      * Enables or disables retention of raw response body recieved
      *
      * @param bool $value           ture or false flag
+     *
+     * @psalm-external-mutation-free
      */
     public function retainTransportResponseBody(bool $value): void {
         $this->_TransportRepsonseBodyFlag = $value;
@@ -265,6 +273,8 @@ class EWSClientMock extends \SoapClient
      * returns last retained raw request header sent
      *
      * @return string
+     *
+     * @psalm-mutation-free
      */
     public function discloseTransportRequestHeader(): string {
         return $this->_TransportRequestHeaderData;
@@ -274,6 +284,8 @@ class EWSClientMock extends \SoapClient
      * returns last retained raw request body sent
      *
      * @return string
+     *
+     * @psalm-mutation-free
      */
     public function discloseTransportRequestBody(): string {
         return $this->_TransportRequestBodyData;
@@ -283,6 +295,8 @@ class EWSClientMock extends \SoapClient
      * returns last retained raw response header recieved
      *
      * @return string
+     *
+     * @psalm-mutation-free
      */
     public function discloseTransportResponseHeader(): string {
         return $this->_TransportRepsonseHeaderData;
@@ -292,6 +306,8 @@ class EWSClientMock extends \SoapClient
      * returns last retained raw response body recieved
      *
      * @return string
+     *
+     * @psalm-mutation-free
      */
     public function discloseTransportResponseBody(): string {
         return $this->_TransportRepsonseBodyData;

@@ -32,10 +32,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FolderIdType extends BaseFolderIdType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Id = null, string $ChangeKey = null)
     {
         $this->Id = $Id;

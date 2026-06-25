@@ -32,10 +32,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * returned in a FindFolder request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FractionalPageViewType extends BasePagingType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(int $denominator = 0, int $numerator = 0, int $limit = 512)
     {
         $this->Denominator = $denominator;

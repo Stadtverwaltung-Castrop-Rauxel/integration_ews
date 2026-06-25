@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the Microsoft Exchange Server version number.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ServerVersionInfo extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the value of a dictionary property.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserConfigurationDictionaryObjectType extends Type
 {

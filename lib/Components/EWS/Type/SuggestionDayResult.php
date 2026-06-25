@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a single day that contains suggested meeting times.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SuggestionDayResult extends Type
 {

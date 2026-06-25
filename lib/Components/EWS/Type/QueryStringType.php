@@ -33,6 +33,8 @@ use OCA\EWS\Components\EWS\Type;
  * @package OCA\EWS\Components\EWS\Type
  *
  * @todo Create a base string class?
+ *
+ * @psalm-external-mutation-free
  */
 class QueryStringType extends Type
 {

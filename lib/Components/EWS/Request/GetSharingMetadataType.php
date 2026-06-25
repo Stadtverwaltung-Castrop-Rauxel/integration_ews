@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * sharing invitation.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetSharingMetadataType extends BaseRequestType
 {

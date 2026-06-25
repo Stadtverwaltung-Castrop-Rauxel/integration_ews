@@ -53,9 +53,11 @@ class UUID {
 	 * @param string $namespace another valid UUID
 	 * @param string $name random value
 	 *
-	 * @return string a version 3 UUID
+	 * @return string|false a version 3 UUID
+	 *
 	 * @since Release 1.0.0
 	 *
+	 * @psalm-pure
 	 */
 	public static function v3($namespace, $name) {
 		if (!self::valid($namespace)) return false;
@@ -135,8 +137,10 @@ class UUID {
 	 * @param string $name random value
 	 *
 	 * @return string a version 5 UUID
+	 *
 	 * @since Release 1.0.0
 	 *
+	 * @psalm-pure
 	 */
 	public static function v5($namespace, $name) {
 		if (!self::valid($namespace)) return false;
@@ -183,8 +187,8 @@ class UUID {
 	 * @param string $uuid a valid or invalied uuid
 	 *
 	 * @return bool
-	 * @since Release 1.0.0
 	 *
+	 * @since Release 1.0.0
 	 */
 	public static function valid($uuid): bool {
 
@@ -206,8 +210,10 @@ class UUID {
 	 * @param string $uuid uuid to validate
 	 *
 	 * @return bool
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
 	public static function isLong(string $uuid): bool {
 
@@ -221,8 +227,10 @@ class UUID {
 	 * @param string $uuid uuid to validate
 	 *
 	 * @return bool
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
 	public static function isShort(string $uuid): bool {
 
@@ -236,8 +244,10 @@ class UUID {
 	 * @param string $uuid uuid to validate
 	 *
 	 * @return bool
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
 	public static function isBraced(string $uuid): bool {
 
@@ -251,8 +261,10 @@ class UUID {
 	 * @param string $uuid uuid to validate
 	 *
 	 * @return bool
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
 	public static function isMicrosoftOL(string $uuid): bool {
 
@@ -267,8 +279,10 @@ class UUID {
 	 * @param string $uuid uuid to validate
 	 *
 	 * @return bool
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
 	public static function isMicrosoftVC(string $uuid): bool {
 
@@ -277,15 +291,17 @@ class UUID {
 
 	}
 
-	/**
-	 * normalizes uuid to long format (13B1C4C0-D80A-467A-84B2-0811BE1E911A)
-	 *
-	 * @param string $name - String to be normalize
-	 *
-	 * @return string sanitized version of the string
-	 * @since Release 1.0.32
-	 *
-	 */
+    /**
+     * normalizes uuid to long format (13B1C4C0-D80A-467A-84B2-0811BE1E911A)
+     *
+     * @param string $value - String to be normalize
+     *
+     * @return string|null sanitized version of the string
+     *
+     * @since Release 1.0.32
+     *
+     * @psalm-pure
+     */
 	public static function normalize(string $value): string|null {
 
 		// Microsoft UUID documentation
@@ -353,16 +369,19 @@ class UUID {
 
 	}
 
-	/**
+    /**
 	 * converts uuid from standard format to other uuid formats
 	 *
 	 * @param string $value
+	 * @param string $type
 	 *
 	 * @return string
+	 *
 	 * @since Release 1.0.32
 	 *
+	 * @psalm-pure
 	 */
-	public static function convert(string $value, string $type = ''): string|null {
+	public static function convert(string $value, string $type = ''): ?string {
 
 		// Microsoft UUID documentation
 		// https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-asemail/e7424ddc-dd10-431e-a0b7-5c794863370e
@@ -377,33 +396,27 @@ class UUID {
 		// Blob Id + Instance Date (YYYY-MM-DD) + Creation Stamp (YYYY-MM-DD-HH-MM-SS) + Padding
 		$_ms_prefix = '040000008200E00074C5B7101A82E008' . '00000000' . '0000000000000000' . '0000000000000000';
 
-		switch ($type) {
-			case UUID::TYPE_STANDARD_HEX_SHORT:
-				// remove all dashes
-				return str_replace('-', '', $value);
-				break;
-			case UUID::TYPE_MICROSOFT_HEX_SHORT:
-				// Prefix + Size + Data
-				return $_ms_prefix . '10000000' . strtoupper(str_replace('-', '', $value));
-				break;
-			case UUID::TYPE_MICROSOFT_BIN_SHORT:
-				// Prefix + Size + Data
-				return hex2bin($_ms_prefix . '10000000' . strtoupper(str_replace('-', '', $value)));
-				break;
-			case UUID::TYPE_MICROSOFT_HEX_LONG:
-				// Prefix + Size + Data
-				return $_ms_prefix . '33000000' . bin2hex('vCal-Uid') . '01000000' . bin2hex('{' . strtoupper($value) . '}') . '00';
-				break;
-			case UUID::TYPE_MICROSOFT_BIN_LONG:
-				// Prefix + Size + Data
-				return hex2bin($_ms_prefix . '33000000') . 'vCal-Uid' . hex2bin('01000000') . '{' . strtoupper($value) . '}' . hex2bin('00');
-				break;
-			default:
-				return $value;
-				break;
-		}
-
-		return null;
-
+        return match ($type) {
+            UUID::TYPE_STANDARD_HEX_SHORT => str_replace('-', '', $value),
+            UUID::TYPE_MICROSOFT_HEX_SHORT => $_ms_prefix . '10000000' . strtoupper(str_replace('-', '', $value)),
+            UUID::TYPE_MICROSOFT_BIN_SHORT => hex2bin($_ms_prefix . '10000000' . strtoupper(str_replace('-', '', $value))),
+            UUID::TYPE_MICROSOFT_HEX_LONG => $_ms_prefix . '33000000' . bin2hex('vCal-Uid') . '01000000' . bin2hex('{' . strtoupper($value) . '}') . '00',
+            UUID::TYPE_MICROSOFT_BIN_LONG => hex2bin($_ms_prefix . '33000000') . 'vCal-Uid' . hex2bin('01000000') . '{' . strtoupper($value) . '}' . hex2bin('00'),
+            default => $value,
+        } ?? null;
 	}
+
+    /**
+     * @psalm-pure
+     */
+    private static function uuid_long($uuid): bool {
+        return is_string($uuid) && preg_match(self::_uuid_long, $uuid);
+    }
+
+    /**
+     * @psalm-pure
+     */
+    private static function uuid_short($uuid): bool {
+        return is_string($uuid) && preg_match(self::_uuid_short, $uuid);
+    }
 }

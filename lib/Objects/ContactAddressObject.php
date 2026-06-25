@@ -25,6 +25,9 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactAddressObject {
 
     public ?string $Type;
@@ -34,6 +37,9 @@ class ContactAddressObject {
     public ?string $Code;
 	public ?string $Country;
 	
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(?string $type = null, ?string $street = null, ?string $locality = null, ?string $region = null, ?string $code = null, ?string $country = null) {
         $this->Type = $type;
         $this->Street = $street;

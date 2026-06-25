@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Base class for smart responses that include new body content.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SmartResponseType extends SmartResponseBaseType
 {

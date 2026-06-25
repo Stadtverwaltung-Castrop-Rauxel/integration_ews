@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a time zone.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SerializableTimeZone extends Type
 {

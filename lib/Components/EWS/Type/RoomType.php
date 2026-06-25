@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents a meeting room.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RoomType extends DirectoryEntryType
 {

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * sender to the blocked sender list.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class MarkAsJunkType extends BaseRequestType
 {

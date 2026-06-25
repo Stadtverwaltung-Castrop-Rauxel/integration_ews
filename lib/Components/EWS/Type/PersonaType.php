@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a set of persona data.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PersonaType extends Type
 {

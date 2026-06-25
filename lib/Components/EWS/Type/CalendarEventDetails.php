@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents additional information about a calendar event.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class CalendarEventDetails extends Type
 {

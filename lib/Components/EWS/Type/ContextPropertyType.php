@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the context for an item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ContextPropertyType extends Type
 {

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * groups and instant messaging contact personas.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetImItemsType extends BaseRequestType
 {

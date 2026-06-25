@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * contained in an item in a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class NonEmptyArrayOfInternetHeadersType extends ArrayType
 {

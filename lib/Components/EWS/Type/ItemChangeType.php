@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\Type;
  * Represents an item identifier and the updates to apply to the item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ItemChangeType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(object $Id = null, object $Updates = null)
     {
         $this->ItemId = $Id;

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a notification that no new activity has occurred in the mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class BaseNotificationEventType extends Type
 {

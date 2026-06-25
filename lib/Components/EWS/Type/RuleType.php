@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a single rule in a user's mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RuleType extends Type
 {

@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * mailbox.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfUserIdType extends ArrayType
 {

@@ -31,10 +31,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifier for a fully resolved email address
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class EmailAddressType extends BaseEmailAddressType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $Address = null, string $Name = null)
     {
         $this->EmailAddress = $Address;

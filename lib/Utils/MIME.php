@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\EWS\Utils;
 
+/**
+ * @psalm-external-mutation-free
+ */
 class MIME {
 
     /**
@@ -885,6 +888,8 @@ class MIME {
      * @param string $filename  name of a file with extension only, no path
      *
      * @return string valid mime type on success, or default application/octet-stream on failure
+     *
+     * @psalm-external-mutation-free
      */
     static function fromFileName(string $filename): string {
 
@@ -903,6 +908,8 @@ class MIME {
      * @param string $extension a file extension
      *
      * @return string valid mime type on success, or default application/octet-stream on failure
+     *
+     * @psalm-external-mutation-free
      */
     static function fromExtension(string $extension): ?string {
 
@@ -922,6 +929,8 @@ class MIME {
      * @param string $type a MIME type
      *
      * @return string valid file extension type on success, or null on failure
+     *
+     * @psalm-external-mutation-free
      */
     static function toExtension(string $type): ?string {
 

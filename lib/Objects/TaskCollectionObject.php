@@ -32,6 +32,9 @@ class TaskCollectionObject {
     public ?int $Count = null;
     public ?string $AffiliationId = null;
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $id,
         string $name = null,

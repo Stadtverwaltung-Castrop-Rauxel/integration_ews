@@ -31,6 +31,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Optionally, subfolders can also be deleted when the folder is emptied.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class EmptyFolderType extends BaseRequestType
 {

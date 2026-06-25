@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a rule operation error.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RuleOperationErrorType extends Type
 {

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines the response to a GetAppMarketplaceUrl request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetAppMarketplaceUrlResponseMessageType extends ResponseMessageType
 {

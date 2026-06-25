@@ -39,6 +39,9 @@ use OCA\EWS\Components\EWS\Type;
 class TransitionType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct($To = null)
     {
         $this->To = $To;

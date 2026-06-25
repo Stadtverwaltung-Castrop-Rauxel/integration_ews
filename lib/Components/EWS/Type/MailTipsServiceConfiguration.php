@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Represents service configuration information for the mail tips service.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailTipsServiceConfiguration extends ServiceConfiguration
 {

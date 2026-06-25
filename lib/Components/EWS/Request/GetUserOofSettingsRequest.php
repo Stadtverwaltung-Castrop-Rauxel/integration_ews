@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * settings.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserOofSettingsRequest extends BaseRequestType
 {

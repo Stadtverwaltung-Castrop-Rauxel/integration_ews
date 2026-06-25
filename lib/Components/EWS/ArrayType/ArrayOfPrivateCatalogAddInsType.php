@@ -33,6 +33,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * @package OCA\EWS\Components\EWS\Array
  *
  * @todo Update once documentation exists.
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfPrivateCatalogAddInsType extends ArrayType
 {

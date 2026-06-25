@@ -20,28 +20,26 @@
     "ext-pcntl": "Used for harmonization thread"
   },
   "require-dev": {
-    "nextcloud/coding-standard": "^v1.4",
+    "nextcloud/coding-standard": "^v1.5",
     "nextcloud/ocp": "^33.0",
+    "phpstan/phpstan": "^2.2",
     "phpunit/phpunit": "^12",
-    "psalm/phar": "^6.13",
     "psr/log": "^3.0.2",
     "roave/security-advisories": "dev-latest",
     "sabre/dav": "^4.7",
-    "symfony/event-dispatcher": "^v5.4.45"
+    "symfony/event-dispatcher": "^v5.4.45",
+    "vimeo/psalm": "7.0.0-beta19"
   },
   "scripts": {
     "lint": "find . -name \\*.php -not -path './vendor/*' -print0 | xargs -0 -n1 php -l",
     "cs:check": "php-cs-fixer fix --dry-run --diff",
     "cs:fix": "php-cs-fixer fix",
-    "psalm": "psalm.phar",
+    "psalm": "psalm",
     "test:unit": "phpunit -c tests/phpunit.xml"
   },
   "config": {
     "allow-plugins": {
       "composer/package-versions-deprecated": true
-    },
-    "platform": {
-      "php": "8.4"
     },
     "sort-packages": true
   }

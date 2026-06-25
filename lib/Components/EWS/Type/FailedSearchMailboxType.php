@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Specifies the error message for a mailbox that failed on search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FailedSearchMailboxType extends Type
 {

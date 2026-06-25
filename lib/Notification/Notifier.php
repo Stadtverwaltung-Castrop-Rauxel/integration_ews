@@ -53,6 +53,8 @@ class Notifier implements INotifier {
 	 * @param IUserManager $userManager
 	 * @param INotificationManager $notificationManager
 	 * @param IURLGenerator $urlGenerator
+	 *
+	 * @psalm-mutation-free
 	 */
 	public function __construct(IFactory $factory,
 								IUserManager $userManager,
@@ -68,7 +70,10 @@ class Notifier implements INotifier {
 	 * Identifier of the notifier, only use [a-z0-9_]
 	 *
 	 * @return string
+	 *
 	 * @since 17.0.0
+	 *
+	 * @psalm-pure
 	 */
 	public function getID(): string {
 		return 'integration_ews';

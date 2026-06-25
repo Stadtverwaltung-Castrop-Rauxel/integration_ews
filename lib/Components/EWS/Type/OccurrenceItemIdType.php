@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies a single occurrence of a recurring item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class OccurrenceItemIdType extends BaseItemIdType
 {

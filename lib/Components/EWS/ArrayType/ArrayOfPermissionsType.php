@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Contains the collection of permissions for a folder.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfPermissionsType extends ArrayType
 {

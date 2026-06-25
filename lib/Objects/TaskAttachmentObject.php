@@ -35,6 +35,9 @@ class TaskAttachmentObject {
     public ?string $Size;
     public ?string $Data;
     
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(
         string $store = null,
         string $id = null, 

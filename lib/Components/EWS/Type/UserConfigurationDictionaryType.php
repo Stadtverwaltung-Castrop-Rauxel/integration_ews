@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a set of dictionary property entries for a user configuration object.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserConfigurationDictionaryType extends Type
 {

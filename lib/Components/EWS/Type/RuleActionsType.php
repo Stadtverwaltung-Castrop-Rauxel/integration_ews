@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * when conditions are fulfilled.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RuleActionsType extends Type
 {

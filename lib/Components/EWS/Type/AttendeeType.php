@@ -33,10 +33,15 @@ use OCA\EWS\Components\EWS\Type;
  * Represents attendees and resources for a meeting.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class AttendeeType extends Type
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(object $Mailbox = null, string $Response = null)
     {
         $this->Mailbox = $Mailbox;

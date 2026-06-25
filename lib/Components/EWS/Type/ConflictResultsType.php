@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Indicates the number of conflicts in an UpdateItem Operation response.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ConflictResultsType extends Type
 {

@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Represents a response that returns a user configuration object.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetUserConfigurationResponseMessageType extends ResponseMessageType
 {

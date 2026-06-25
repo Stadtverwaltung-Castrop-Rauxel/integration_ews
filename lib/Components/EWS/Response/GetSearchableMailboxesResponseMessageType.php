@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Contains the response to a GetSearchableMailboxes request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class GetSearchableMailboxesResponseMessageType extends ResponseMessageType
 {

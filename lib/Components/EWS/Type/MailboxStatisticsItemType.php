@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines statistics for a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxStatisticsItemType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines detail information about an item that cannot be indexed.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class NonIndexableItemDetailType extends Type
 {

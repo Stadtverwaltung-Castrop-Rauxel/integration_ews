@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Response;
  * Base class for responses.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class BaseResponseMessageType extends Response
 {

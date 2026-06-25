@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the action for a reminder item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ReminderItemActionType extends Type
 {

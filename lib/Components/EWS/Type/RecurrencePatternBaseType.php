@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Base class for recurrence patterns.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 abstract class RecurrencePatternBaseType extends Type
 {

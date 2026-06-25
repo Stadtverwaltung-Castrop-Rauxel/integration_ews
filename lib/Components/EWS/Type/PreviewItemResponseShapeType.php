@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the requested property set to be returned in a discovery search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PreviewItemResponseShapeType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the Out of Office (OOF) settings.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class UserOofSettings extends Type
 {

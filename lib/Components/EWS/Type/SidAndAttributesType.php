@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * directory service object group of which the account is a member.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SidAndAttributesType extends Type
 {

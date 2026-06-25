@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the state information for a phone call.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PhoneCallInformationType extends Type
 {

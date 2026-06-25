@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * the status and results of a request to upload a single mailbox item.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class UploadItemsResponseMessageType extends ResponseMessageType
 {

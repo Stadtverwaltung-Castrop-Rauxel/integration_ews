@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines token serialization in server-to-server authentication.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SerializedSecurityContextType extends Type
 {

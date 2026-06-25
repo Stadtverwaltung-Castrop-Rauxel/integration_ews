@@ -34,6 +34,8 @@ use OCA\EWS\Components\EWS\Type;
  * @package OCA\EWS\Components\EWS\Type
  *
  * @todo Extend a string class.
+ *
+ * @psalm-external-mutation-free
  */
 class InternetHeaderType extends Type
 {

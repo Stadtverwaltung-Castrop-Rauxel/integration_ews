@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * its related occurrence items.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RecurringMasterItemIdType extends BaseItemIdType
 {

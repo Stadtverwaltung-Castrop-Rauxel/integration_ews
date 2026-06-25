@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the results of the GetNonIndexableItemDetails request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class NonIndexableItemDetailResultType extends Type
 {

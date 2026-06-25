@@ -31,10 +31,15 @@ namespace OCA\EWS\Components\EWS\Type;
  * Identifies individual members of a dictionary.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PathToIndexedFieldType extends BasePathToElementType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(string $uri, string $index = null)
     {
         $this->FieldURI = $uri;

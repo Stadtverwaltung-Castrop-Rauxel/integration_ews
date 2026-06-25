@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * the recipient's domain or trusted domains.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ReplyBody extends Type
 {

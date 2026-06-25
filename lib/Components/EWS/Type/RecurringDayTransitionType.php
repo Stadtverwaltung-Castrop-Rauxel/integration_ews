@@ -35,6 +35,9 @@ namespace OCA\EWS\Components\EWS\Type;
 class RecurringDayTransitionType extends RecurringTimeTransitionType
 {
     /*Constructor method with arguments*/
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct($To = null, string $Offset = null, int $Month = null, $Day = null, int $Occurrence = null)
     {
         $this->To = $To;

@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * running Microsoft Exchange Server 2007 to the client application.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class SendNotificationResponseType extends BaseResponseMessageType
 {

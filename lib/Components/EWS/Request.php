@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS;
  * Base class for Exchange Web Service requests.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 abstract class Request extends Type
 {

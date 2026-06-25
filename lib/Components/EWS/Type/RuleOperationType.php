@@ -27,6 +27,9 @@ namespace OCA\EWS\Components\EWS\Type;
 
 use OCA\EWS\Components\EWS\Type;
 
+/**
+ * @psalm-external-mutation-free
+ */
 abstract class RuleOperationType extends Type
 {
 

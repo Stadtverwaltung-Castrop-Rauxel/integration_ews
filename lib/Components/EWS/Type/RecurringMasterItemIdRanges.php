@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * Defines an occurrence range.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RecurringMasterItemIdRanges extends ItemIdType
 {

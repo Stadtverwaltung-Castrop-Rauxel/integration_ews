@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the date and time when a time change occurs.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class TimeChangeType extends Type
 {

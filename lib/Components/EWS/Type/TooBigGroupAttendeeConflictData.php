@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Type;
  * distribution list was too large to expand.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class TooBigGroupAttendeeConflictData extends AttendeeConflictData
 {

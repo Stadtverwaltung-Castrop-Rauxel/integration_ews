@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the retention policy for a mailbox item.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RetentionPolicyTagType extends Type
 {

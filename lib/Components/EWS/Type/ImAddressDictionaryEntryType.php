@@ -34,6 +34,8 @@ use OCA\EWS\Components\EWS\Type;
  *
  * @todo Create a common EntryType class.
  * @todo Create a common TextEntryType class.
+ *
+ * @psalm-external-mutation-free
  */
 class ImAddressDictionaryEntryType extends Type
 {

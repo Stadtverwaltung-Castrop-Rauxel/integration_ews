@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the hold status of a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class MailboxHoldStatusType extends Type
 {

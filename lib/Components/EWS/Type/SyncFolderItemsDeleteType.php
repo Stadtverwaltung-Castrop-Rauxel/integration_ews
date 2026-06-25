@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Identifies a single item to delete in the local client store.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SyncFolderItemsDeleteType extends Type
 {

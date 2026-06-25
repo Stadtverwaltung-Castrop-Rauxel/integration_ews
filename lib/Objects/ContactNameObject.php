@@ -25,6 +25,9 @@
 
 namespace OCA\EWS\Objects;
 
+/**
+ * @psalm-immutable
+ */
 class ContactNameObject {
 
     public ?string $Last;
@@ -37,6 +40,9 @@ class ContactNameObject {
 	public ?string $PhoneticOther;
     public ?string $Aliases;
 	
+	/**
+	 * @psalm-mutation-free
+	 */
 	public function __construct(
         ?string $last = null,
         ?string $first = null,

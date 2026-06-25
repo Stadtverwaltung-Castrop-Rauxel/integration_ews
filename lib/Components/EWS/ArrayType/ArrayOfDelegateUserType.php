@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * Contains the identities of delegates to add to or update in a mailbox.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfDelegateUserType extends ArrayType
 {

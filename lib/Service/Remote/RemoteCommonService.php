@@ -25,20 +25,58 @@
 
 namespace OCA\EWS\Service\Remote;
 
-use DateTime;
 use Exception;
-use Throwable;
-use Psr\Log\LoggerInterface;
-
-use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Components\EWS\EWSClient;
-use OCA\EWS\Components\EWS\Enumeration\ContainmentComparisonType;
-use OCA\EWS\Components\EWS\Enumeration\ContainmentModeType;
-use OCA\EWS\Components\EWS\Enumeration\DefaultShapeNamesType;
-use OCA\EWS\Components\EWS\Enumeration\DistinguishedFolderIdNameType;
-use OCA\EWS\Components\EWS\Enumeration\FolderQueryTraversalType;
+use OCA\EWS\Components\EWS\ArrayType\ArrayOfFoldersType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfAllItemsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfAttachmentsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseItemIdsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfItemChangeDescriptionsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfNotificationEventTypesType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfRequestAttachmentIdsType;
+use OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfTimeZoneIdType;
 use OCA\EWS\Components\EWS\Enumeration\ResponseClassType;
-use OCA\EWS\Components\EWS\Enumeration\UnindexedFieldURIType;
+use OCA\EWS\Components\EWS\EWSClient;
+use OCA\EWS\Components\EWS\Request\CreateAttachmentType;
+use OCA\EWS\Components\EWS\Request\CreateFolderType;
+use OCA\EWS\Components\EWS\Request\CreateItemType;
+use OCA\EWS\Components\EWS\Request\DeleteAttachmentType;
+use OCA\EWS\Components\EWS\Request\DeleteFolderType;
+use OCA\EWS\Components\EWS\Request\DeleteItemType;
+use OCA\EWS\Components\EWS\Request\FindFolderType;
+use OCA\EWS\Components\EWS\Request\FindItemType;
+use OCA\EWS\Components\EWS\Request\GetAttachmentType;
+use OCA\EWS\Components\EWS\Request\GetEventsType;
+use OCA\EWS\Components\EWS\Request\GetFolderType;
+use OCA\EWS\Components\EWS\Request\GetItemType;
+use OCA\EWS\Components\EWS\Request\GetServerTimeZonesType;
+use OCA\EWS\Components\EWS\Request\SubscribeType;
+use OCA\EWS\Components\EWS\Request\SyncFolderItemsType;
+use OCA\EWS\Components\EWS\Request\UnsubscribeType;
+use OCA\EWS\Components\EWS\Request\UpdateItemType;
+use OCA\EWS\Components\EWS\Type\CalendarFolderType;
+use OCA\EWS\Components\EWS\Type\ConstantValueType;
+use OCA\EWS\Components\EWS\Type\ContactsFolderType;
+use OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType;
+use OCA\EWS\Components\EWS\Type\FieldURIOrConstantType;
+use OCA\EWS\Components\EWS\Type\FolderIdType;
+use OCA\EWS\Components\EWS\Type\FolderResponseShapeType;
+use OCA\EWS\Components\EWS\Type\FolderType;
+use OCA\EWS\Components\EWS\Type\IndexedPageViewType;
+use OCA\EWS\Components\EWS\Type\IsEqualToType;
+use OCA\EWS\Components\EWS\Type\ItemChangeType;
+use OCA\EWS\Components\EWS\Type\ItemIdType;
+use OCA\EWS\Components\EWS\Type\ItemResponseShapeType;
+use OCA\EWS\Components\EWS\Type\PathToExtendedFieldType;
+use OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType;
+use OCA\EWS\Components\EWS\Type\PullSubscriptionRequestType;
+use OCA\EWS\Components\EWS\Type\RequestAttachmentIdType;
+use OCA\EWS\Components\EWS\Type\RestrictionType;
+use OCA\EWS\Components\EWS\Type\SearchFolderType;
+use OCA\EWS\Components\EWS\Type\TargetFolderIdType;
+use OCA\EWS\Components\EWS\Type\TasksFolderType;
+use Psr\Log\LoggerInterface;
 
 /**
  * Remote Common Service Class
@@ -65,12 +103,13 @@ class RemoteCommonService {
 	const SCOPE_ATTRIBUTES_BASIC = 'IdOnly';
 	const SCOPE_ATTRIBUTES_PRESET = 'Default';
 	const SCOPE_ATTRIBUTES_ENTIRE = 'AllProperties';
-	// Private
-	private LoggerInterface $logger;
 
-	public function __construct (string $appName, LoggerInterface $logger) {
-		$this->logger = $logger;
-	}
+    /**
+     * @psalm-mutation-free
+     */
+    public function __construct (string $appName,
+                                 private LoggerInterface $logger) {
+    }
 
 	/**
      * retrieve list of all folders starting with root folder from remote storage
@@ -89,14 +128,14 @@ class RemoteCommonService {
 	public function fetchFolders(EWSClient $DataStore, string $base = 'D', object $additional = null): ?object {
 
 		// construct the request
-		$request = new \OCA\EWS\Components\EWS\Type\FindFolderType();
+		$request = new FindFolderType();
 		// define start
-		$request->ParentFolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
-		$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType(self::TYPE_FOLDER_BASE);
+		$request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
+		$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType(self::TYPE_FOLDER_BASE);
 		// define recursion
 		$request->Traversal = self::SCOPE_SEARCH_BROAD;
 		// define required base properties
-		$request->FolderShape = new \OCA\EWS\Components\EWS\Type\FolderResponseShapeType();
+		$request->FolderShape = new FolderResponseShapeType();
 		if ($base == 'A') {
 			$request->FolderShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -107,7 +146,7 @@ class RemoteCommonService {
 			$request->FolderShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->FolderShape->AdditionalProperties = $additional;
 		}
 		// execute request
@@ -153,19 +192,19 @@ class RemoteCommonService {
 	public function fetchFoldersByType(EWSClient $DataStore, string $type, string $base = 'D', object $additional = null, string $source = 'U'): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\FindFolderType();
-		$request->FolderShape = new \OCA\EWS\Components\EWS\Type\FolderResponseShapeType();
+		$request = new FindFolderType();
+		$request->FolderShape = new FolderResponseShapeType();
 		// define start
-		$request->ParentFolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
+		$request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
 		if ($source == 'P') {
 			// define base folder
-			$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType(self::TYPE_FOLDER_PUBLIC);
+			$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType(self::TYPE_FOLDER_PUBLIC);
 			// define recursion
 			$request->Traversal = self::SCOPE_SEARCH_NARROW;
 		}
 		else {
 			// define base folder
-			$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType(self::TYPE_FOLDER_BASE);
+			$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType(self::TYPE_FOLDER_BASE);
 			// define recursion
 			$request->Traversal = self::SCOPE_SEARCH_BROAD;
 		}
@@ -180,15 +219,15 @@ class RemoteCommonService {
 			$request->FolderShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->FolderShape->AdditionalProperties = $additional;
 		}
 		// define search criteria
-		$request->Restriction = new \OCA\EWS\Components\EWS\Type\RestrictionType();
-		$request->Restriction->IsEqualTo = new \OCA\EWS\Components\EWS\Type\IsEqualToType();
-		$request->Restriction->IsEqualTo->FieldURI = new \OCA\EWS\Components\EWS\Type\PathToUnindexedFieldType('folder:FolderClass');
-		$request->Restriction->IsEqualTo->FieldURIOrConstant = new \OCA\EWS\Components\EWS\Type\FieldURIOrConstantType();
-		$request->Restriction->IsEqualTo->FieldURIOrConstant->Constant = new \OCA\EWS\Components\EWS\Type\ConstantValueType($type);
+		$request->Restriction = new RestrictionType();
+		$request->Restriction->IsEqualTo = new IsEqualToType();
+		$request->Restriction->IsEqualTo->FieldURI = new PathToUnindexedFieldType('folder:FolderClass');
+		$request->Restriction->IsEqualTo->FieldURIOrConstant = new FieldURIOrConstantType();
+		$request->Restriction->IsEqualTo->FieldURIOrConstant->Constant = new ConstantValueType($type);
 		// execute request
 		$response = $DataStore->FindFolder($request);
 		// process response
@@ -232,16 +271,16 @@ class RemoteCommonService {
 	public function fetchFolder(EWSClient $DataStore, string $fid, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\GetFolderType();
+		$request = new GetFolderType();
 		// define target
-		$request->FolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
+		$request->FolderIds = new NonEmptyArrayOfBaseFolderIdsType();
 		if ($ftype) {
-			$request->FolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->FolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->FolderIds->FolderId[] = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->FolderIds->FolderId[] = new FolderIdType($fid);
 		}
 		// define required base properties
-		$request->FolderShape = new \OCA\EWS\Components\EWS\Type\FolderResponseShapeType();
+		$request->FolderShape = new FolderResponseShapeType();
 		if ($base == 'A') {
 			$request->FolderShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -252,7 +291,7 @@ class RemoteCommonService {
 			$request->FolderShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->FolderShape->AdditionalProperties = $additional;
 		}
 		// execute request
@@ -294,29 +333,29 @@ class RemoteCommonService {
 	public function createFolder(EWSClient $DataStore, string $fid, object $data, bool $ftype = false): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\CreateFolderType();
+		$request = new CreateFolderType();
 		// define target
-		$request->ParentFolderId = new \OCA\EWS\Components\EWS\Type\TargetFolderIdType();
+		$request->ParentFolderId = new TargetFolderIdType();
 		if ($ftype) {
-			$request->ParentFolderId->DistinguishedFolderId = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->ParentFolderId->DistinguishedFolderId = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->ParentFolderId->FolderId = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->ParentFolderId->FolderId = new FolderIdType($fid);
 		}
 		// define object to create
-		$request->Folders = new \OCA\EWS\Components\EWS\ArrayType\ArrayOfFoldersType();
-		if ($data instanceof \OCA\EWS\Components\EWS\Type\CalendarFolderType) {
+		$request->Folders = new ArrayOfFoldersType();
+		if ($data instanceof CalendarFolderType) {
 			$request->Folders->CalendarFolder[] = $data;
 		}
-		elseif ($data instanceof \OCA\EWS\Components\EWS\Type\ContactsFolderType) {
+		elseif ($data instanceof ContactsFolderType) {
 			$request->Folders->ContactsFolder[] = $data;
 		}
-		elseif ($data instanceof \OCA\EWS\Components\EWS\Type\FolderType) {
+		elseif ($data instanceof FolderType) {
 			$request->Folders->Folder[] = $data;
 		}
-		elseif ($data instanceof \OCA\EWS\Components\EWS\Type\SearchFolderType) {
+		elseif ($data instanceof SearchFolderType) {
 			$request->Folders->SearchFolder[] = $data;
 		}
-		elseif ($data instanceof \OCA\EWS\Components\EWS\Type\TasksFolderType) {
+		elseif ($data instanceof TasksFolderType) {
 			$request->Folders->TasksFolder[] = $data;
 		}
 		// execute request
@@ -358,10 +397,10 @@ class RemoteCommonService {
 	public function deleteFolder(EWSClient $DataStore, array $batch = null, string $type = 'SoftDelete'): ?bool {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\DeleteFolderType();
+		$request = new DeleteFolderType();
 		$request->DeleteType = $type;
 		// define objects to delete
-		$request->FolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType($batch);
+		$request->FolderIds = new NonEmptyArrayOfBaseFolderIdsType($batch);
 		// execute request
 		$response = $DataStore->DeleteFolder($request);
 		// process response
@@ -409,19 +448,19 @@ class RemoteCommonService {
 	public function fetchFolderChanges(EWSClient $DataStore, string $fid, string $state, bool $ftype = false, int $max = 512, string $base = 'I', object $additional = null): object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\SyncFolderItemsType();
+		$request = new SyncFolderItemsType();
 		// define target
-		$request->SyncFolderId = new \OCA\EWS\Components\EWS\Type\TargetFolderIdType();
+		$request->SyncFolderId = new TargetFolderIdType();
 		if ($ftype) {
-			$request->SyncFolderId->DistinguishedFolderId = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->SyncFolderId->DistinguishedFolderId = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->SyncFolderId->FolderId = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->SyncFolderId->FolderId = new FolderIdType($fid);
 		}
 		// define start
 		$request->SyncState = $state;
 		$request->MaxChangesReturned = $max;
 		// define required base properties
-		$request->ItemShape = new \OCA\EWS\Components\EWS\Type\ItemResponseShapeType();
+		$request->ItemShape = new ItemResponseShapeType();
 		if ($base == 'A') {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -432,7 +471,7 @@ class RemoteCommonService {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->ItemShape->AdditionalProperties = $additional;
 		}
 		/*
@@ -523,18 +562,18 @@ class RemoteCommonService {
 	public function fetchItems(EWSClient $DataStore, string $fid, bool $ftype = false, int $ioffset = 0, int $ilimit = 512, string $base = 'I', object $additional = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
+		$request = new FindItemType();
 		// define target
-		$request->ParentFolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
+		$request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
 		if ($ftype) {
-			$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->ParentFolderIds->FolderId[] = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->ParentFolderIds->FolderId[] = new FolderIdType($fid);
 		}
 		// define recursion
 		$request->Traversal = self::SCOPE_SEARCH_NARROW;
 		// define required base properties
-		$request->ItemShape = new \OCA\EWS\Components\EWS\Type\ItemResponseShapeType();
+		$request->ItemShape = new ItemResponseShapeType();
 		if ($base == 'A') {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -545,11 +584,11 @@ class RemoteCommonService {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->ItemShape->AdditionalProperties = $additional;
 		}
 		// define paging
-		$request->IndexedPageItemView = new \OCA\EWS\Components\EWS\Type\IndexedPageViewType('Beginning', $ioffset, $ilimit);
+		$request->IndexedPageItemView = new IndexedPageViewType('Beginning', $ioffset, $ilimit);
 		// execute request
 		$response = $DataStore->FindItem($request);
 		// process response
@@ -595,18 +634,18 @@ class RemoteCommonService {
 	public function findItem(EWSClient $DataStore, string $fid, object $restriction, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
+		$request = new FindItemType();
 		// define target
-		$request->ParentFolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
+		$request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
 		if ($ftype) {
-			$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->ParentFolderIds->FolderId[] = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->ParentFolderIds->FolderId[] = new FolderIdType($fid);
 		}
 		// define recursion
 		$request->Traversal = self::SCOPE_SEARCH_NARROW;
 		// define required base properties
-		$request->ItemShape = new \OCA\EWS\Components\EWS\Type\ItemResponseShapeType();
+		$request->ItemShape = new ItemResponseShapeType();
 		if ($base == 'A') {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -617,14 +656,14 @@ class RemoteCommonService {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->ItemShape->AdditionalProperties = $additional;
 		}
 		else {
-			$request->ItemShape->AdditionalProperties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
+			$request->ItemShape->AdditionalProperties = new NonEmptyArrayOfPathsToElementType();
 		}
 		// define required essential properties
-		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
 			'PublicStrings',
 			null,
 			null,
@@ -632,7 +671,7 @@ class RemoteCommonService {
 			null,
 			'String'
 		);
-		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
 			'PublicStrings',
 			null,
 			null,
@@ -659,7 +698,7 @@ class RemoteCommonService {
 		);
 		*/
 		// define paging
-		$request->IndexedPageItemView = new \OCA\EWS\Components\EWS\Type\IndexedPageViewType('Beginning', 0, 512);
+		$request->IndexedPageItemView = new IndexedPageViewType('Beginning', 0, 512);
 		// define criteria
 		$request->Restriction = $restriction;
 		// execute request
@@ -707,18 +746,18 @@ class RemoteCommonService {
 	public function findItemByUUID(EWSClient $DataStore, string $fid, string $uuid, bool $ftype = false, string $base = 'D', object $additional = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\FindItemType();
+		$request = new FindItemType();
 		// define target
-		$request->ParentFolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
+		$request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
 		if ($ftype) {
-			$request->ParentFolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($fid);
+			$request->ParentFolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType($fid);
 		} else {
-			$request->ParentFolderIds->FolderId[] = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+			$request->ParentFolderIds->FolderId[] = new FolderIdType($fid);
 		}
 		// define recursion
 		$request->Traversal = self::SCOPE_SEARCH_NARROW;
 		// define required base properties
-		$request->ItemShape = new \OCA\EWS\Components\EWS\Type\ItemResponseShapeType();
+		$request->ItemShape = new ItemResponseShapeType();
 		if ($base == 'A') {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -729,14 +768,14 @@ class RemoteCommonService {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->ItemShape->AdditionalProperties = $additional;
 		}
 		else {
-			$request->ItemShape->AdditionalProperties = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType();
+			$request->ItemShape->AdditionalProperties = new NonEmptyArrayOfPathsToElementType();
 		}
 		// define required essential properties
-		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
 			'PublicStrings',
 			null,
 			null,
@@ -744,7 +783,7 @@ class RemoteCommonService {
 			null,
 			'String'
 		);
-		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+		$request->ItemShape->AdditionalProperties->ExtendedFieldURI[] = new PathToExtendedFieldType(
 			'PublicStrings',
 			null,
 			null,
@@ -771,11 +810,11 @@ class RemoteCommonService {
 		);
 		*/
 		// define paging
-		$request->IndexedPageItemView = new \OCA\EWS\Components\EWS\Type\IndexedPageViewType('Beginning', 0, 512);
+		$request->IndexedPageItemView = new IndexedPageViewType('Beginning', 0, 512);
 		// define criteria
-		$request->Restriction = new \OCA\EWS\Components\EWS\Type\RestrictionType();
-		$request->Restriction->IsEqualTo = new \OCA\EWS\Components\EWS\Type\IsEqualToType();
-		$request->Restriction->IsEqualTo->ExtendedFieldURI = new \OCA\EWS\Components\EWS\Type\PathToExtendedFieldType(
+		$request->Restriction = new RestrictionType();
+		$request->Restriction->IsEqualTo = new IsEqualToType();
+		$request->Restriction->IsEqualTo->ExtendedFieldURI = new PathToExtendedFieldType(
 			'PublicStrings',
 			null,
 			null,
@@ -783,8 +822,8 @@ class RemoteCommonService {
 			null,
 			'String'
 		);
-		$request->Restriction->IsEqualTo->FieldURIOrConstant = new \OCA\EWS\Components\EWS\Type\FieldURIOrConstantType();
-		$request->Restriction->IsEqualTo->FieldURIOrConstant->Constant = new \OCA\EWS\Components\EWS\Type\ConstantValueType($uuid);
+		$request->Restriction->IsEqualTo->FieldURIOrConstant = new FieldURIOrConstantType();
+		$request->Restriction->IsEqualTo->FieldURIOrConstant->Constant = new ConstantValueType($uuid);
 		// execute request
 		$response = $DataStore->FindItem($request);
 		// process response
@@ -826,12 +865,12 @@ class RemoteCommonService {
 	public function fetchItem(EWSClient $DataStore, array $ioc, string $base = 'D', object $additional = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\GetItemType();
+		$request = new GetItemType();
 		// define target
-		$request->ItemIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseItemIdsType();
+		$request->ItemIds = new NonEmptyArrayOfBaseItemIdsType();
 		$request->ItemIds->ItemId = $ioc;
 		// define required base properties
-		$request->ItemShape = new \OCA\EWS\Components\EWS\Type\ItemResponseShapeType();
+		$request->ItemShape = new ItemResponseShapeType();
 		if ($base == 'A') {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_ENTIRE;
 		}
@@ -842,7 +881,7 @@ class RemoteCommonService {
 			$request->ItemShape->BaseShape = self::SCOPE_ATTRIBUTES_PRESET;
 		}
 		// define required additional properties
-		if ($additional instanceof \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfPathsToElementType) {
+		if ($additional instanceof NonEmptyArrayOfPathsToElementType) {
 			$request->ItemShape->AdditionalProperties = $additional;
 		}
 		/*
@@ -921,13 +960,13 @@ class RemoteCommonService {
 	public function createItem(EWSClient $DataStore, string $fid, object $data): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\CreateItemType();
+		$request = new CreateItemType();
 		$request->SendMeetingInvitations = 'SendToNone';
 		// define target
-		$request->SavedItemFolderId = new \OCA\EWS\Components\EWS\Type\TargetFolderIdType();
-		$request->SavedItemFolderId->FolderId = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+		$request->SavedItemFolderId = new TargetFolderIdType();
+		$request->SavedItemFolderId->FolderId = new FolderIdType($fid);
 		// define objects to create
-		$request->Items = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfAllItemsType();
+		$request->Items = new NonEmptyArrayOfAllItemsType();
 		if (is_a($data, 'OCA\EWS\Components\EWS\Type\ContactItemType')) {
 			$request->Items->Contact[] = $data;
 		}
@@ -984,16 +1023,16 @@ class RemoteCommonService {
 	public function updateItem(EWSClient $DataStore, string $fid, string $iid, string $istate = null, array $additions = null, array $modifications = null, array $deletions = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\UpdateItemType();
+		$request = new UpdateItemType();
 		$request->ConflictResolution = 'AlwaysOverwrite';
 		$request->SendMeetingInvitationsOrCancellations = 'SendToNone';
 		// define target folder
-		$request->SavedItemFolderId = new \OCA\EWS\Components\EWS\Type\TargetFolderIdType();
-		$request->SavedItemFolderId->FolderId = new \OCA\EWS\Components\EWS\Type\FolderIdType($fid);
+		$request->SavedItemFolderId = new TargetFolderIdType();
+		$request->SavedItemFolderId->FolderId = new FolderIdType($fid);
 		// define target object and changes
-		$request->ItemChanges[] = new \OCA\EWS\Components\EWS\Type\ItemChangeType(
-			new \OCA\EWS\Components\EWS\Type\ItemIdType($iid, $istate),
-			new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfItemChangeDescriptionsType($additions, $modifications, $deletions)
+		$request->ItemChanges[] = new ItemChangeType(
+			new ItemIdType($iid, $istate),
+			new NonEmptyArrayOfItemChangeDescriptionsType($additions, $modifications, $deletions)
 		);
 		// execute request
 		$response = $DataStore->UpdateItem($request);
@@ -1033,14 +1072,14 @@ class RemoteCommonService {
 	public function deleteItem(EWSClient $DataStore, array $ids = null, string $type = 'SoftDelete', array $options = []): ?bool {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\DeleteItemType();
+		$request = new DeleteItemType();
 		$request->SendMeetingCancellations = 'SendToNone';
 		if (isset($options['TaskOccurrences'])) {
 			$request->AffectedTaskOccurrences = $options['TaskOccurrences'];
 		}
 		$request->DeleteType = $type;
 		// define objects to delete
-		$request->ItemIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseItemIdsType($ids);
+		$request->ItemIds = new NonEmptyArrayOfBaseItemIdsType($ids);
 		// execute request
 		$response = $DataStore->DeleteItem($request);
 		// process response
@@ -1078,28 +1117,28 @@ class RemoteCommonService {
 	public function fetchAttachment(EWSClient $DataStore, array $batch): ?array {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\GetAttachmentType();
+		$request = new GetAttachmentType();
 		// define target(s)
-		$request->AttachmentIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfRequestAttachmentIdsType();
+		$request->AttachmentIds = new NonEmptyArrayOfRequestAttachmentIdsType();
 		foreach ($batch as $entry) {
-			$request->AttachmentIds->AttachmentId[] = new \OCA\EWS\Components\EWS\Type\RequestAttachmentIdType((String) $entry);
+			$request->AttachmentIds->AttachmentId[] = new RequestAttachmentIdType((String) $entry);
 		}
 		// execute request
 		$response = $DataStore->GetAttachment($request);
 		// process response
 		$response = $response->ResponseMessages->GetAttachmentResponseMessage;
 		$data = array();
-		foreach ($response as $entry) {
+		foreach ($response as $response_data) {
 			// evaluate if response contained a error
-			if ($entry->ResponseClass == ResponseClassType::ERROR) {
+			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
 			}
 			// evaluate if response contained a warning
-			elseif ($entry->ResponseClass == ResponseClassType::WARNING) {
+			elseif ($response_data->ResponseClass == ResponseClassType::WARNING) {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
 			// extract data object from response
-			$data = array_merge($data, (array) $entry->Attachments->FileAttachment, (array) $entry->Attachments->ItemAttachment);
+			$data = array_merge($data, (array) $response_data->Attachments->FileAttachment, (array) $response_data->Attachments->ItemAttachment);
 		}
 		// return object or null
 		return $data;
@@ -1121,11 +1160,11 @@ class RemoteCommonService {
 	public function createAttachment(EWSClient $DataStore, string $iid, array $batch): array {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\CreateAttachmentType();
+		$request = new CreateAttachmentType();
 		// define target
-		$request->ParentItemId = new \OCA\EWS\Components\EWS\Type\ItemIdType($iid);
+		$request->ParentItemId = new ItemIdType($iid);
 		// define objects to create
-		$request->Attachments = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfAttachmentsType();
+		$request->Attachments = new NonEmptyArrayOfAttachmentsType();
 		foreach ($batch as $entry) {
 			if (is_a($entry, 'OCA\EWS\Components\EWS\Type\FileAttachmentType')) {
 				$request->Attachments->FileAttachment[] = $entry;
@@ -1136,7 +1175,7 @@ class RemoteCommonService {
 		// process response
 		$response = $response->ResponseMessages->CreateAttachmentResponseMessage;
 		$data = array();
-		foreach ($response as $entry) {
+		foreach ($response as $response_data) {
 			// evaluate if response contained a error
 			if ($response_data->ResponseClass == ResponseClassType::ERROR) {
 				throw new Exception(self::DESCRIPTOR_REMOTE_ERROR . $response_data->ResponseCode . ' - ' . $response_data->MessageText);
@@ -1146,7 +1185,7 @@ class RemoteCommonService {
 				$this->logger->warning(self::DESCRIPTOR_REMOTE_WARNING . $response_data->MessageText);
 			}
 			// extract data object from response
-			$data = array_merge($data, (array) $entry->Attachments->FileAttachment, (array) $entry->Attachments->ItemAttachment);
+			$data = array_merge($data, (array) $response_data->Attachments->FileAttachment, (array) $response_data->Attachments->ItemAttachment);
 		}
 		// return object or null
 		return $data;
@@ -1168,11 +1207,11 @@ class RemoteCommonService {
 	public function deleteAttachment(EWSClient $DataStore, array $batch): array {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\DeleteAttachmentType();
+		$request = new DeleteAttachmentType();
 		// define target(s) to delete
-		$request->AttachmentIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfRequestAttachmentIdsType();
+		$request->AttachmentIds = new NonEmptyArrayOfRequestAttachmentIdsType();
 		foreach ($batch as $entry) {
-			$request->AttachmentIds->AttachmentId[] = new \OCA\EWS\Components\EWS\Type\RequestAttachmentIdType((String) $entry);
+			$request->AttachmentIds->AttachmentId[] = new RequestAttachmentIdType((String) $entry);
 		}
 		// execute request
 		$response = $DataStore->DeleteAttachment($request);
@@ -1208,10 +1247,10 @@ class RemoteCommonService {
 	public function fetchTimeZone(EWSClient $DataStore, string $zone = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\GetServerTimeZonesType();
+		$request = new GetServerTimeZonesType();
 		// define target
 		if (!empty($zone)) {
-			$request->Ids = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfTimeZoneIdType();
+			$request->Ids = new NonEmptyArrayOfTimeZoneIdType();
 			$request->Ids->Id[] = $zone;
 		}
 		// execute request
@@ -1249,20 +1288,20 @@ class RemoteCommonService {
 	public function connectEvents(EWSClient $DataStore, int $duration, array $ids = null, array $dids = null, array $types = null): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\SubscribeType();
-		$request->PullSubscriptionRequest = new \OCA\EWS\Components\EWS\Type\PullSubscriptionRequestType();
-		$request->PullSubscriptionRequest->FolderIds = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfBaseFolderIdsType();
-		$request->PullSubscriptionRequest->EventTypes = new \OCA\EWS\Components\EWS\ArrayType\NonEmptyArrayOfNotificationEventTypesType();
+		$request = new SubscribeType();
+		$request->PullSubscriptionRequest = new PullSubscriptionRequestType();
+		$request->PullSubscriptionRequest->FolderIds = new NonEmptyArrayOfBaseFolderIdsType();
+		$request->PullSubscriptionRequest->EventTypes = new NonEmptyArrayOfNotificationEventTypesType();
 		$request->PullSubscriptionRequest->Timeout = $duration;
 		// define target(s)
 		if (isset($ids)) {
 			foreach ($ids as $entry) {
-				$request->PullSubscriptionRequest->FolderIds->FolderId[] = new \OCA\EWS\Components\EWS\Type\FolderIdType($entry);
+				$request->PullSubscriptionRequest->FolderIds->FolderId[] = new FolderIdType($entry);
 			}
 		}
 		if (isset($dids)) {
 			foreach ($dids as $entry) {
-				$request->PullSubscriptionRequest->FolderIds->DistinguishedFolderId[] = new \OCA\EWS\Components\EWS\Type\DistinguishedFolderIdType($entry);
+				$request->PullSubscriptionRequest->FolderIds->DistinguishedFolderId[] = new DistinguishedFolderIdType($entry);
 			}
 		}
 		// define types(s)
@@ -1307,7 +1346,7 @@ class RemoteCommonService {
 	public function disconnectEvents(EWSClient $DataStore, string $id): ?bool {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\UnsubscribeType();
+		$request = new UnsubscribeType();
 		$request->SubscriptionId = $id;
 		// execute request
 		$response = $DataStore->Unsubscribe($request);
@@ -1344,7 +1383,7 @@ class RemoteCommonService {
 	public function fetchEvents(EWSClient $DataStore, string $id, string $token): ?object {
 
 		// construct request
-		$request = new \OCA\EWS\Components\EWS\Request\GetEventsType();
+		$request = new GetEventsType();
 		$request->SubscriptionId = $id;
 		$request->Watermark = $token;
 		// execute request

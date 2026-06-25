@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines a set of properties for a persona.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class PersonaResponseShapeType extends Type
 {

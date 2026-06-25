@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the response of a client application to a push notification.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SendNotificationResultType extends Type
 {

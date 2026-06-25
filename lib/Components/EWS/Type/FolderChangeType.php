@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a collection of changes to be performed on a single folder.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FolderChangeType extends Type
 {

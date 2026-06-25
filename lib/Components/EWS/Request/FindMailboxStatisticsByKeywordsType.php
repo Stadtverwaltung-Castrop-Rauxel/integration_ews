@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Request;
  * Defines a request to search for mailbox statistics by keyword.
  *
  * @package OCA\EWS\Components\EWS\Request
+ *
+ * @psalm-external-mutation-free
  */
 class FindMailboxStatisticsByKeywordsType extends BaseRequestType
 {

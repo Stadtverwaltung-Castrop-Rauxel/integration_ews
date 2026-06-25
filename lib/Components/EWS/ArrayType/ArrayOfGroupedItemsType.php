@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\ArrayType;
  * aggregation criteria that is identified in the FindItem operation request.
  *
  * @package OCA\EWS\Components\EWS\Array
+ *
+ * @psalm-external-mutation-free
  */
 class ArrayOfGroupedItemsType extends ArrayType
 {

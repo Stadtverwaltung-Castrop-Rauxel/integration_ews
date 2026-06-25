@@ -30,6 +30,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * item.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class ExportItemsResponseMessageType extends ResponseMessageType
 {

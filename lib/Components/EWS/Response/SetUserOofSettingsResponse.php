@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Response;
  * Defines the result of a SetUserOofSettingsRequest message attempt.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class SetUserOofSettingsResponse extends Response
 {

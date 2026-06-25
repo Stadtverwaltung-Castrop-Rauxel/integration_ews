@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines an extended property for a persona.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ExtendedPropertyAttributedValueType extends Type
 {

@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents information for a single event for a recipient.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RecipientTrackingEventType extends Type
 {

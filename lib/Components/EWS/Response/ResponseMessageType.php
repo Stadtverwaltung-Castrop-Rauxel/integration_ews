@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Response;
  * Represents the status and result of a request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class ResponseMessageType extends Response
 {

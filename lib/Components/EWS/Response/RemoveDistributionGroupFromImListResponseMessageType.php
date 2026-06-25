@@ -29,6 +29,8 @@ namespace OCA\EWS\Components\EWS\Response;
  * Defines a response to a RemoveDistributionGroupFromImList request.
  *
  * @package OCA\EWS\Components\EWS\Response
+ *
+ * @psalm-external-mutation-free
  */
 class RemoveDistributionGroupFromImListResponseMessageType extends ResponseMessageType
 {

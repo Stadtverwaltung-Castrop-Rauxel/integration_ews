@@ -38,6 +38,9 @@ use OCA\EWS\Components\EWS\ArrayType;
 class NonEmptyArrayOfBaseFolderIdsType extends ArrayType
 {
 
+    /**
+     * @psalm-mutation-free
+     */
     public function __construct(array $n = null, array $d = null)
     {
         if (isset($n)) {$this->FolderId = $n;}

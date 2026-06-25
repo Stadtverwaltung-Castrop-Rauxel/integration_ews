@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents a single protection rule.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class ProtectionRuleType extends Type
 {

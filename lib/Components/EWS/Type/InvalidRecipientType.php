@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * why the recipient is invalid.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class InvalidRecipientType extends Type
 {

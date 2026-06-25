@@ -32,6 +32,8 @@ use OCA\EWS\Components\EWS\Type;
  * message.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class OutOfOfficeMailTip extends Type
 {

@@ -28,6 +28,7 @@ namespace OCA\EWS\Utils;
 use Datetime;
 use DateTimeZone;
 use DateInterval;
+use OCA\EWS\Service\Remote\RemoteCommonService;
 
 #[\Deprecated(message: "Assumes files with time zones to be present in /data")]
 class Misc {
@@ -196,7 +197,7 @@ class Misc {
      */
     function generateEWS($RemoteStore) {
 
-		$RemoteCommonService = \OC::$server->get(\OCA\EWS\Service\Remote\RemoteCommonService::class);
+		$RemoteCommonService = \OC::$server->get(RemoteCommonService::class);
 
 		$zones = $RemoteCommonService->fetchTimeZone($RemoteStore);
 

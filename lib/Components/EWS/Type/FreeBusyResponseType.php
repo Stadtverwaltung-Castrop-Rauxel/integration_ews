@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Represents the free/busy information for a single mailbox user.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class FreeBusyResponseType extends Type
 {

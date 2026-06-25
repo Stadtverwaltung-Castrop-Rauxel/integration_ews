@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines an item preview for a discovery search.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class SearchPreviewItemType extends Type
 {

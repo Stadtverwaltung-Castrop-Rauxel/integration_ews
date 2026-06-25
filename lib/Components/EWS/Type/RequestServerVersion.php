@@ -31,6 +31,8 @@ use OCA\EWS\Components\EWS\Type;
  * Defines the Microsoft Exchange Server version of a request.
  *
  * @package OCA\EWS\Components\EWS\Type
+ *
+ * @psalm-external-mutation-free
  */
 class RequestServerVersion extends Type
 {
