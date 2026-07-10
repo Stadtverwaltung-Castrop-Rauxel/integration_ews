@@ -42,52 +42,31 @@ use OCA\EWS\Service\HarmonizationService;
 
 class PersonalConfigurationController extends Controller {
 
-	/**
-	 * @var string|null
-	 */
-	private $userId;
-	/**
-	 * @var ConfigurationService
-	 */
-	private $ConfigurationService;
-	/**
-	 * @var CoreService
-	 */
-	private $CoreService;
-	/**
-	 * @var HarmonizationService
-	 */
-	private $HarmonizationService;
-
-	public function __construct(string $appName,
-								IRequest $request,
-								ConfigurationService $ConfigurationService,
-								CoreService $CoreService,
-								HarmonizationService $HarmonizationService,
-								string $userId) {
+	public function __construct(string                                $appName,
+								IRequest                              $request,
+								private readonly ConfigurationService $ConfigurationService,
+								private readonly CoreService          $CoreService,
+								private readonly HarmonizationService $HarmonizationService,
+								private readonly string               $userId) {
 		parent::__construct($appName, $request);
-		$this->ConfigurationService = $ConfigurationService;
-		$this->CoreService = $CoreService;
-		$this->HarmonizationService = $HarmonizationService;
-		$this->userId = $userId;
 	}
 
-	/**
-	 * handels connect click event
-	 *
-	 * @param string $account_id		users login name
-	 * @param string $account_secret	users login password
-     * @param string $account_charset   users login charset
-     * @param string $server			server domain or ip
-	 *
-	 * @return DataResponse
-	 */
+    /**
+     * handels connect click event
+     *
+     * @param string $account_id users login name
+     * @param string $account_secret users login password
+     * @param string|null $account_charset users login charset
+     * @param string $account_server
+     * @param string $flag
+     * @return DataResponse
+     */
 	#[NoAdminRequired]
 	public function ConnectAlternate(string $account_id, string $account_secret, ?string $account_charset, string $account_server, string $flag): DataResponse {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		// assign flags
 		$flags = ['VALIDATE'];
@@ -101,27 +80,27 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse('success');
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
 
-	/**
-	 * handels connect click event
-	 *
-	 * @param string $server			server domain or ip
-	 * @param string $account_id		users login name
-	 * @param string $account_secret	users login password
-	 *
-	 * @return DataResponse|DataResponse
-	 */
+    /**
+     * handels connect click event
+     *
+     * @param string|null $code oauth authentication code.
+     * @return TemplateResponse|DataResponse
+     */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function ConnectMS365(?string $code): TemplateResponse|DataResponse {
 
 		// evaluate if user id is present
-		if ($this->userId === null || empty($code)) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+        if (empty($code)) {
+            return new DataResponse(['message' => "Parameter 'code' missing or empty"], Http::STATUS_BAD_REQUEST);
+        }
+		if ($this->userId === null) {
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		// assign flags
 		$flags = ['VALIDATE'];
@@ -133,7 +112,7 @@ class PersonalConfigurationController extends Controller {
 			return new TemplateResponse(Application::APP_ID, 'popupSuccess', [], TemplateResponse::RENDER_AS_GUEST);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -148,7 +127,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// execute disconnect
@@ -157,7 +136,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse('success');
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -172,7 +151,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// execute harmonization
@@ -181,7 +160,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse('success');
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -197,7 +176,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// retrieve collections
@@ -206,7 +185,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse($rs);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -221,7 +200,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// retrieve collections
@@ -230,7 +209,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse($rs);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -246,7 +225,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// retrieve correlations
@@ -255,7 +234,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse($rs);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -272,7 +251,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// deposit correlations
@@ -283,7 +262,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse($rs);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -301,7 +280,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// retrieve user configuration
@@ -310,7 +289,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse($rs);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -327,7 +306,7 @@ class PersonalConfigurationController extends Controller {
 
 		// evaluate if user id is present
 		if ($this->userId === null) {
-			return new DataResponse([], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['message' => 'User not logged in'], Http::STATUS_UNAUTHORIZED);
 		}
 		try {
 			// deposit user configuration
@@ -336,7 +315,7 @@ class PersonalConfigurationController extends Controller {
 			return new DataResponse(true);
 		} catch (Throwable $th) {
 			// return error message
-			return new DataResponse($th->getMessage(), 401);
+			return new DataResponse(['message' => $th->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 	}

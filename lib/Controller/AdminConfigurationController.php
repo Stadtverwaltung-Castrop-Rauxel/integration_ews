@@ -2,62 +2,59 @@
 declare(strict_types=1);
 
 /**
-* @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @author Sebastian Krupinski <krupinski01@gmail.com>
-*
-* @license AGPL-3.0-or-later
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * @copyright Copyright (c) 2023 Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @author Sebastian Krupinski <krupinski01@gmail.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace OCA\EWS\Controller;
 
-use OCP\IRequest;
+use OCA\EWS\Service\ConfigurationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\IRequest;
 
-use OCA\EWS\AppInfo\Application;
-use OCA\EWS\Service\ConfigurationService;
+class AdminConfigurationController extends Controller
+{
 
-class AdminConfigurationController extends Controller {
+    public function __construct($appName,
+                                IRequest $request,
+                                private readonly ConfigurationService $ConfigurationService)
+    {
 
-	/**
-	 * @var ConfigurationService
-	 */
-	private $ConfigurationService;
+        parent::__construct($appName, $request);
 
-	public function __construct($appName, IRequest $request, ConfigurationService $ConfigurationService) {
+    }
 
-		parent::__construct($appName, $request);
+    /**
+     * handles save configuration requests
+     *
+     * @param array $values key/value pairs to save
+     *
+     * @return DataResponse
+     */
+    public function depositConfiguration(array $values): DataResponse
+    {
 
-		$this->ConfigurationService = $ConfigurationService;
-		
-	}
+        $this->ConfigurationService->depositSystem($values);
 
-	/**
-	 * handles save configuration requests
-	 *
-	 * @param array $values key/value pairs to save
-	 * 
-	 * @return DataResponse
-	 */
-	public function depositConfiguration(array $values): DataResponse {
-		
-		$this->ConfigurationService->depositSystem($values);
+        return new DataResponse(true);
 
-		return new DataResponse(true);
-	}
+    }
 }
