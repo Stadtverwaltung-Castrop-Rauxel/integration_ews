@@ -53,32 +53,32 @@ use Throwable;
 class CoreService
 {
     /**
-     * @var EWSClient
+     * @var ?EWSClient
      */
-    private EWSClient $RemoteStore;
+    private ?EWSClient $RemoteStore = null;
 
     /**
      * @psalm-mutation-free
      */
-    public function __construct(string                             $appName,
-                                private LoggerInterface            $logger,
-                                private IJobList                   $TaskService,
-                                private INotificationManager       $notificationManager,
-                                private ConfigurationService       $ConfigurationService,
-                                private CorrelationsService        $CorrelationsService,
-                                private HarmonizationThreadService $HarmonizationThreadService,
-                                private LocalContactsService       $LocalContactsService,
-                                private LocalEventsService         $LocalEventsService,
-                                private LocalTasksService          $LocalTasksService,
-                                private RemoteContactsService      $RemoteContactsService,
-                                private RemoteEventsService        $RemoteEventsService,
-                                private RemoteTasksService         $RemoteTasksService,
-                                private RemoteCommonService        $RemoteCommonService,
-                                private ContactsService            $ContactsService,
-                                private EventsService              $EventsService,
-                                private TasksService               $TasksService,
-                                private CardDavBackend             $cardDavBackend,
-                                private CalDavBackend              $CalDavBackend)
+    public function __construct(string                                      $appName,
+                                private readonly LoggerInterface            $logger,
+                                private readonly IJobList                   $TaskService,
+                                private readonly INotificationManager       $notificationManager,
+                                private readonly ConfigurationService       $ConfigurationService,
+                                private readonly CorrelationsService        $CorrelationsService,
+                                private readonly HarmonizationThreadService $HarmonizationThreadService,
+                                private readonly LocalContactsService       $LocalContactsService,
+                                private readonly LocalEventsService         $LocalEventsService,
+                                private readonly LocalTasksService          $LocalTasksService,
+                                private readonly RemoteContactsService      $RemoteContactsService,
+                                private readonly RemoteEventsService        $RemoteEventsService,
+                                private readonly RemoteTasksService         $RemoteTasksService,
+                                private readonly RemoteCommonService        $RemoteCommonService,
+                                private readonly ContactsService            $ContactsService,
+                                private readonly EventsService              $EventsService,
+                                private readonly TasksService               $TasksService,
+                                private readonly CardDavBackend             $cardDavBackend,
+                                private readonly CalDavBackend              $CalDavBackend)
     {
     }
 

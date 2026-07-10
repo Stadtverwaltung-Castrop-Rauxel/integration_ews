@@ -39,15 +39,15 @@ class HarmonizationService
      * @psalm-mutation-free
      */
     public function __construct(string                             $appName,
-                                private LoggerInterface            $logger,
-                                private ConfigurationService       $ConfigurationService,
-                                private CoreService                $CoreService,
-                                private CorrelationsService        $CorrelationsService,
-                                private RemoteCommonService        $RemoteCommonService,
-                                private ContactsService            $ContactsService,
-                                private EventsService              $EventsService,
-                                private TasksService               $TasksService,
-                                private HarmonizationThreadService $HarmonizationThreadService)
+                                private readonly LoggerInterface            $logger,
+                                private readonly ConfigurationService       $ConfigurationService,
+                                private readonly CoreService                $CoreService,
+                                private readonly CorrelationsService        $CorrelationsService,
+                                private readonly RemoteCommonService        $RemoteCommonService,
+                                private readonly ContactsService            $ContactsService,
+                                private readonly EventsService              $EventsService,
+                                private readonly TasksService               $TasksService,
+                                private readonly HarmonizationThreadService $HarmonizationThreadService)
     {
 
     }
