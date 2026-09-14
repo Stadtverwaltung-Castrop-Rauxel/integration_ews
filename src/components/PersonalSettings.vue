@@ -575,16 +575,19 @@ onMounted(() => {
 						
 						    <!-- Rechte Seite: Dropdown mit fester Breite -->
 						    <div style="flex: 0 0 320px;">
-						        <NcSelect
-						            :model-value="establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-						            @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
-						            :options="availableLocalContactCollections"
-						            label="name"
-						            :reduce="item => item.id"
-						            :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
-						            :placeholder="t(APP_ID, '--- Do not synchronize ---')"
-						            :clearable="true"
-						        />						
+						       <NcSelect
+								    :model-value="(() => {
+								        const found = establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
+								        return found !== undefined && found !== null ? Number(found) : null;
+								    })()"
+								    @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
+								    :options="availableLocalContactCollections"
+								    label="name"
+								    :reduce="item => item.id"
+								    :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
+								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+								    :clearable="true"
+								/>		
 						    </div>
 						</li>
 					</ul>
@@ -692,14 +695,17 @@ onMounted(() => {
 							<!-- Rechte Seite: Dropdown mit fester Breite -->
 							<div style="flex: 0 0 320px;">
 								<NcSelect
-									:model-value="establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-									@update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
-									:options="availableLocalEventCollections"
-									label="name"
-									:reduce="item => item.id"
-									:selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
-									:placeholder="t(APP_ID, '--- Do not synchronize ---')"
-									:clearable="true"
+								    :model-value="(() => {
+								        const found = establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
+								        return found !== undefined && found !== null ? Number(found) : null;
+								    })()"
+								    @update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
+								    :options="availableLocalEventCollections"
+								    label="name"
+								    :reduce="item => item.id"
+								    :selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
+								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+								    :clearable="true"
 								/>
 							</div>
 						</li>
@@ -814,14 +820,17 @@ onMounted(() => {
 							<!-- Rechte Seite: Dropdown mit fester Breite -->
 							<div style="flex: 0 0 320px;">
 								<NcSelect
-									:model-value="establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-									@update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
-									:options="availableLocalTaskCollections"
-									label="name"
-									:reduce="item => item.id"
-									:selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
-									:placeholder="t(APP_ID, '--- Do not synchronize ---')"
-									:clearable="true"
+								    :model-value="(() => {
+								        const found = establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
+								        return found !== undefined && found !== null ? Number(found) : null;
+								    })()"
+								    @update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
+								    :options="availableLocalTaskCollections"
+								    label="name"
+								    :reduce="item => item.id"
+								    :selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
+								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+								    :clearable="true"
 								/>
 							</div>
 						</li>
