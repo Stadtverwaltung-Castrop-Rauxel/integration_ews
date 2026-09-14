@@ -610,7 +610,7 @@ onMounted(() => {
 						</label>
 						<NcSelect v-model="state.contacts_harmonize"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Never', id: '-1'}, {label: 'Manually', id: '0'}, {label: 'Automatically', id: '5'}]"/>
+								   :options="[{label: t(APP_ID, 'Never'), id: '-1'}, {label: t(APP_ID, 'Manually'), id: '0'}, {label: t(APP_ID, 'Automatically'), id: '5'}]"/>
 						<label>
 							{{
 								t(APP_ID, 'and if there is a conflict')
@@ -618,7 +618,7 @@ onMounted(() => {
 						</label>
 						<NcSelect v-model="state.contacts_prevalence"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Remote', id: 'R'}, {label: 'Local', id: 'L'}, {label: 'Chronology', id: 'C'}]"/>
+								  :options="[{label: t(APP_ID, 'Remote'), id: 'R'}, {label: t(APP_ID, 'Local'), id: 'L'}, {label: t(APP_ID, 'Chronology'), id: 'C'}]"/>
 						<label>
 							{{ t(APP_ID, 'prevails') }}
 						</label>
