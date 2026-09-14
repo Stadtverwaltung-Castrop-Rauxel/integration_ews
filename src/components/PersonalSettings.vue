@@ -569,28 +569,17 @@ onMounted(() => {
 								{{ ritem.name }} ({{ ritem.count }}
 								Contacts)
 							</label>
-							<NcActions>
-								<template #icon>
-									<LinkIcon/>
-								</template>
-								<NcActionButton
-									@click="clearContactCorrelation(ritem.id)">
-									<template #icon>
-										<CloseIcon/>
-									</template>
-									Clear
-								</NcActionButton>
-								<NcActionRadio
-									v-for="litem in availableLocalContactCollections"
-									:key="litem.id"
-									:name="`available-local-contact-collections-${litem.id}`"
-									:disabled="establishedContactCorrelationDisable(ritem.id, litem.id)"
-									:model-value="establishedContactCorrelationSelect(ritem.id, litem.id) ? 1 : 0"
-									:value="1"
-									@update:model-value="changeContactCorrelation(ritem.id, litem.id)">
-									{{ litem.name }}
-								</NcActionRadio>
-							</NcActions>
+							<NcSelect
+							    :model-value="establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+							    @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
+							    :options="availableLocalContactCollections"
+							    label="name"
+							    :reduce="item => item.id"
+							    :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
+							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+							    :clearable="true"
+							    style="min-width: 250px; margin-left: auto;"
+							/>						
 						</li>
 					</ul>
 					<div
@@ -689,28 +678,17 @@ onMounted(() => {
 							<label>
 								{{ ritem.name }} ({{ ritem.count }} Events)
 							</label>
-							<NcActions>
-								<template #icon>
-									<LinkIcon/>
-								</template>
-								<NcActionButton
-									@click="clearEventCorrelation(ritem.id)">
-									<template #icon>
-										<CloseIcon/>
-									</template>
-									Clear
-								</NcActionButton>
-								<NcActionRadio
-									v-for="litem in availableLocalEventCollections"
-									:key="litem.id"
-									:name="`available-local-event-collections-${litem.id}`"
-									:disabled="establishedEventCorrelationDisable(ritem.id, litem.id)"
-									:model-value="establishedEventCorrelationSelect(ritem.id, litem.id) ? 1 : 0"
-									:value="1"
-									@update:model-value="changeEventCorrelation(ritem.id, litem.id)">
-									{{ litem.name }}
-								</NcActionRadio>
-							</NcActions>
+							<NcSelect
+							    :model-value="establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+							    @update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
+							    :options="availableLocalEventCollections"
+							    label="name"
+							    :reduce="item => item.id"
+							    :selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
+							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+							    :clearable="true"
+							    style="min-width: 250px; margin-left: auto;"
+							/>
 						</li>
 					</ul>
 					<div
