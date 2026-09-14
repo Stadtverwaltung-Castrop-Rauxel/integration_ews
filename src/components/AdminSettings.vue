@@ -126,7 +126,7 @@ const onSaveClick = async () => {
 				<NcSelect input-id="ews-harmonization_mode"
 						  v-model="state.harmonization_mode"
 						  :reduce="item => item.id"
-						  :options="[{label: 'Passive', id: 'P'}, {label: 'Active', id: 'A'}]"/>
+						  :options="[{label: t(APP_ID, 'Passive'), id: 'P'}, {label: t(APP_ID, 'Active'), id: 'A'}]"/>
 			</div>
 			<div v-if="state.harmonization_mode === 'A'" class="setting-row">
 				<label for="ews-thread-duration">
