@@ -563,23 +563,29 @@ onMounted(() => {
 				<div v-if="state.system_contacts == 1">
 					<ul v-if="availableRemoteContactCollections.length > 0">
 						<li v-for="ritem in availableRemoteContactCollections"
-							:key="ritem.id" class="setting-row">
-							<ContactIcon/>
-							<label>
-								{{ ritem.name }} ({{ ritem.count }}
-								Contacts)
-							</label>
-							<NcSelect
-							    :model-value="establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-							    @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
-							    :options="availableLocalContactCollections"
-							    label="name"
-							    :reduce="item => item.id"
-							    :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
-							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
-							    :clearable="true"
-							    style="min-width: 250px; margin-left: auto;"
-							/>						
+						    :key="ritem.id" class="setting-row" style="justify-content: space-between;">
+						    
+						    <!-- Linke Seite: Icon und Ordnername fest gruppiert -->
+						    <div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
+						        <ContactIcon style="flex-shrink: 0;" />
+						        <label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
+						            {{ ritem.name }} ({{ ritem.count }} Contacts)
+						        </label>
+						    </div>
+						
+						    <!-- Rechte Seite: Dropdown mit fester Breite -->
+						    <div style="flex: 0 0 320px;">
+						        <NcSelect
+						            :model-value="establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+						            @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
+						            :options="availableLocalContactCollections"
+						            label="name"
+						            :reduce="item => item.id"
+						            :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
+						            :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+						            :clearable="true"
+						        />						
+						    </div>
 						</li>
 					</ul>
 					<div
@@ -667,65 +673,80 @@ onMounted(() => {
 			<div class="correlations-events">
 				<div class="description">
 					{{
-						t(APP_ID, 'Select the remote calendar(s) you wish to synchronize by pressing the link button next to the calendars name and selecting the local calendar to synchronize to.')
+						t(APP_ID, 'Select the remote calendar(s) you wish to synchronize by selecting the local calendar from the dropdown next to the calendar name.')
 					}}
 				</div>
 				<div v-if="state.system_events == 1">
 					<ul v-if="availableRemoteEventCollections.length > 0">
 						<li v-for="ritem in availableRemoteEventCollections"
-							:key="ritem.id" class="setting-row">
-							<CalendarIcon/>
-							<label>
-								{{ ritem.name }} ({{ ritem.count }} Events)
-							</label>
-							<NcSelect
-							    :model-value="establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-							    @update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
-							    :options="availableLocalEventCollections"
-							    label="name"
-							    :reduce="item => item.id"
-							    :selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
-							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
-							    :clearable="true"
-							    style="min-width: 250px; margin-left: auto;"
-							/>
+							:key="ritem.id" class="setting-row" style="justify-content: space-between;">
+							
+							<!-- Linke Seite: Icon und Kalendername fest gruppiert -->
+							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
+								<CalendarIcon style="flex-shrink: 0;" />
+								<label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
+									{{ ritem.name }} ({{ ritem.count }} Events)
+								</label>
+							</div>
+					
+							<!-- Rechte Seite: Dropdown mit fester Breite -->
+							<div style="flex: 0 0 320px;">
+								<NcSelect
+									:model-value="establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+									@update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
+									:options="availableLocalEventCollections"
+									label="name"
+									:reduce="item => item.id"
+									:selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
+									:placeholder="t(APP_ID, '--- Do not synchronize ---')"
+									:clearable="true"
+								/>
+							</div>
 						</li>
-					</ul>
-					<div
-						v-else-if="availableRemoteEventCollections.length == 0">
+					</ul>					
+					<div v-else-if="availableRemoteEventCollections.length == 0" style="padding: 0.5em 0; color: var(--color-text-maxcontrast);">
 						{{
-							t(APP_ID, 'No events collections where found in the connected account.')
+							t(APP_ID, 'No event collections were found in the connected account.')
 						}}
 					</div>
-					<div v-else>
+					<div v-else style="padding: 0.5em 0; color: var(--color-text-maxcontrast);">
 						{{
 							t(APP_ID, 'Loading events collections from the connected account.')
 						}}
 					</div>
-					<div>
+
+					<!-- Optisch aufgeräumte Steuerungszeile -->
+					<div class="setting-row" style="display: flex; align-items: center; gap: 1em; flex-wrap: wrap; margin-top: 1em;">
 						<label>
 							{{ t(APP_ID, 'Synchronize ') }}
 						</label>
 						<NcSelect v-model="state.events_harmonize"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Never', id: '-1'}, {label: 'Manually', id: '0'}, {label: 'Automatically', id: '5'}]"/>
+								  :options="[
+									  {label: t(APP_ID, 'Never'), id: '-1'}, 
+									  {label: t(APP_ID, 'Manually'), id: '0'}, 
+									  {label: t(APP_ID, 'Automatically'), id: '5'}
+								  ]"
+								  style="min-width: 160px;" />
 						<label>
-							{{
-								t(APP_ID, 'and if there is a conflict')
-							}}
+							{{ t(APP_ID, 'and if there is a conflict') }}
 						</label>
 						<NcSelect v-model="state.events_prevalence"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Remote', id: 'R'}, {label: 'Local', id: 'L'}, {label: 'Chronology', id: 'C'}]"/>
+								  :options="[
+									  {label: t(APP_ID, 'Remote'), id: 'R'}, 
+									  {label: t(APP_ID, 'Local'), id: 'L'}, 
+									  {label: t(APP_ID, 'Chronology'), id: 'C'}
+								  ]"
+								  style="min-width: 160px;" />
 						<label>
 							{{ t(APP_ID, 'prevails') }}
 						</label>
 					</div>
+
 					<div v-if="false" style="display: flex">
 						<label>
-							{{
-								t(APP_ID, 'Syncronized these local actions to the Remote system')
-							}}
+							{{ t(APP_ID, 'Synchronized these local actions to the Remote system') }}
 						</label>
 						<NcCheckboxRadioSwitch
 							v-model="state.events_actions_local"
@@ -745,9 +766,7 @@ onMounted(() => {
 					</div>
 					<div v-if="false" style="display: flex">
 						<label>
-							{{
-								t(APP_ID, 'Syncronized these remote actions to the local system')
-							}}
+							{{ t(APP_ID, 'Synchronized these remote actions to the local system') }}
 						</label>
 						<NcCheckboxRadioSwitch
 							v-model="state.events_actions_remote"
@@ -773,63 +792,80 @@ onMounted(() => {
 				</div>
 			</div>
 			<h3>{{ t(APP_ID, 'Tasks') }}</h3>
-			<div class="correlations-tasks">
+<div class="correlations-tasks">
 				<div class="description">
 					{{
-						t(APP_ID, 'Select the remote Task(s) folder you wish to synchronize by pressing the link button next to the folder name and selecting the local calendar to synchronize to.')
+						t(APP_ID, 'Select the remote Task(s) folder you wish to synchronize by selecting the local task list from the dropdown next to the folder name.')
 					}}
 				</div>
 				<div v-if="state.system_tasks == 1">
 					<ul v-if="availableRemoteTaskCollections.length > 0">
 						<li v-for="ritem in availableRemoteTaskCollections"
-							:key="ritem.id" class="setting-row">
-							<CalendarIcon/>
-							<label>
-								{{ ritem.name }} ({{ ritem.count }} Tasks)
-							</label>
-							<NcSelect
-							    :model-value="establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
-							    @update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
-							    :options="availableLocalTaskCollections"
-							    label="name"
-							    :reduce="item => item.id"
-							    :selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
-							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
-							    :clearable="true"
-							    style="min-width: 250px; margin-left: auto;"
-							/>
+							:key="ritem.id" class="setting-row" style="justify-content: space-between;">
+							
+							<!-- Linke Seite: Icon und Ordnername fest gruppiert -->
+							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
+								<TaskIcon style="flex-shrink: 0;" />
+								<label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
+									{{ ritem.name }} ({{ ritem.count }} Tasks)
+								</label>
+							</div>
+
+							<!-- Rechte Seite: Dropdown mit fester Breite -->
+							<div style="flex: 0 0 320px;">
+								<NcSelect
+									:model-value="establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+									@update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
+									:options="availableLocalTaskCollections"
+									label="name"
+									:reduce="item => item.id"
+									:selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
+									:placeholder="t(APP_ID, '--- Do not synchronize ---')"
+									:clearable="true"
+								/>
+							</div>
 						</li>
 					</ul>
-					<div
-						v-else-if="availableRemoteTaskCollections.length == 0">
+					<div v-else-if="availableRemoteTaskCollections.length == 0" style="padding: 0.5em 0; color: var(--color-text-maxcontrast);">
 						{{
-							t(APP_ID, 'No tasks collections where found in the connected account.')
+							t(APP_ID, 'No task collections were found in the connected account.')
 						}}
 					</div>
-					<div v-else>
+					<div v-else style="padding: 0.5em 0; color: var(--color-text-maxcontrast);">
 						{{
 							t(APP_ID, 'Loading tasks collections from the connected account.')
 						}}
 					</div>
-					<div>
+
+					<!-- Optisch aufgeräumte Steuerungszeile -->
+					<div class="setting-row" style="display: flex; align-items: center; gap: 1em; flex-wrap: wrap; margin-top: 1em;">
 						<label>
 							{{ t(APP_ID, 'Synchronize ') }}
 						</label>
 						<NcSelect v-model="state.tasks_harmonize"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Never', id: '-1'}, {label: 'Manually', id: '0'}, {label: 'Automatically', id: '5'}]"/>
+								  :options="[
+									  {label: t(APP_ID, 'Never'), id: '-1'}, 
+									  {label: t(APP_ID, 'Manually'), id: '0'}, 
+									  {label: t(APP_ID, 'Automatically'), id: '5'}
+								  ]"
+								  style="min-width: 160px;" />
 						<label>
-							{{
-								t(APP_ID, 'and if there is a conflict')
-							}}
+							{{ t(APP_ID, 'and if there is a conflict') }}
 						</label>
 						<NcSelect v-model="state.tasks_prevalence"
 								  :reduce="item => item.id"
-								  :options="[{label: 'Remote', id: 'R'}, {label: 'Local', id: 'L'}, {label: 'Chronology', id: 'C'}]"/>
+								  :options="[
+									  {label: t(APP_ID, 'Remote'), id: 'R'}, 
+									  {label: t(APP_ID, 'Local'), id: 'L'}, 
+									  {label: t(APP_ID, 'Chronology'), id: 'C'}
+								  ]"
+								  style="min-width: 160px;" />
 						<label>
 							{{ t(APP_ID, 'prevails') }}
 						</label>
 					</div>
+
 					<div v-if="false" style="display: flex">
 						<label>
 							{{
@@ -855,7 +891,7 @@ onMounted(() => {
 					<div v-if="false" style="display: flex">
 						<label>
 							{{
-								t(APP_ID, 'Syncronized these remote actions to the local system')
+								t(APP_ID, 'Synchronized these remote actions to the local system')
 							}}
 						</label>
 						<NcCheckboxRadioSwitch
