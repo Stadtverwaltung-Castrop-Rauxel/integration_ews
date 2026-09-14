@@ -29,9 +29,6 @@ import {showError, showSuccess} from '@nextcloud/dialogs'
 import {translate as t} from '@nextcloud/l10n'
 
 import {
-	NcActions,
-	NcActionButton,
-	NcActionRadio,
 	NcButton,
 	NcCheckboxRadioSwitch,
 	NcSelect,
@@ -44,7 +41,8 @@ import CloseIcon from 'vue-material-design-icons/Close.vue'
 import CalendarIcon from 'vue-material-design-icons/Calendar.vue'
 import ContactIcon from 'vue-material-design-icons/ContactsOutline.vue'
 import LinkIcon from 'vue-material-design-icons/Link.vue'
-
+import TaskIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
+	
 import {
 	APP_ID,
 	type AuthProviderOption,
@@ -578,19 +576,15 @@ onMounted(() => {
 						
 						    <!-- Rechte Seite: Dropdown mit fester Breite -->
 						    <div style="flex: 0 0 320px;">
-						       <NcSelect
-								    :model-value="(() => {
-								        const found = establishedContactCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
-								        return found !== undefined && found !== null ? Number(found) : null;
-								    })()"
-								    @update:model-value="val => val ? changeContactCorrelation(ritem.id, val) : clearContactCorrelation(ritem.id)"
+						      <NcSelect
+								    :model-value="availableLocalContactCollections.find(i => String(i.id) === String(establishedContactCorrelations.find(c => String(c.roid) === String(ritem.id))?.loid))"
+								    @update:model-value="val => val ? changeContactCorrelation(ritem.id, val.id) : clearContactCorrelation(ritem.id)"
 								    :options="availableLocalContactCollections"
 								    label="name"
-								    :reduce="item => item.id"
 								    :selectable="option => !establishedContactCorrelationDisable(ritem.id, option.id)"
 								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
 								    :clearable="true"
-								/>		
+								/>
 						    </div>
 						</li>
 					</ul>
@@ -698,14 +692,10 @@ onMounted(() => {
 							<!-- Rechte Seite: Dropdown mit fester Breite -->
 							<div style="flex: 0 0 320px;">
 								<NcSelect
-								    :model-value="(() => {
-								        const found = establishedEventCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
-								        return found !== undefined && found !== null ? Number(found) : null;
-								    })()"
-								    @update:model-value="val => val ? changeEventCorrelation(ritem.id, val) : clearEventCorrelation(ritem.id)"
+								    :model-value="availableLocalEventCollections.find(i => String(i.id) === String(establishedEventCorrelations.find(c => String(c.roid) === String(ritem.id))?.loid))"
+								    @update:model-value="val => val ? changeEventCorrelation(ritem.id, val.id) : clearEventCorrelation(ritem.id)"
 								    :options="availableLocalEventCollections"
 								    label="name"
-								    :reduce="item => item.id"
 								    :selectable="option => !establishedEventCorrelationDisable(ritem.id, option.id)"
 								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
 								    :clearable="true"
@@ -823,14 +813,10 @@ onMounted(() => {
 							<!-- Rechte Seite: Dropdown mit fester Breite -->
 							<div style="flex: 0 0 320px;">
 								<NcSelect
-								    :model-value="(() => {
-								        const found = establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid;
-								        return found !== undefined && found !== null ? Number(found) : null;
-								    })()"
-								    @update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
+								    :model-value="availableLocalTaskCollections.find(i => String(i.id) === String(establishedTaskCorrelations.find(c => String(c.roid) === String(ritem.id))?.loid))"
+								    @update:model-value="val => val ? changeTaskCorrelation(ritem.id, val.id) : clearTaskCorrelation(ritem.id)"
 								    :options="availableLocalTaskCollections"
 								    label="name"
-								    :reduce="item => item.id"
 								    :selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
 								    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
 								    :clearable="true"
