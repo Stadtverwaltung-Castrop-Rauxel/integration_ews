@@ -1,6 +1,7 @@
 OC.L10N.register(
     "integration_ews",
       {
+    "--- Do not synchronize ---": "---Nicht synchronisieren ---",
     "Connected accounts": "E-Mailkonto (Exchange)",
     "Failed to retrieve preferences": "Einstellungen konnten nicht abgerufen werden",
     "Failed to authenticate with EWS server": "Authentifizierung beim EWS-Server fehlgeschlagen",
