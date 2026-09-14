@@ -1,7 +1,20 @@
 OC.L10N.register(
     "integration_ews",
       {
-    "--- Do not synchronize ---": "---Nicht synchronisieren ---",
+     "Select the remote contacts folder(s) you wish to synchronize by selecting the local contacts address book from the dropdown next to the contact folder name.": "Wähle die zu synchronisierenden Exchange-Kontakteordner aus, indem du im Dropdown-Menü neben dem jeweiligen Ordner das gewünschte lokale Adressbuch auswählst.",
+    "Select the remote calendar(s) you wish to synchronize by selecting the local calendar from the dropdown next to the calendar name.": "Wähle die zu synchronisierenden Exchange-Kalender aus, indem du im Dropdown-Menü neben dem jeweiligen Kalender den gewünschten lokalen Kalender auswählst.",
+    "Select the remote Task(s) folder you wish to synchronize by selecting the local task list from the dropdown next to the folder name.": "Wähle die zu synchronisierenden Exchange-Aufgabenordner aus, indem du im Dropdown-Menü neben dem jeweiligen Ordner die gewünschte lokale Aufgabenliste auswählst.",
+    "--- Do not synchronize ---": "--- Nicht synchronisieren ---",
+    "No contact collections were found in the connected account.": "Es wurden keine Kontaktordner im verbundenen Konto gefunden.",
+    "No event collections were found in the connected account.": "Es wurden keine Kalender im verbundenen Konto gefunden.",
+    "No task collections were found in the connected account.": "Es wurden keine Aufgabenordner im verbundenen Konto gefunden.",
+    "Never": "Niemals",
+    "Manually": "Manuell",
+    "Automatically": "Automatisch",
+    "Remote": "Remote",
+    "Local": "Lokal",
+    "Chronology": "Chronologie",
+    "prevails": "hat Vorrang"
     "Connected accounts": "E-Mailkonto (Exchange)",
     "Failed to retrieve preferences": "Einstellungen konnten nicht abgerufen werden",
     "Failed to authenticate with EWS server": "Authentifizierung beim EWS-Server fehlgeschlagen",
