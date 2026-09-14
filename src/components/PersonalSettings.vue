@@ -569,7 +569,7 @@ onMounted(() => {
 						    <div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 						        <ContactIcon style="flex-shrink: 0;" />
 								<label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
-								    {{ ritem.name }} ({{ t(APP_ID, '{count} Contacts', { count: ritem.count }) }})
+								    {{ ritem.name }} ({{ ritem.count }} {{ t(APP_ID, 'Contacts') }})
 								</label>
 						    </div>
 						
@@ -685,7 +685,7 @@ onMounted(() => {
 							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 								<CalendarIcon style="flex-shrink: 0;" />
 								<label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
-								    {{ ritem.name }} ({{ t(APP_ID, '{count} Events', { count: ritem.count }) }})
+								    {{ ritem.name }} ({{ ritem.count }} {{ t(APP_ID, 'Events') }})
 								</label>
 							</div>
 					
@@ -807,7 +807,7 @@ onMounted(() => {
 							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 								<TaskIcon style="flex-shrink: 0;" />
 								<label style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;" :title="ritem.name">
-								    {{ ritem.name }} ({{ t(APP_ID, '{count} Tasks', { count: ritem.count }) }})
+								    {{ ritem.name }} ({{ ritem.count }} {{ t(APP_ID, 'Tasks') }})
 								</label>
 							</div>
 
