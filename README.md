@@ -22,7 +22,7 @@ After the above inital configuration has been completed. On the initial configur
 
 ![EWS Connector](docs/images/EWS%20Connected%20Screen.png 'Correlation Configuration')
 
-Once your accounts is connected and the remote calendars and contacts folders are listed, similar to the image above. The next step is to create some correlations (associations/relations/links) between the local and remote, contacts, calendar or task collections by clicking the link icon beside the remote collection name and selecting the local addressbook, calendar or tasks list to associate with and click save.
+Once your accounts is connected and the remote calendars and contacts folders are listed, similar to the image above. The next step is to create some correlations (associations/relations/links) between the local and remote contacts, calendar, or task collections by selecting the corresponding local address book, calendar, or task list from the dropdown menu next to the remote collection name and clicking save.
 
 ## How it works
 
