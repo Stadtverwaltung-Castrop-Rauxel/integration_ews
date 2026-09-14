@@ -649,7 +649,7 @@ class CoreService
                         switch ($entry['action']) {
                             case 'D':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                                if ($uid == $cc->getuid()) {
                                     $this->CorrelationsService->deleteByCollectionId($cc->getuid(), $cc->getloid(), $cc->getroid());
                                     $this->CorrelationsService->delete($cc);
                                 }
@@ -664,7 +664,7 @@ class CoreService
                                 break;
                             case 'U':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                               if ($uid == $cc->getuid()) {
                                     $cc->settype('CC'); // Correlation Type
                                     $cc->setloid($entry['loid']); // Local ID
                                     $cc->setroid($entry['roid']); // Remote ID
@@ -686,7 +686,7 @@ class CoreService
                         switch ($entry['action']) {
                             case 'D':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                               if ($uid == $cc->getuid()) {
                                     $this->CorrelationsService->deleteByCollectionId($cc->getuid(), $cc->getloid(), $cc->getroid());
                                     $this->CorrelationsService->delete($cc);
                                 }
@@ -701,7 +701,7 @@ class CoreService
                                 break;
                             case 'U':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                               if ($uid == $cc->getuid()) {
                                     $cc->settype('EC'); // Correlation Type
                                     $cc->setloid($entry['loid']); // Local ID
                                     $cc->setroid($entry['roid']); // Remote ID
@@ -723,7 +723,7 @@ class CoreService
                         switch ($entry['action']) {
                             case 'D':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                               if ($uid == $cc->getuid()) {
                                     $this->CorrelationsService->deleteByCollectionId($cc->getuid(), $cc->getloid(), $cc->getroid());
                                     $this->CorrelationsService->delete($cc);
                                 }
@@ -738,7 +738,7 @@ class CoreService
                                 break;
                             case 'U':
                                 $cc = $this->CorrelationsService->fetch($entry['id']);
-                                if ($uid == $entry['uid']) {
+                                if ($uid == $cc->getuid()) {
                                     $cc->settype('TC'); // Correlation Type
                                     $cc->setloid($entry['loid']); // Local ID
                                     $cc->setroid($entry['roid']); // Remote ID
