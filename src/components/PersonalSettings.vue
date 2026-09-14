@@ -787,28 +787,17 @@ onMounted(() => {
 							<label>
 								{{ ritem.name }} ({{ ritem.count }} Tasks)
 							</label>
-							<NcActions>
-								<template #icon>
-									<LinkIcon/>
-								</template>
-								<NcActionButton
-									@click="clearTaskCorrelation(ritem.id)">
-									<template #icon>
-										<CloseIcon/>
-									</template>
-									Clear
-								</NcActionButton>
-								<NcActionRadio
-									v-for="litem in availableLocalTaskCollections"
-									:key="litem.id"
-									:name="`available-local-task-collections-${litem.id}`"
-									:disabled="establishedTaskCorrelationDisable(ritem.id, litem.id)"
-									:model-value="establishedTaskCorrelationSelect(ritem.id, litem.id) ? 1 : 0"
-									:value="1"
-									@change="changeTaskCorrelation(ritem.id, litem.id)">
-									{{ litem.name }}
-								</NcActionRadio>
-							</NcActions>
+							<NcSelect
+							    :model-value="establishedTaskCorrelations.find(i => String(i.roid) === String(ritem.id))?.loid"
+							    @update:model-value="val => val ? changeTaskCorrelation(ritem.id, val) : clearTaskCorrelation(ritem.id)"
+							    :options="availableLocalTaskCollections"
+							    label="name"
+							    :reduce="item => item.id"
+							    :selectable="option => !establishedTaskCorrelationDisable(ritem.id, option.id)"
+							    :placeholder="t(APP_ID, '--- Do not synchronize ---')"
+							    :clearable="true"
+							    style="min-width: 250px; margin-left: auto;"
+							/>
 						</li>
 					</ul>
 					<div
