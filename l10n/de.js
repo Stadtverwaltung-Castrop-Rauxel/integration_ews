@@ -1,6 +1,9 @@
 OC.L10N.register(
     "integration_ews",
       {
+    "{count} Contacts": "{count} Kontakte",
+    "{count} Events": "{count} Termine",
+    "{count} Tasks": "{count} Aufgaben",
      "Select the remote contacts folder(s) you wish to synchronize by selecting the local contacts address book from the dropdown next to the contact folder name.": "Wähle die zu synchronisierenden Exchange-Kontakteordner aus, indem du im Dropdown-Menü neben dem jeweiligen Ordner das gewünschte lokale Adressbuch auswählst.",
     "Select the remote calendar(s) you wish to synchronize by selecting the local calendar from the dropdown next to the calendar name.": "Wähle die zu synchronisierenden Exchange-Kalender aus, indem du im Dropdown-Menü neben dem jeweiligen Kalender den gewünschten lokalen Kalender auswählst.",
     "Select the remote Task(s) folder you wish to synchronize by selecting the local task list from the dropdown next to the folder name.": "Wähle die zu synchronisierenden Exchange-Aufgabenordner aus, indem du im Dropdown-Menü neben dem jeweiligen Ordner die gewünschte lokale Aufgabenliste auswählst.",
