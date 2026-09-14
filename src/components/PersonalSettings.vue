@@ -185,7 +185,7 @@ const depositPreferences = async (values: Partial<PersonalConfiguration>) => {
 	}
 }
 
-const depositCorrelations = async () => {
+	const depositCorrelations = async () => {
 	try {
 		const uri = generateAppUrl('/deposit-correlations')
 		const data = {
@@ -211,6 +211,7 @@ const depositCorrelations = async () => {
 		showError(t(APP_ID, 'Failed to save correlations') + ': ' + error.response?.request?.responseText)
 	}
 }
+
 
 const onSaveClick = async () => {
 	await depositPreferences({
@@ -304,6 +305,7 @@ const fetchCorrelations = async () => {
 }
 
 const changeCorrelation = (correlationsArray: Ref<Correlation[]>, roid: string, loid: string, type: CorrelationType) => {
+	loid = String(loid)
 	const cid = correlationsArray.value.findIndex(i => String(i.roid) === String(roid));
 
 	if (cid === -1) {
@@ -339,9 +341,10 @@ const clearCorrelation = (correlationsArray: Ref<Correlation[]>, roid: string): 
 
 	if (cid > -1) {
 		if (correlationsArray.value[cid]) {
-			correlationsArray.value[cid].roid = null;
 			correlationsArray.value[cid].loid = null;
 			correlationsArray.value[cid].action = 'D';
+			// roid NICHT mehr auf null setzen, damit das Backend
+			// den zu löschenden Datensatz noch zuordnen kann
 		} else {
 			//TODO: Raise error
 		}
