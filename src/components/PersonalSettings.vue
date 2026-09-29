@@ -22,7 +22,7 @@
 -->
 
 <script setup lang="ts">
-import {computed, onMounted, reactive, type Ref, ref} from 'vue'
+import {computed, onMounted, reactive, type Ref, ref, watchEffect} from 'vue'
 import axios from '@nextcloud/axios'
 import {loadState} from '@nextcloud/initial-state'
 import {showError, showSuccess} from '@nextcloud/dialogs'
@@ -42,7 +42,7 @@ import CalendarIcon from 'vue-material-design-icons/Calendar.vue'
 import ContactIcon from 'vue-material-design-icons/ContactsOutline.vue'
 import LinkIcon from 'vue-material-design-icons/Link.vue'
 import TaskIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
-	
+
 import {
 	APP_ID,
 	type AuthProviderOption,
@@ -74,23 +74,29 @@ const availableRemoteTaskCollections = ref<Collection[]>([])
 const availableLocalTaskCollections = ref<Collection[]>([])
 const establishedTaskCorrelations = ref<Correlation[]>([])
 
-const configureManually = ref<boolean>(!!(state.account_server ?? ''))
 const configureMail = ref<boolean>(false)
 
 const approvedAccountServersCount = computed((): number => {
-	return state.system_approved_account_servers?.length ?? 0
+  return state.system_approved_account_servers?.length ?? 0
 })
 
 const useApprovedAccountServers = computed((): boolean => {
-	return approvedAccountServersCount.value > 0;
+  return approvedAccountServersCount.value > 0
 })
 
-if (useApprovedAccountServers.value) {
-	if (approvedAccountServersCount.value === 1) {
-		state.account_server = state.system_approved_account_servers?.[0]
-	}
-	configureManually.value = true;
-}
+const userConfiguresManually = ref<boolean>(
+    !!(state.account_server ?? '') || !useApprovedAccountServers.value
+)
+
+const configureManually = computed((): boolean => {
+  return useApprovedAccountServers.value || userConfiguresManually.value
+})
+
+watchEffect(() => {
+  if (approvedAccountServersCount.value === 1) {
+    state.account_server = state.system_approved_account_servers?.[0]
+  }
+})
 
 // Methods
 const fetchPreferences = async () => {
@@ -504,8 +510,7 @@ onMounted(() => {
 							  :options="state.system_approved_account_servers"/>
 				</div>
 				<div class="setting-row" v-if="!useApprovedAccountServers">
-					<NcCheckboxRadioSwitch v-model="configureManually"
-										   type="switch">
+					<NcCheckboxRadioSwitch v-model="userConfiguresManually" type="switch">
 						{{
 							t(APP_ID, 'Configure server manually')
 						}}
@@ -520,7 +525,7 @@ onMounted(() => {
 					</NcCheckboxRadioSwitch>
 				</div>
 				<div class="actions">
-					<NcButton @click="onConnectAlternateClick">
+					<NcButton @click="onConnectAlternateClick" :disabled="!state.account_server">
 						<template #icon>
 							<CheckIcon/>
 						</template>
@@ -565,7 +570,7 @@ onMounted(() => {
 					<ul v-if="availableRemoteContactCollections.length > 0">
 						<li v-for="ritem in availableRemoteContactCollections"
 						    :key="ritem.id" class="setting-row" style="justify-content: space-between;">
-						    
+
 						    <!-- Linke Seite: Icon und Ordnername fest gruppiert -->
 						    <div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 						        <ContactIcon style="flex-shrink: 0;" />
@@ -573,7 +578,7 @@ onMounted(() => {
 								    {{ ritem.name }} ({{ ritem.count }} {{ t(APP_ID, 'Contacts') }})
 								</label>
 						    </div>
-						
+
 						    <!-- Rechte Seite: Dropdown mit fester Breite -->
 						    <div style="flex: 0 0 320px;">
 						      <NcSelect
@@ -680,7 +685,7 @@ onMounted(() => {
 					<ul v-if="availableRemoteEventCollections.length > 0">
 						<li v-for="ritem in availableRemoteEventCollections"
 							:key="ritem.id" class="setting-row" style="justify-content: space-between;">
-							
+
 							<!-- Linke Seite: Icon und Kalendername fest gruppiert -->
 							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 								<CalendarIcon style="flex-shrink: 0;" />
@@ -688,7 +693,7 @@ onMounted(() => {
 								    {{ ritem.name }} ({{ ritem.count }} {{ t(APP_ID, 'Events') }})
 								</label>
 							</div>
-					
+
 							<!-- Rechte Seite: Dropdown mit fester Breite -->
 							<div style="flex: 0 0 320px;">
 								<NcSelect
@@ -702,7 +707,7 @@ onMounted(() => {
 								/>
 							</div>
 						</li>
-					</ul>					
+					</ul>
 					<div v-else-if="availableRemoteEventCollections.length == 0" style="padding: 0.5em 0; color: var(--color-text-maxcontrast);">
 						{{
 							t(APP_ID, 'No event collections were found in the connected account.')
@@ -722,8 +727,8 @@ onMounted(() => {
 						<NcSelect v-model="state.events_harmonize"
 								  :reduce="item => item.id"
 								  :options="[
-									  {label: t(APP_ID, 'Never'), id: '-1'}, 
-									  {label: t(APP_ID, 'Manually'), id: '0'}, 
+									  {label: t(APP_ID, 'Never'), id: '-1'},
+									  {label: t(APP_ID, 'Manually'), id: '0'},
 									  {label: t(APP_ID, 'Automatically'), id: '5'}
 								  ]"
 								  style="min-width: 160px;" />
@@ -733,8 +738,8 @@ onMounted(() => {
 						<NcSelect v-model="state.events_prevalence"
 								  :reduce="item => item.id"
 								  :options="[
-									  {label: t(APP_ID, 'Remote'), id: 'R'}, 
-									  {label: t(APP_ID, 'Local'), id: 'L'}, 
+									  {label: t(APP_ID, 'Remote'), id: 'R'},
+									  {label: t(APP_ID, 'Local'), id: 'L'},
 									  {label: t(APP_ID, 'Chronology'), id: 'C'}
 								  ]"
 								  style="min-width: 160px;" />
@@ -801,7 +806,7 @@ onMounted(() => {
 					<ul v-if="availableRemoteTaskCollections.length > 0">
 						<li v-for="ritem in availableRemoteTaskCollections"
 							:key="ritem.id" class="setting-row" style="justify-content: space-between;">
-							
+
 							<!-- Linke Seite: Icon und Ordnername fest gruppiert -->
 							<div style="display: flex; align-items: center; gap: 8px; flex: 1 1 auto; overflow: hidden;">
 								<TaskIcon style="flex-shrink: 0;" />
@@ -843,8 +848,8 @@ onMounted(() => {
 						<NcSelect v-model="state.tasks_harmonize"
 								  :reduce="item => item.id"
 								  :options="[
-									  {label: t(APP_ID, 'Never'), id: '-1'}, 
-									  {label: t(APP_ID, 'Manually'), id: '0'}, 
+									  {label: t(APP_ID, 'Never'), id: '-1'},
+									  {label: t(APP_ID, 'Manually'), id: '0'},
 									  {label: t(APP_ID, 'Automatically'), id: '5'}
 								  ]"
 								  style="min-width: 160px;" />
@@ -854,8 +859,8 @@ onMounted(() => {
 						<NcSelect v-model="state.tasks_prevalence"
 								  :reduce="item => item.id"
 								  :options="[
-									  {label: t(APP_ID, 'Remote'), id: 'R'}, 
-									  {label: t(APP_ID, 'Local'), id: 'L'}, 
+									  {label: t(APP_ID, 'Remote'), id: 'R'},
+									  {label: t(APP_ID, 'Local'), id: 'L'},
 									  {label: t(APP_ID, 'Chronology'), id: 'C'}
 								  ]"
 								  style="min-width: 160px;" />
