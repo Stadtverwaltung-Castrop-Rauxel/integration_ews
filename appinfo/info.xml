@@ -33,11 +33,11 @@
             <min-version>1.34.0</min-version>
         </app>
     </dependencies>
-    <!--
+
     <background-jobs>
         <job>OCA\EWS\Tasks\HarmonizationLauncher</job>
     </background-jobs>
-    -->
+    
     <commands>
 		<command>OCA\EWS\Commands\Connect</command>
         <command>OCA\EWS\Commands\Correlate</command>

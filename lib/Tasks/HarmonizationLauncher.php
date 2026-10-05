@@ -31,6 +31,7 @@ use OCA\EWS\Service\HarmonizationThreadService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
+use OCP\IUserManager;
 
 class HarmonizationLauncher extends TimedJob
 {
@@ -40,7 +41,8 @@ class HarmonizationLauncher extends TimedJob
         private LoggerInterface            $logger,
         private ConfigurationService       $ConfigurationService,
         private HarmonizationService       $HarmonizationService,
-        private HarmonizationThreadService $HarmonizationThreadService
+        private HarmonizationThreadService $HarmonizationThreadService,
+        private IUserManager $userManager
     )
     {
         parent::__construct($time);
@@ -51,6 +53,35 @@ class HarmonizationLauncher extends TimedJob
 
     protected function run($argument): void
     {
+        // Multi-User Fallback: If no user is passed, sync all users
+        if (empty($argument) || !isset($argument['uid'])) {
+            $users = $this->userManager->search('');
+
+            foreach ($users as $user) {
+                $uid = $user->getUID();
+                try {
+                    // Check user mode contextually inside the loop
+                    if ($this->ConfigurationService->getHarmonizationMode() === 'A') {
+                        $tid = $this->HarmonizationThreadService->getId($uid);
+                        if (!$this->HarmonizationThreadService->isActive($uid, $tid)) {
+                            $tid = $this->HarmonizationThreadService->launch($uid);
+                        }
+                        if ($tid > 0) {
+                            $this->HarmonizationThreadService->setId($uid, $tid);
+                            $this->HarmonizationThreadService->setHeartBeat($uid, time());
+                        }
+                    } else {
+                        $this->HarmonizationService->performHarmonization($uid);
+                    }
+                } catch (\Throwable $e) {
+                    $this->logger->error("Harmonization loop failed for user $uid", ['app' => 'integration_ews', 'exception' => $e]);
+                    continue; // Ensure one bad account doesn't tank the cron job
+                }
+            }
+
+            return;
+        }
+
         // extract user id
         $uid = $argument['uid'];
         // evaluate harmonization mode
